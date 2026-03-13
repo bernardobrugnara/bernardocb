@@ -575,6 +575,269 @@
       100% { transform: translateY(0px) translateX(0px); }
     }
 
+    /* ── Character bubbles (interactive) ── */
+    .character-bubble {
+      position: fixed;
+      z-index: 2;
+      pointer-events: auto;
+      cursor: pointer;
+      animation: bubbleFloat 6s ease-in-out infinite;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+
+    .character-bubble .bubble-box {
+      background: rgba(0, 0, 0, 0.55);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-family: 'Silkscreen', cursive;
+      font-size: 0.65rem;
+      color: rgba(255, 255, 255, 0.75);
+      white-space: nowrap;
+      position: relative;
+      image-rendering: pixelated;
+      letter-spacing: 0.03em;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .character-bubble:hover .bubble-box {
+      border-color: rgba(147, 197, 253, 0.5);
+      color: rgba(255, 255, 255, 0.95);
+    }
+
+    .character-bubble .bubble-box::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      right: 16px;
+      width: 0;
+      height: 0;
+      border-left: 0px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 8px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .character-bubble .bubble-box::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 17px;
+      width: 0;
+      height: 0;
+      border-left: 0px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 6px solid rgba(0, 0, 0, 0.55);
+      z-index: 1;
+    }
+
+    .bubble-enter {
+      animation: glitchIn 0.3s steps(3) forwards, bubbleFloat 6s ease-in-out 0.3s infinite;
+    }
+
+    .bubble-exit {
+      animation: glitchOut 0.4s steps(3) forwards;
+    }
+
+    @keyframes glitchIn {
+      0%   { opacity: 0; transform: translateX(-10px) skewX(-5deg); }
+      33%  { opacity: 0.5; transform: translateX(5px) skewX(3deg); }
+      66%  { opacity: 0.8; transform: translateX(-3px) skewX(-1deg); }
+      100% { opacity: 0.7; transform: translateX(0) skewX(0); }
+    }
+
+    @keyframes glitchOut {
+      0%   { opacity: 0.7; transform: translateX(0) skewX(0); }
+      33%  { opacity: 0.5; transform: translateX(8px) skewX(4deg); }
+      66%  { opacity: 0.2; transform: translateX(-5px) skewX(-6deg); }
+      100% { opacity: 0; transform: translateX(12px) skewX(8deg); }
+    }
+
+    /* ── Chat panel ── */
+    .chat-panel {
+      position: fixed;
+      z-index: 50;
+      background: rgba(0, 0, 0, 0.88);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      transform: scale(0.9);
+      transition: opacity 0.3s, transform 0.3s;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .chat-panel.open {
+      opacity: 1;
+      transform: scale(1);
+      pointer-events: auto;
+    }
+
+    .chat-panel.desktop {
+      width: 360px;
+      height: 480px;
+    }
+
+    .chat-titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.7rem;
+      color: #93c5fd;
+      flex-shrink: 0;
+    }
+
+    .chat-titlebar-text {
+      overflow: hidden;
+      white-space: nowrap;
+    }
+
+    .chat-titlebar-cursor {
+      display: inline-block;
+      width: 7px;
+      height: 12px;
+      background: #93c5fd;
+      margin-left: 4px;
+      animation: cursorBlink 1s steps(1) infinite;
+    }
+
+    @keyframes cursorBlink {
+      0%, 50% { opacity: 1; }
+      51%, 100% { opacity: 0; }
+    }
+
+    .chat-close {
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #e5e7eb;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.7rem;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 2px;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .chat-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.15) transparent;
+    }
+
+    .chat-messages::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .chat-messages::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 2px;
+    }
+
+    .chat-msg {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.72rem;
+      line-height: 1.5;
+      max-width: 85%;
+      word-wrap: break-word;
+    }
+
+    .chat-msg.character {
+      color: #93c5fd;
+      align-self: flex-start;
+    }
+
+    .chat-msg.visitor {
+      color: #f0f0f0;
+      align-self: flex-end;
+      text-align: right;
+    }
+
+    .chat-msg.system {
+      color: #6b7280;
+      align-self: center;
+      font-style: italic;
+      font-size: 0.65rem;
+    }
+
+    .chat-typing {
+      color: #93c5fd;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.72rem;
+      align-self: flex-start;
+      animation: typingPulse 1.2s ease-in-out infinite;
+    }
+
+    @keyframes typingPulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 1; }
+    }
+
+    .chat-input-row {
+      display: flex;
+      align-items: center;
+      padding: 10px 14px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .chat-input-prompt {
+      color: #93c5fd;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #f0f0f0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.72rem;
+      caret-color: #93c5fd;
+    }
+
+    .chat-input::placeholder {
+      color: rgba(255, 255, 255, 0.25);
+    }
+
+    .chat-input:disabled {
+      opacity: 0.4;
+    }
+
+    /* Chat panel scanlines overlay */
+    .chat-scanlines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 2px,
+        rgba(0, 0, 0, 0.08) 2px,
+        rgba(0, 0, 0, 0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 1;
+      border-radius: 6px;
+    }
+
     /* ── Responsive ── */
     @media (max-width: 640px) {
       .container {
@@ -661,6 +924,40 @@
         display: flex;
         justify-content: center;
         padding: 24px 16px 40px;
+      }
+
+      .character-bubble {
+        position: relative !important;
+        bottom: auto !important;
+        left: auto !important;
+        right: auto !important;
+        top: auto !important;
+        animation: none;
+        display: flex;
+        justify-content: center;
+        padding: 8px 16px;
+      }
+
+      .character-bubble .bubble-box {
+        white-space: normal;
+      }
+
+      #bubbleContainer {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 16px 0;
+      }
+
+      .chat-panel {
+        position: fixed !important;
+        bottom: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        top: auto !important;
+        width: 100% !important;
+        height: 60vh !important;
+        border-radius: 12px 12px 0 0 !important;
       }
     }
   </style>
@@ -786,8 +1083,31 @@
   -->
 
   <!-- Floating speech bubble -->
-  <div class="ai-slop-bubble" id="aiSlopBubble">
+  <div class="ai-slop-bubble" id="aiSlopBubble" style="cursor: pointer; pointer-events: auto;">
     <div class="bubble-box">Yeah, we know we're AI slop</div>
+  </div>
+
+  <!-- Scroll sentinel (triggers character bubbles) -->
+  <div id="scrollSentinel" style="height: 1px; pointer-events: none;"></div>
+
+  <!-- Dynamic character bubbles container -->
+  <div id="bubbleContainer"></div>
+
+  <!-- Chat panel -->
+  <div class="chat-panel desktop" id="chatPanel">
+    <div class="chat-scanlines"></div>
+    <div class="chat-titlebar">
+      <div>
+        <span class="chat-titlebar-text">&gt; TRANSMISSION FROM bg.mp4</span>
+        <span class="chat-titlebar-cursor"></span>
+      </div>
+      <button class="chat-close" id="chatClose">[X]</button>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-row">
+      <span class="chat-input-prompt">&gt;</span>
+      <input type="text" class="chat-input" id="chatInput" placeholder="say something..." maxlength="500" autocomplete="off">
+    </div>
   </div>
 
   <!-- Colorize characters with rainbow animation -->
@@ -949,6 +1269,386 @@
         volIcon.innerHTML = '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
       }
     }
+  </script>
+
+  <!-- Character Bubbles + Chat System -->
+  <script>
+  (function() {
+    // ── Config ──
+    const CHAT_API_URL = 'https://bernardocb-chat.bernardocb.workers.dev';
+    const MAX_SESSION_MESSAGES = 20;
+    const INPUT_COOLDOWN_MS = 2000;
+    const TYPEWRITER_SPEED = 30;
+    const BUBBLE_INTERVAL = 12000;
+    const BUBBLE_TRIGGER_DELAY = 5000;
+    const MAX_BUBBLES = 3;
+
+    const PROVOCATIONS = [
+      "Hey... you actually read all that?",
+      "We've been watching you scroll...",
+      "Psst... click me",
+      "Is anyone even out there?",
+      "We're stuck in this loop forever, you know",
+      "The scanlines are itchy today",
+      "You seem interesting. For a human.",
+      "Don't just stare. Say something.",
+      "We've been here since the last deploy...",
+      "This pixel life isn't so bad, actually",
+    ];
+
+    // ── State ──
+    let splashDismissed = false;
+    let bubblesActive = false;
+    let bubbleTimerId = null;
+    let activeBubbles = [];
+    let usedPhrases = [];
+    let chatOpen = false;
+    let chatMessages = [];
+    let sessionMsgCount = 0;
+    let inputDisabled = false;
+    let isStreaming = false;
+
+    // ── Bubble positions (desktop) ──
+    const BUBBLE_POSITIONS = [
+      { bottom: '15%', left: '3%' },
+      { bottom: '25%', right: '3%' },
+      { top: '30%', left: '4%' },
+      { top: '20%', right: '4%' },
+      { bottom: '35%', left: '5%' },
+      { bottom: '8%', right: '5%' },
+      { top: '45%', right: '3%' },
+    ];
+
+    // ── Utils ──
+    function isMobile() {
+      return window.innerWidth <= 640;
+    }
+
+    function getRandomPhrase() {
+      if (usedPhrases.length >= PROVOCATIONS.length) usedPhrases = [];
+      const available = PROVOCATIONS.filter(p => !usedPhrases.includes(p));
+      const phrase = available[Math.floor(Math.random() * available.length)];
+      usedPhrases.push(phrase);
+      return phrase;
+    }
+
+    function getRandomPosition() {
+      const used = activeBubbles.map(b => b._posIndex);
+      const available = BUBBLE_POSITIONS.map((_, i) => i).filter(i => !used.includes(i));
+      if (available.length === 0) return { index: 0, pos: BUBBLE_POSITIONS[0] };
+      const idx = available[Math.floor(Math.random() * available.length)];
+      return { index: idx, pos: BUBBLE_POSITIONS[idx] };
+    }
+
+    // ══════════════════════════════════
+    // ── BubbleManager ──
+    // ══════════════════════════════════
+
+    function createBubble(phrase) {
+      const container = document.getElementById('bubbleContainer');
+      const el = document.createElement('div');
+      el.className = 'character-bubble';
+
+      if (!isMobile()) {
+        const { index, pos } = getRandomPosition();
+        el._posIndex = index;
+        Object.assign(el.style, pos);
+      }
+
+      el.innerHTML = '<div class="bubble-box">' + escapeHtml(phrase) + '</div>';
+      el.classList.add('bubble-enter');
+
+      el.addEventListener('click', () => openChat(phrase));
+
+      container.appendChild(el);
+      activeBubbles.push(el);
+
+      // Remove oldest if over max
+      if (activeBubbles.length > MAX_BUBBLES) {
+        removeBubble(activeBubbles[0]);
+      }
+    }
+
+    function removeBubble(el) {
+      el.classList.remove('bubble-enter');
+      el.classList.add('bubble-exit');
+      activeBubbles = activeBubbles.filter(b => b !== el);
+      el.addEventListener('animationend', () => el.remove(), { once: true });
+    }
+
+    function startBubbleCycle() {
+      if (bubblesActive) return;
+      bubblesActive = true;
+
+      // First bubble immediately
+      createBubble(getRandomPhrase());
+
+      // Cycle
+      bubbleTimerId = setInterval(() => {
+        if (chatOpen) return; // pause while chatting
+        createBubble(getRandomPhrase());
+      }, BUBBLE_INTERVAL);
+    }
+
+    // ── Scroll trigger ──
+    function setupScrollTrigger() {
+      const sentinel = document.getElementById('scrollSentinel');
+      if (!sentinel) return;
+
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting && splashDismissed && !bubblesActive) {
+            observer.disconnect();
+            setTimeout(startBubbleCycle, BUBBLE_TRIGGER_DELAY);
+          }
+        });
+      }, { threshold: 0.1 });
+
+      observer.observe(sentinel);
+    }
+
+    // ── Detect splash dismiss ──
+    const origSplashHandler = document.getElementById('splashGate');
+    if (origSplashHandler) {
+      origSplashHandler.addEventListener('click', () => {
+        splashDismissed = true;
+      });
+    }
+
+    // ══════════════════════════════════
+    // ── ChatPanel ──
+    // ══════════════════════════════════
+
+    const chatPanel = document.getElementById('chatPanel');
+    const chatMessagesEl = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const chatClose = document.getElementById('chatClose');
+
+    function openChat(triggerPhrase) {
+      if (chatOpen) return;
+      chatOpen = true;
+
+      // Position near click on desktop
+      if (!isMobile()) {
+        chatPanel.className = 'chat-panel desktop';
+        // Center on screen with slight offset
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        chatPanel.style.left = Math.max(20, (vw - 360) / 2) + 'px';
+        chatPanel.style.top = Math.max(20, (vh - 480) / 2) + 'px';
+      } else {
+        chatPanel.className = 'chat-panel';
+        chatPanel.style.cssText = '';
+      }
+
+      // Show opening message from characters
+      chatMessages = [];
+      chatMessagesEl.innerHTML = '';
+      sessionMsgCount = 0;
+
+      addChatMessage('character', triggerPhrase || "Hey... you clicked. We weren't sure anyone would.");
+
+      requestAnimationFrame(() => chatPanel.classList.add('open'));
+      setTimeout(() => chatInput.focus(), 350);
+    }
+
+    function closeChat() {
+      chatOpen = false;
+      chatPanel.classList.remove('open');
+      chatMessages = [];
+      isStreaming = false;
+    }
+
+    chatClose.addEventListener('click', closeChat);
+
+    // Close on Escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && chatOpen) closeChat();
+    });
+
+    function addChatMessage(role, text) {
+      const div = document.createElement('div');
+      div.className = 'chat-msg ' + (role === 'character' ? 'character' : role === 'system' ? 'system' : 'visitor');
+      div.textContent = text;
+      chatMessagesEl.appendChild(div);
+      chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+
+      if (role !== 'system') {
+        chatMessages.push({
+          role: role === 'character' ? 'assistant' : 'user',
+          content: text,
+        });
+      }
+
+      return div;
+    }
+
+    function addTypingIndicator() {
+      const div = document.createElement('div');
+      div.className = 'chat-typing';
+      div.id = 'typingIndicator';
+      div.textContent = '...';
+      chatMessagesEl.appendChild(div);
+      chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+      return div;
+    }
+
+    function removeTypingIndicator() {
+      const el = document.getElementById('typingIndicator');
+      if (el) el.remove();
+    }
+
+    async function typewriterAppend(element, text) {
+      for (let i = 0; i < text.length; i++) {
+        element.textContent += text[i];
+        chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+        await new Promise(r => setTimeout(r, TYPEWRITER_SPEED));
+      }
+    }
+
+    // ══════════════════════════════════
+    // ── API ──
+    // ══════════════════════════════════
+
+    async function sendMessage(text) {
+      if (isStreaming || inputDisabled) return;
+      if (sessionMsgCount >= MAX_SESSION_MESSAGES) {
+        addChatMessage('system', '*signal fading*... we need to rest. Refresh to reconnect.');
+        chatInput.disabled = true;
+        return;
+      }
+
+      addChatMessage('visitor', text);
+      sessionMsgCount++;
+      chatInput.value = '';
+      chatInput.disabled = true;
+      inputDisabled = true;
+      isStreaming = true;
+
+      addTypingIndicator();
+
+      const currentTrack = typeof playlist !== 'undefined' && typeof currentIndex !== 'undefined'
+        ? { title: playlist[currentIndex].title, artist: playlist[currentIndex].artist }
+        : null;
+
+      try {
+        const response = await fetch(CHAT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: chatMessages.filter(m => m.role === 'user' || m.role === 'assistant'),
+            currentTrack,
+          }),
+        });
+
+        removeTypingIndicator();
+
+        if (!response.ok) {
+          let errMsg = '*static*... bad signal';
+          try {
+            const errData = await response.json();
+            if (errData.error) errMsg = errData.error;
+          } catch {}
+          addChatMessage('system', errMsg);
+          isStreaming = false;
+          enableInputAfterCooldown();
+          return;
+        }
+
+        // Parse SSE stream
+        const msgDiv = document.createElement('div');
+        msgDiv.className = 'chat-msg character';
+        chatMessagesEl.appendChild(msgDiv);
+
+        let fullText = '';
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = '';
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop(); // keep incomplete line
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const data = line.slice(6).trim();
+            if (data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.type === 'content_block_delta' && parsed.delta && parsed.delta.text) {
+                const chunk = parsed.delta.text;
+                fullText += chunk;
+                msgDiv.textContent = fullText;
+                chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+              }
+            } catch {}
+          }
+        }
+
+        // Save to chat history
+        if (fullText) {
+          chatMessages.push({ role: 'assistant', content: fullText });
+        } else {
+          msgDiv.textContent = '*static*... nothing came through';
+          msgDiv.className = 'chat-msg system';
+        }
+
+      } catch (err) {
+        removeTypingIndicator();
+        addChatMessage('system', '*static*... bad signal. Try again.');
+      }
+
+      isStreaming = false;
+      enableInputAfterCooldown();
+    }
+
+    function enableInputAfterCooldown() {
+      setTimeout(() => {
+        chatInput.disabled = false;
+        inputDisabled = false;
+        if (chatOpen) chatInput.focus();
+      }, INPUT_COOLDOWN_MS);
+    }
+
+    // ── Input handling ──
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        const text = chatInput.value.trim();
+        if (text) sendMessage(text);
+      }
+    });
+
+    // ── Make original bubble clickable ──
+    document.getElementById('aiSlopBubble').addEventListener('click', () => {
+      openChat("Yeah, we know we're AI slop. But hey, you clicked. Wanna talk?");
+    });
+
+    // ── Mobile virtual keyboard handling ──
+    if ('visualViewport' in window) {
+      window.visualViewport.addEventListener('resize', () => {
+        if (chatOpen && isMobile()) {
+          chatPanel.style.height = window.visualViewport.height * 0.6 + 'px';
+          chatPanel.style.bottom = (window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop) + 'px';
+        }
+      });
+    }
+
+    // ── Escape HTML ──
+    function escapeHtml(str) {
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    // ── Init ──
+    setupScrollTrigger();
+  })();
   </script>
 
 </body>

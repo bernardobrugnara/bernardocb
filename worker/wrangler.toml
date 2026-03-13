@@ -1,0 +1,10 @@
+name = "bernardocb-chat"
+main = "src/index.js"
+compatibility_date = "2024-12-01"
+
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "ce5fc06aa3b840cfb7ee85b0de18b424"
+
+[vars]
+ALLOWED_ORIGIN = "https://bernardocb.com"
