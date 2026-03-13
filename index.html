@@ -1342,7 +1342,8 @@
     const TYPEWRITER_SPEED = 30;
     const BUBBLE_INTERVAL = 12000;
     const BUBBLE_TRIGGER_DELAY = 5000;
-    const MAX_BUBBLES = 3;
+    const MAX_BUBBLES = 2;
+    const BUBBLE_LIFETIME = 15000;
 
     const PROVOCATIONS = [
       "Hey... you actually read all that?",
@@ -1424,10 +1425,15 @@
       container.appendChild(el);
       activeBubbles.push(el);
 
-      // Remove oldest if over max
-      if (activeBubbles.length > MAX_BUBBLES) {
+      // Remove oldest if at max
+      while (activeBubbles.length > MAX_BUBBLES) {
         removeBubble(activeBubbles[0]);
       }
+
+      // Auto-remove after lifetime
+      setTimeout(() => {
+        if (activeBubbles.includes(el)) removeBubble(el);
+      }, BUBBLE_LIFETIME);
     }
 
     function removeBubble(el) {
