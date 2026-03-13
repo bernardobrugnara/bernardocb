@@ -21,11 +21,13 @@ const RATE_LIMIT_WINDOW = 3600; // 1 hour in seconds
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin') || '';
-    const allowedOrigins = [env.ALLOWED_ORIGIN, 'https://www.bernardocb.com'];
-    // Only allow localhost in non-production
-    if (env.ALLOWED_ORIGIN !== 'https://bernardocb.com') {
-      allowedOrigins.push('http://localhost:8000', 'http://localhost:3000', 'http://127.0.0.1:8000');
-    }
+    const allowedOrigins = [
+      env.ALLOWED_ORIGIN,
+      'https://www.bernardocb.com',
+      'http://localhost:8000',
+      'http://localhost:3000',
+      'http://127.0.0.1:8000',
+    ];
 
     const corsHeaders = {
       'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : 'null',
