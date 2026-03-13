@@ -516,6 +516,65 @@
     }
 
 
+    /* ── Floating speech bubble ── */
+    .ai-slop-bubble {
+      position: fixed;
+      bottom: 10%;
+      left: 5%;
+      z-index: 2;
+      pointer-events: none;
+      animation: bubbleFloat 6s ease-in-out infinite;
+      opacity: 0.7;
+    }
+
+    .ai-slop-bubble .bubble-box {
+      background: rgba(0, 0, 0, 0.55);
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      padding: 10px 14px;
+      font-family: 'Silkscreen', cursive;
+      font-size: 0.65rem;
+      color: rgba(255, 255, 255, 0.75);
+      white-space: nowrap;
+      position: relative;
+      image-rendering: pixelated;
+      letter-spacing: 0.03em;
+    }
+
+    /* pixel-art speech tail pointing up */
+    .ai-slop-bubble .bubble-box::after {
+      content: '';
+      position: absolute;
+      top: -8px;
+      right: 16px;
+      width: 0;
+      height: 0;
+      border-left: 0px solid transparent;
+      border-right: 8px solid transparent;
+      border-bottom: 8px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .ai-slop-bubble .bubble-box::before {
+      content: '';
+      position: absolute;
+      top: -6px;
+      right: 17px;
+      width: 0;
+      height: 0;
+      border-left: 0px solid transparent;
+      border-right: 6px solid transparent;
+      border-bottom: 6px solid rgba(0, 0, 0, 0.55);
+      z-index: 1;
+    }
+
+    @keyframes bubbleFloat {
+      0%   { transform: translateY(0px) translateX(0px); }
+      25%  { transform: translateY(-12px) translateX(5px); }
+      50%  { transform: translateY(-6px) translateX(-3px); }
+      75%  { transform: translateY(-14px) translateX(8px); }
+      100% { transform: translateY(0px) translateX(0px); }
+    }
+
     /* ── Responsive ── */
     @media (max-width: 640px) {
       .container {
@@ -654,6 +713,11 @@
   <div class="video-glitch"></div>
   <div class="video-vignette"></div>
   <div class="video-flicker"></div>
+
+  <!-- Floating speech bubble -->
+  <div class="ai-slop-bubble" id="aiSlopBubble">
+    <div class="bubble-box">Yeah, we know we're AI slop</div>
+  </div>
 
   <!-- Content -->
   <div class="container">
