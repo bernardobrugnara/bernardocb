@@ -1,9 +1,50 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bernardo CB</title>
+  <title>Bernardo CB — Product Builder & Entrepreneur</title>
+  <meta name="description" content="Bernardo Calaça Brugnara — product builder, entrepreneur, and generalist. Founded Collact (acquired by Stone). Building from scratch with total autonomy.">
+  <link rel="canonical" href="https://bernardocb.com/">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Bernardo CB — Product Builder & Entrepreneur">
+  <meta property="og:description" content="Dreamer and product builder. Founded Collact (acquired by Stone). Building from scratch with total autonomy.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://bernardocb.com/">
+  <meta property="og:locale" content="en_US">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary">
+  <meta name="twitter:title" content="Bernardo CB — Product Builder & Entrepreneur">
+  <meta name="twitter:description" content="Dreamer and product builder. Founded Collact (acquired by Stone). Building from scratch with total autonomy.">
+
+  <!-- Structured Data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "name": "Bernardo CB",
+        "url": "https://bernardocb.com/"
+      },
+      {
+        "@type": "Person",
+        "name": "Bernardo Calaça Brugnara",
+        "url": "https://bernardocb.com/",
+        "jobTitle": "Product Builder",
+        "description": "Dreamer and product builder. Founded Collact (acquired by Stone). Building from scratch with total autonomy.",
+        "sameAs": [
+          "https://github.com/bernardobrugnara",
+          "https://www.linkedin.com/in/bernardo-brugnara-2b897625/",
+          "https://instagram.com/bernardocb/",
+          "https://x.com/bernardocb"
+        ]
+      }
+    ]
+  }
+  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap');
 
@@ -1016,7 +1057,7 @@
         <button class="player-btn" id="volBtn" title="Volume">
           <svg viewBox="0 0 24 24" id="volIcon"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
         </button>
-        <input type="range" class="volume-slider" id="volSlider" min="0" max="100" value="50">
+        <input type="range" class="volume-slider" id="volSlider" min="0" max="100" value="50" aria-label="Volume">
       </div>
     </div>
   </div>
@@ -1037,6 +1078,7 @@
   <div class="video-flicker"></div>
 
   <!-- Content -->
+  <main>
   <div class="container">
     <header class="header">
       <!-- <img src="avatar.jpg" alt="Bernardo" class="avatar"> -->
@@ -1055,17 +1097,17 @@
       <p>
         My name is Bernardo Calaça Brugnara. I'm a <strong>dreamer</strong> and <strong>product builder</strong> by nature. I refuse to be boxed in; my curiosity drives me across philosophy, design, business strategy, marketing, systems engineering, entertainment, whatever feels interesting to me. I'm a generalist focused on creating experiences that I would love to live myself.
         <br><br>
-        In 2012 I founded <strong>Collact</strong>, <a href="https://braziljournal.com/stone-abre-o-quimono-e-acao-sobe-quase-20/" target="_blank">sold it</a> to <strong>Stone</strong> in 2021, became their Head of Product Design, and then led their software for commerce initiative. I think corporate life sucks, so recently I came back to my essence: building from scratch with total autonomy and seeking the fear of turning raw ideas into a better reality.
+        In 2012 I founded <strong>Collact</strong>, <a href="https://braziljournal.com/stone-abre-o-quimono-e-acao-sobe-quase-20/" target="_blank" rel="noopener noreferrer">sold it</a> to <strong>Stone</strong> in 2021, became their Head of Product Design, and then led their software for commerce initiative. I think corporate life sucks, so recently I came back to my essence: building from scratch with total autonomy and seeking the fear of turning raw ideas into a better reality.
         <br><br>
         Let's get in touch: I can help you build your stuff. Or just stay and enjoy the sound :]
       </p>
     </section>
 
     <nav class="social-links">
-      <a href="https://github.com/bernardobrugnara" target="_blank">GitHub</a>
-      <a href="https://www.linkedin.com/in/bernardo-brugnara-2b897625/" target="_blank">LinkedIn</a>
-      <a href="https://instagram.com/bernardocb/" target="_blank">Instagram</a>
-      <a href="https://x.com/bernardocb" target="_blank">X / Twitter</a>
+      <a href="https://github.com/bernardobrugnara" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="https://www.linkedin.com/in/bernardo-brugnara-2b897625/" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+      <a href="https://instagram.com/bernardocb/" target="_blank" rel="noopener noreferrer">Instagram</a>
+      <a href="https://x.com/bernardocb" target="_blank" rel="noopener noreferrer">X / Twitter</a>
       <a href="mailto:bernardo.cb@gmail.com">Email</a>
     </nav>
 
@@ -1095,6 +1137,11 @@
     </section>
   </div>
   -->
+  </main>
+
+  <footer style="position:relative;z-index:1;text-align:center;padding:2rem 0;color:rgba(255,255,255,0.3);font-size:0.75rem;">
+    &copy; 2025 Bernardo Cala&ccedil;a Brugnara
+  </footer>
 
   <!-- Floating speech bubble -->
   <div class="ai-slop-bubble" id="aiSlopBubble" style="cursor: pointer; pointer-events: auto;">
@@ -1120,7 +1167,7 @@
     <div class="chat-messages" id="chatMessages"></div>
     <div class="chat-input-row">
       <span class="chat-input-prompt">&gt;</span>
-      <input type="text" class="chat-input" id="chatInput" placeholder="say something..." maxlength="500" autocomplete="off">
+      <input type="text" class="chat-input" id="chatInput" placeholder="say something..." maxlength="500" autocomplete="off" aria-label="Chat message">
     </div>
   </div>
 
