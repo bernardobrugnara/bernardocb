@@ -877,6 +877,10 @@
       opacity: 0.4;
     }
 
+    .chat-send {
+      display: none;
+    }
+
     /* Chat panel scanlines overlay */
     .chat-scanlines {
       position: absolute;
@@ -1006,13 +1010,37 @@
 
       .chat-panel {
         position: fixed !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        right: 0 !important;
-        top: auto !important;
-        width: 100% !important;
-        height: 60vh !important;
-        border-radius: 12px 12px 0 0 !important;
+        left: 4% !important;
+        right: 4% !important;
+        bottom: auto !important;
+        top: 15% !important;
+        width: 92% !important;
+        height: 55vh !important;
+        border-radius: 12px !important;
+      }
+
+      .chat-send {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: none;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        color: #93c5fd;
+        font-family: 'Courier New', Courier, monospace;
+        font-size: 0.75rem;
+        cursor: pointer;
+        padding: 6px 12px;
+        border-radius: 4px;
+        flex-shrink: 0;
+        transition: background 0.2s;
+      }
+
+      .chat-send:active {
+        background: rgba(147, 197, 253, 0.2);
+      }
+
+      .chat-send:disabled {
+        opacity: 0.4;
       }
     }
   </style>
@@ -1168,6 +1196,7 @@
     <div class="chat-input-row">
       <span class="chat-input-prompt">&gt;</span>
       <input type="text" class="chat-input" id="chatInput" placeholder="say something..." maxlength="500" autocomplete="off" aria-label="Chat message">
+      <button class="chat-send" id="chatSend" aria-label="Send message">&gt;</button>
     </div>
   </div>
 
@@ -1522,6 +1551,7 @@
     function closeChat() {
       chatOpen = false;
       chatPanel.classList.remove('open');
+      chatPanel.style.cssText = '';
       chatMessages = [];
       isStreaming = false;
     }
@@ -1683,12 +1713,19 @@
     }
 
     // ── Input handling ──
+    const chatSend = document.getElementById('chatSend');
+
     chatInput.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         const text = chatInput.value.trim();
         if (text) sendMessage(text);
       }
+    });
+
+    chatSend.addEventListener('click', () => {
+      const text = chatInput.value.trim();
+      if (text && !inputDisabled) sendMessage(text);
     });
 
     // ── Make original bubble clickable ──
@@ -1700,8 +1737,17 @@
     if ('visualViewport' in window) {
       window.visualViewport.addEventListener('resize', () => {
         if (chatOpen && isMobile()) {
-          chatPanel.style.height = window.visualViewport.height * 0.6 + 'px';
-          chatPanel.style.bottom = (window.innerHeight - window.visualViewport.height - window.visualViewport.offsetTop) + 'px';
+          const vvh = window.visualViewport.height;
+          // Shrink panel to fit visible area with padding, keep it near top
+          const maxH = vvh * 0.7;
+          chatPanel.style.height = Math.min(maxH, vvh - 40) + 'px';
+          chatPanel.style.top = '20px';
+        }
+      });
+
+      window.visualViewport.addEventListener('scroll', () => {
+        if (chatOpen && isMobile()) {
+          chatPanel.style.top = window.visualViewport.offsetTop + 20 + 'px';
         }
       });
     }
