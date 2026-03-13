@@ -21,16 +21,14 @@ const RATE_LIMIT_WINDOW = 3600; // 1 hour in seconds
 export default {
   async fetch(request, env) {
     const origin = request.headers.get('Origin') || '';
-    const allowedOrigins = [
-      env.ALLOWED_ORIGIN,
-      'http://localhost:8000',
-      'http://localhost:3000',
-      'http://127.0.0.1:8000',
-    ];
-    const corsOrigin = allowedOrigins.includes(origin) ? origin : allowedOrigins[0];
+    const allowedOrigins = [env.ALLOWED_ORIGIN, 'https://www.bernardocb.com'];
+    // Only allow localhost in non-production
+    if (env.ALLOWED_ORIGIN !== 'https://bernardocb.com') {
+      allowedOrigins.push('http://localhost:8000', 'http://localhost:3000', 'http://127.0.0.1:8000');
+    }
 
     const corsHeaders = {
-      'Access-Control-Allow-Origin': corsOrigin,
+      'Access-Control-Allow-Origin': allowedOrigins.includes(origin) ? origin : 'null',
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     };
@@ -46,28 +44,41 @@ export default {
       });
     }
 
+    // Block requests without a valid Origin (stops direct curl/script abuse)
+    if (!allowedOrigins.includes(origin)) {
+      return new Response(JSON.stringify({ error: 'Forbidden' }), {
+        status: 403,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     // Rate limiting by IP
     const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
     const rateLimitKey = `rate:${clientIP}`;
 
-    if (env.RATE_LIMIT_KV) {
-      const current = await env.RATE_LIMIT_KV.get(rateLimitKey);
-      const count = current ? parseInt(current) : 0;
-
-      if (count >= RATE_LIMIT_MAX) {
-        return new Response(
-          JSON.stringify({ error: 'Rate limited. The characters need rest.' }),
-          {
-            status: 429,
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          }
-        );
-      }
-
-      await env.RATE_LIMIT_KV.put(rateLimitKey, String(count + 1), {
-        expirationTtl: RATE_LIMIT_WINDOW,
-      });
+    if (!env.RATE_LIMIT_KV) {
+      return new Response(
+        JSON.stringify({ error: 'Service unavailable' }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
+
+    const current = await env.RATE_LIMIT_KV.get(rateLimitKey);
+    const count = current ? parseInt(current) : 0;
+
+    if (count >= RATE_LIMIT_MAX) {
+      return new Response(
+        JSON.stringify({ error: 'Rate limited. The characters need rest.' }),
+        {
+          status: 429,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        }
+      );
+    }
+
+    await env.RATE_LIMIT_KV.put(rateLimitKey, String(count + 1), {
+      expirationTtl: RATE_LIMIT_WINDOW,
+    });
 
     let body;
     try {
@@ -88,10 +99,12 @@ export default {
       });
     }
 
-    // Build system prompt with current track info
+    // Build system prompt with current track info (sanitized)
     let systemPrompt = SYSTEM_PROMPT;
-    if (currentTrack) {
-      systemPrompt += `\n\nCurrently playing: "${currentTrack.title}" by ${currentTrack.artist}. Feel free to comment on it if it feels natural.`;
+    if (currentTrack && currentTrack.title && currentTrack.artist) {
+      const safeTitle = String(currentTrack.title).slice(0, 80).replace(/[^\w\s''.,!?&()-]/g, '');
+      const safeArtist = String(currentTrack.artist).slice(0, 60).replace(/[^\w\s''.,!?&()-]/g, '');
+      systemPrompt += `\n\nCurrently playing: "${safeTitle}" by ${safeArtist}. Feel free to comment on it if it feels natural.`;
     }
 
     // Sanitize messages - only allow user/assistant roles, limit length
