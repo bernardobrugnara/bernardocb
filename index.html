@@ -567,6 +567,20 @@
       z-index: 1;
     }
 
+    .bubble-cta {
+      display: block;
+      font-size: 0.5rem;
+      color: rgba(147, 197, 253, 0.45);
+      margin-top: 4px;
+      letter-spacing: 0.08em;
+      transition: color 0.2s;
+    }
+
+    .ai-slop-bubble:hover .bubble-cta,
+    .character-bubble:hover .bubble-cta {
+      color: rgba(147, 197, 253, 0.8);
+    }
+
     @keyframes bubbleFloat {
       0%   { transform: translateY(0px) translateX(0px); }
       25%  { transform: translateY(-12px) translateX(5px); }
@@ -975,7 +989,7 @@
 ██   ██ ██      ██   ██ ██  ████ ██   ██ ██   ██ ██   ██ ██    ██ ██      ██   ██
 ██████  ███████ ██   ██ ██   ███ ██   ██ ██   ██ ██████   ██████   ██████ ██████
 </pre>
-      <p>Click to join</p>
+      <p>Click to join the room</p>
       <div class="splash-enter-icon">
         <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
       </div>
@@ -1084,7 +1098,7 @@
 
   <!-- Floating speech bubble -->
   <div class="ai-slop-bubble" id="aiSlopBubble" style="cursor: pointer; pointer-events: auto;">
-    <div class="bubble-box">Yeah, we know we're AI slop</div>
+    <div class="bubble-box">Yeah, we know we're AI slop<span class="bubble-cta">click to chat</span></div>
   </div>
 
   <!-- Scroll sentinel (triggers character bubbles) -->
@@ -1355,7 +1369,7 @@
         Object.assign(el.style, pos);
       }
 
-      el.innerHTML = '<div class="bubble-box">' + escapeHtml(phrase) + '</div>';
+      el.innerHTML = '<div class="bubble-box">' + escapeHtml(phrase) + '<span class="bubble-cta">click to chat</span></div>';
       el.classList.add('bubble-enter');
 
       el.addEventListener('click', () => openChat(phrase));
