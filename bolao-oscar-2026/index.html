@@ -24,32 +24,53 @@ body {
   overflow-x: hidden;
 }
 
-/* Scanlines */
-body::before {
+/* Hero slide — full viewport, just the background */
+.hero {
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding-bottom: 48px;
+}
+
+.hero-hint {
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.65rem;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.05em;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+/* Content section — has its own overlay */
+.content-section {
+  position: relative;
+  min-height: 100vh;
+}
+
+.content-section::before {
   content: '';
-  position: fixed;
-  top: -200px;
-  left: -200px;
-  right: -200px;
-  bottom: -200px;
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.82);
+  z-index: 0;
+}
+
+.content-section::after {
+  content: '';
+  position: absolute;
+  inset: 0;
   background: repeating-linear-gradient(
     transparent 0px, transparent 2px,
     rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px
   );
   pointer-events: none;
-  z-index: 9999;
-}
-
-body::after {
-  content: '';
-  position: fixed;
-  top: -200px;
-  left: -200px;
-  right: -200px;
-  bottom: -200px;
-  background: rgba(0,0,0,0.82);
-  pointer-events: none;
-  z-index: 9998;
+  z-index: 1;
 }
 
 a { color: #93c5fd; text-decoration: none; }
@@ -57,7 +78,7 @@ a:hover { color: #bfdbfe; text-decoration: underline; }
 
 .container {
   position: relative;
-  z-index: 10000;
+  z-index: 2;
   max-width: 640px;
   margin: 0 auto;
   padding: 40px 20px 120px;
@@ -294,7 +315,7 @@ a:hover { color: #bfdbfe; text-decoration: underline; }
   border-top: 1px solid rgba(255,255,255,0.1);
   padding: 14px 20px;
   text-align: center;
-  z-index: 10001;
+  z-index: 3;
   backdrop-filter: blur(12px);
 }
 
@@ -410,6 +431,11 @@ a:hover { color: #bfdbfe; text-decoration: underline; }
 </head>
 <body>
 
+<div class="hero">
+  <span class="hero-hint">&#9660; arraste para baixo &#9660;</span>
+</div>
+
+<div class="content-section">
 <div class="container">
   <div class="header">
     <h1>BOLAO OSCAR 2026 BY LUIZA ROSAS</h1>
@@ -450,6 +476,7 @@ a:hover { color: #bfdbfe; text-decoration: underline; }
     <a href="https://bernardocb.com" class="back-link">&larr; voltar para bernardocb.com</a>
   </div>
 </div>
+</div><!-- /content-section -->
 
 <!-- Submit bar (only visible during voting) -->
 <div id="submit-bar" class="submit-bar" style="display:none;">
