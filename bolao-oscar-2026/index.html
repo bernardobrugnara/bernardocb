@@ -28,9 +28,10 @@ body {
 body::before {
   content: '';
   position: fixed;
-  inset: -5vh -5vw;
-  width: 110vw;
-  height: 110vh;
+  top: -200px;
+  left: -200px;
+  right: -200px;
+  bottom: -200px;
   background: repeating-linear-gradient(
     transparent 0px, transparent 2px,
     rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px
@@ -42,9 +43,10 @@ body::before {
 body::after {
   content: '';
   position: fixed;
-  inset: -5vh -5vw;
-  width: 110vw;
-  height: 110vh;
+  top: -200px;
+  left: -200px;
+  right: -200px;
+  bottom: -200px;
   background: rgba(0,0,0,0.82);
   pointer-events: none;
   z-index: 9998;
