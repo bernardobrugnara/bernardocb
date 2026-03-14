@@ -271,7 +271,6 @@ a:hover { color: #bfdbfe; text-decoration: underline; }
 }
 
 .nominee-tile {
-  display: block;
   width: 100%;
   padding: 12px 16px;
   background: rgba(255,255,255,0.03);
@@ -298,7 +297,6 @@ a:hover { color: #bfdbfe; text-decoration: underline; }
 }
 
 .nominee-tile .nominee-name {
-  display: block;
   font-weight: bold;
 }
 
@@ -428,6 +426,109 @@ a:hover { color: #bfdbfe; text-decoration: underline; }
 }
 
 .back-link:hover { color: #93c5fd; }
+
+/* Nominee tile flex layout for IMDb link */
+.nominee-tile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.nominee-tile .nominee-name {
+  flex: 1;
+}
+
+.imdb-link {
+  flex-shrink: 0;
+  margin-left: 8px;
+  padding: 2px 6px;
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.55rem;
+  color: #93c5fd;
+  border: 1px solid rgba(147,197,253,0.25);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: rgba(147,197,253,0.06);
+  line-height: 1;
+}
+
+.imdb-link:hover {
+  background: rgba(147,197,253,0.18);
+  border-color: rgba(147,197,253,0.5);
+  color: #bfdbfe;
+  text-decoration: none;
+}
+
+/* IMDb Modal */
+.imdb-modal-overlay {
+  position: fixed; inset: 0; z-index: 10000;
+  background: rgba(0,0,0,0.6);
+}
+
+.imdb-modal {
+  position: fixed;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  width: 90%; max-width: 400px;
+  background: rgba(0,0,0,0.88);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 6px;
+  z-index: 10001;
+  overflow: hidden;
+}
+
+.imdb-modal-titlebar {
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.7rem;
+  color: #93c5fd;
+  display: flex; justify-content: space-between; align-items: center;
+}
+
+.imdb-modal-close {
+  background: none; border: none; color: #9ca3af;
+  font-size: 1rem; cursor: pointer; padding: 0 4px;
+  transition: color 0.2s;
+}
+
+.imdb-modal-close:hover { color: #f0f0f0; }
+
+.imdb-modal-body {
+  padding: 24px;
+  text-align: center;
+}
+
+.imdb-modal-poster {
+  max-width: 180px;
+  max-height: 260px;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(255,255,255,0.1);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+}
+
+.imdb-modal-film {
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.85rem;
+  color: #f0f0f0;
+  margin-bottom: 16px;
+}
+
+.imdb-modal-btn {
+  display: inline-block; padding: 12px 32px;
+  background: rgba(245,197,24,0.15);
+  border: 1px solid #f5c518; border-radius: 4px;
+  color: #f5c518; font-family: 'Silkscreen', cursive; font-size: 0.7rem;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.imdb-modal-btn:hover {
+  background: rgba(245,197,24,0.3);
+  color: #f5c518;
+  text-decoration: none;
+}
 
 /* Mobile */
 @media (max-width: 640px) {
@@ -748,6 +849,114 @@ const CATEGORIES = [
   }
 ];
 
+// ==================== IMDB URLS ====================
+const IMDB_URLS = {
+  'Bugonia': 'https://www.imdb.com/title/tt12300742/',
+  'F1': 'https://www.imdb.com/title/tt16311594/',
+  'Frankenstein': 'https://www.imdb.com/title/tt1312221/',
+  'Hamnet': 'https://www.imdb.com/title/tt14905854/',
+  'Marty Supreme': 'https://www.imdb.com/title/tt32916440/',
+  'One Battle After Another': 'https://www.imdb.com/title/tt30144839/',
+  'The Secret Agent': 'https://www.imdb.com/title/tt27847051/',
+  'Sentimental Value': 'https://www.imdb.com/title/tt27714581/',
+  'Sinners': 'https://www.imdb.com/title/tt31193180/',
+  'Train Dreams': 'https://www.imdb.com/title/tt29768334/',
+  'Blue Moon': 'https://www.imdb.com/title/tt32536315/',
+  "If I Had Legs I'd Kick You": 'https://www.imdb.com/title/tt18382850/',
+  'Song Sung Blue': 'https://www.imdb.com/title/tt30343021/',
+  'Weapons': 'https://www.imdb.com/title/tt26581740/',
+  'Avatar: Fire and Ash': 'https://www.imdb.com/title/tt1757678/',
+  'Jurassic World Rebirth': 'https://www.imdb.com/title/tt31036941/',
+  'The Lost Bus': 'https://www.imdb.com/title/tt21103218/',
+  'Kokuho': 'https://www.imdb.com/title/tt35231039/',
+  'The Smashing Machine': 'https://www.imdb.com/title/tt11214558/',
+  'The Ugly Stepsister': 'https://www.imdb.com/title/tt29344903/',
+  'Arco': 'https://www.imdb.com/title/tt14883538/',
+  'Elio': 'https://www.imdb.com/title/tt4900148/',
+  'KPop Demon Hunters': 'https://www.imdb.com/title/tt14205554/',
+  'Little Amelie or the Character of Rain': 'https://www.imdb.com/title/tt29313285/',
+  'Zootopia 2': 'https://www.imdb.com/title/tt26443597/',
+  'It Was Just an Accident': 'https://www.imdb.com/title/tt36491653/',
+  'Sirat': 'https://www.imdb.com/title/tt32298285/',
+  'The Voice of Hind Rajab': 'https://www.imdb.com/title/tt36943034/',
+  'The Alabama Solution': 'https://www.imdb.com/title/tt35307139/',
+  'Come See Me in the Good Light': 'https://www.imdb.com/title/tt34966013/',
+  'Cutting Through Rocks': 'https://www.imdb.com/title/tt10196414/',
+  'Mr. Nobody Against Putin': 'https://www.imdb.com/title/tt34965515/',
+  'The Perfect Neighbor': 'https://www.imdb.com/title/tt34962891/',
+  'Butterfly': 'https://www.imdb.com/title/tt30970587/',
+  'Forevergreen': 'https://www.imdb.com/title/tt36454323/',
+  'The Girl Who Cried Pearls': 'https://www.imdb.com/title/tt36956820/',
+  'Retirement Plan': 'https://www.imdb.com/title/tt33019507/',
+  'The Three Sisters': 'https://www.imdb.com/title/tt35676079/',
+  "Butcher's Stain": 'https://www.imdb.com/title/tt39232815/',
+  'A Friend of Dorothy': 'https://www.imdb.com/title/tt35489516/',
+  "Jane Austen's Period Drama": 'https://www.imdb.com/title/tt31171760/',
+  'The Singers': 'https://www.imdb.com/title/tt33508491/',
+  'Two People Exchanging Saliva': 'https://www.imdb.com/title/tt33365259/',
+  'All the Empty Rooms': 'https://www.imdb.com/title/tt37798645/',
+  'Armed Only with a Camera: The Life and Death of Brent Renaud': 'https://www.imdb.com/title/tt35515733/',
+  'Children No More: "Were and Are Gone"': 'https://www.imdb.com/title/tt38691874/',
+  'The Devil Is Busy': 'https://www.imdb.com/title/tt34205548/',
+  'Perfectly a Strangeness': 'https://www.imdb.com/title/tt32205767/',
+  'Diane Warren: Relentless': 'https://www.imdb.com/title/tt14588692/',
+  'Viva Verdi!': 'https://www.imdb.com/title/tt3595454/',
+  'Highest 2 Lowest': 'https://www.imdb.com/title/tt31194612/'
+};
+
+// ==================== POSTER URLS ====================
+const POSTER_URLS = {
+  'Bugonia': 'https://m.media-amazon.com/images/M/MV5BNzIzNWQxMjEtZmQ3MS00OTk2LWFlZjktZDUyYWRkM2M3NWVlXkEyXkFqcGc@._V1_SX300.jpg',
+  'F1': 'https://m.media-amazon.com/images/M/MV5BNGI0MDI4NjEtOWU3ZS00ODQyLWFhYTgtNGYxM2ZkM2Q2YjE3XkEyXkFqcGc@._V1_SX300.jpg',
+  'Frankenstein': 'https://m.media-amazon.com/images/M/MV5BYzYzNDYxMTQtMTU4OS00MTdlLThhMTQtZjI4NGJmMTZmNmRiXkEyXkFqcGc@._V1_SX300.jpg',
+  'Hamnet': 'https://m.media-amazon.com/images/M/MV5BMDQ5ZmY0OWYtOTYzZi00Mzg5LWE3N2EtMjYwZTAzZmJhYjkyXkEyXkFqcGc@._V1_SX300.jpg',
+  'Marty Supreme': 'https://m.media-amazon.com/images/M/MV5BZTRhYjI1MTItMWYwMi00MjY5LWI1OTktMzQwNzA3MWJlN2QyXkEyXkFqcGc@._V1_SX300.jpg',
+  'One Battle After Another': 'https://m.media-amazon.com/images/M/MV5BMzBkZmQ0NjMtNTZlMy00ZjdlLTg5ODUtYWFlNGM0YzE3MTg0XkEyXkFqcGc@._V1_SX300.jpg',
+  'The Secret Agent': 'https://m.media-amazon.com/images/M/MV5BNDlkMzNhYzgtNTk1Yi00M2I1LTlkOTMtY2RmZGU3YzVmMzE2XkEyXkFqcGc@._V1_SX300.jpg',
+  'Sentimental Value': 'https://m.media-amazon.com/images/M/MV5BNTMwMTk0Y2QtY2VhNy00OGYwLThkMjMtZjkwMGI3MTJiMjAyXkEyXkFqcGc@._V1_SX300.jpg',
+  'Sinners': 'https://m.media-amazon.com/images/M/MV5BNjIwZWY4ZDEtMmIxZS00NDA4LTg4ZGMtMzUwZTYyNzgxMzk5XkEyXkFqcGc@._V1_SX300.jpg',
+  'Train Dreams': 'https://m.media-amazon.com/images/M/MV5BZDkzNzkyNTktYzNhMi00YjhiLWI5YmUtZjliMTY0ZDc5NmMyXkEyXkFqcGc@._V1_SX300.jpg',
+  'Blue Moon': 'https://m.media-amazon.com/images/M/MV5BODQ0NjNlN2MtNGRmZi00OGYzLWFjNGYtMjkyMTlmMWFkNTQ2XkEyXkFqcGc@._V1_SX300.jpg',
+  "If I Had Legs I'd Kick You": 'https://m.media-amazon.com/images/M/MV5BMGRlMjIzMDctNzNkMS00MzEwLTlhZWEtM2FjYmE1ZmFjMzZlXkEyXkFqcGc@._V1_SX300.jpg',
+  'Song Sung Blue': 'https://m.media-amazon.com/images/M/MV5BYmQ2YjhjNjgtNGQxNC00NmI0LWEzMjktNWEzMWY2OTUwZjFiXkEyXkFqcGc@._V1_SX300.jpg',
+  'Weapons': 'https://m.media-amazon.com/images/M/MV5BNTBhNWJjZWItYzY3NS00M2NkLThmOWYtYTlmNzBmN2UxZWFjXkEyXkFqcGc@._V1_SX300.jpg',
+  'Avatar: Fire and Ash': 'https://m.media-amazon.com/images/M/MV5BZDYxY2I1OGMtN2Y4MS00ZmU1LTgyNDAtODA0MzAyYjI0N2Y2XkEyXkFqcGc@._V1_SX300.jpg',
+  'Jurassic World Rebirth': 'https://m.media-amazon.com/images/M/MV5BNjg2NTcwYWQtYzk4NS00MTJhLWEzZjItMzIxNjk3YzlkYzU0XkEyXkFqcGc@._V1_SX300.jpg',
+  'The Lost Bus': 'https://m.media-amazon.com/images/M/MV5BZTIzNmQzYzUtNTdlNi00NmY5LThmNTYtMGFmZjUxMTgzOGNmXkEyXkFqcGc@._V1_SX300.jpg',
+  'Kokuho': 'https://m.media-amazon.com/images/M/MV5BOWQ3NzRhZmQtMjY0ZC00YTlkLTllZTktOTQyMGJlN2MxNDVmXkEyXkFqcGc@._V1_SX300.jpg',
+  'The Smashing Machine': 'https://m.media-amazon.com/images/M/MV5BOWYxZTM1ZGMtMjg5MC00NzcyLTk0ZTEtZWI0ZThkNDJiYjZmXkEyXkFqcGc@._V1_SX300.jpg',
+  'The Ugly Stepsister': 'https://m.media-amazon.com/images/M/MV5BYzk2MjdkZDMtNmU0ZC00ZTEyLTk0ZTAtZDM1MmFhNDdhMjFiXkEyXkFqcGc@._V1_SX300.jpg',
+  'Arco': 'https://m.media-amazon.com/images/M/MV5BM2IzNjdiNzUtNTJjMy00Mjk5LTg3MzItNzA2ZjYzOWE2MGIyXkEyXkFqcGc@._V1_SX300.jpg',
+  'Elio': 'https://m.media-amazon.com/images/M/MV5BOWE5ZDMyMWEtOTZjMi00YzFhLWE4OTEtNDc3MDMzZjFmMmIzXkEyXkFqcGc@._V1_SX300.jpg',
+  'KPop Demon Hunters': 'https://m.media-amazon.com/images/M/MV5BNTBiYWJlMjQtOTIyMy00NTY4LWFhOWItOWZhNzc3NGMyMjc2XkEyXkFqcGc@._V1_SX300.jpg',
+  'Little Amelie or the Character of Rain': 'https://m.media-amazon.com/images/M/MV5BZDgxMDIyZDctM2Y1Ni00YjI2LWExOGEtODcwMzQ2M2EzNGZhXkEyXkFqcGc@._V1_SX300.jpg',
+  'Zootopia 2': 'https://m.media-amazon.com/images/M/MV5BYjg1Mjc3MjQtMTZjNy00YWVlLWFhMWEtMWI3ZTgxYjJmNmRlXkEyXkFqcGc@._V1_SX300.jpg',
+  'It Was Just an Accident': 'https://m.media-amazon.com/images/M/MV5BMWJkZmZlNjUtM2Q1OC00MmNjLWFkOWEtNjRhN2FkM2ZlMjI3XkEyXkFqcGc@._V1_SX300.jpg',
+  'Sirat': 'https://m.media-amazon.com/images/M/MV5BNzA1OTkyN2MtMGZjYy00NTcxLTg4Y2ItZjc4NjM2NmQzMzdjXkEyXkFqcGc@._V1_SX300.jpg',
+  'The Voice of Hind Rajab': 'https://m.media-amazon.com/images/M/MV5BZWVlM2RjYTctODU4Mi00NTQzLWEzMDktZGVmYTQ2NTEwOWFiXkEyXkFqcGc@._V1_SX300.jpg',
+  'The Alabama Solution': 'https://m.media-amazon.com/images/M/MV5BNmQ2YjFlNTEtMzcxNy00ZTVhLWJhNTYtMDg0ZGUxMGQ1MWY1XkEyXkFqcGc@._V1_SX300.jpg',
+  'Come See Me in the Good Light': 'https://m.media-amazon.com/images/M/MV5BZTEwNjRiMzUtMmU1OC00OWE5LTkwYjItMGE1NTQwMTFiM2NmXkEyXkFqcGc@._V1_SX300.jpg',
+  'Mr. Nobody Against Putin': 'https://m.media-amazon.com/images/M/MV5BYWVjNGQ5NjYtZDk2My00NzgxLWE1NDMtOGEzYTQzMjAxODIxXkEyXkFqcGc@._V1_SX300.jpg',
+  'The Perfect Neighbor': 'https://m.media-amazon.com/images/M/MV5BZmYxZjA5YmItMjJkYi00NzllLWJjMzgtZjFjZjBlZGQwMmRkXkEyXkFqcGc@._V1_SX300.jpg',
+  'Butterfly': 'https://m.media-amazon.com/images/M/MV5BM2ViMzVmYTktNTY4NS00YjFiLTliMTEtMGY0NzNkODI1ZTBmXkEyXkFqcGdeQXVyODgxMDAxMjY@._V1_SX300.jpg',
+  'Forevergreen': 'https://m.media-amazon.com/images/M/MV5BYzcxOGVhMzEtYWJkMi00MGY4LWFmYmMtZThhN2E1NzQ0Y2M4XkEyXkFqcGc@._V1_SX300.jpg',
+  'The Girl Who Cried Pearls': 'https://m.media-amazon.com/images/M/MV5BOGZhMWIwYmEtN2MyMS00OGFjLWIxYWMtNDMyMWNkZTAyMWI3XkEyXkFqcGc@._V1_SX300.jpg',
+  'Retirement Plan': 'https://m.media-amazon.com/images/M/MV5BZjkyYjUxYWEtZDU0NC00NmRkLThjOTYtZDgyZTlhMDI1OTQ4XkEyXkFqcGc@._V1_SX300.jpg',
+  'The Three Sisters': 'https://m.media-amazon.com/images/M/MV5BMzM3MjZlYjUtMTU3Ni00MWVjLWEzNjItODNiNDQ2NzFjYTdkXkEyXkFqcGc@._V1_SX300.jpg',
+  "Butcher's Stain": 'https://m.media-amazon.com/images/M/MV5BYTQ2NDM4MzYtYjM5ZS00YTcyLWI2ZjktN2U4YjdmMzAxZDEzXkEyXkFqcGc@._V1_SX300.jpg',
+  'A Friend of Dorothy': 'https://m.media-amazon.com/images/M/MV5BMTkxYmE4ODQtYzA4Zi00MmEzLWI4MmUtOGViN2VkZjczY2NlXkEyXkFqcGc@._V1_SX300.jpg',
+  "Jane Austen's Period Drama": 'https://m.media-amazon.com/images/M/MV5BNTVmMWUwZTAtN2NiNC00NmMyLTlhY2YtODMzMWMxZTU1YmY2XkEyXkFqcGc@._V1_SX300.jpg',
+  'The Singers': 'https://m.media-amazon.com/images/M/MV5BMTI2NmQwMmMtOGFlMS00YjAyLTk0ZDQtM2IyZmRjOWUzNTIzXkEyXkFqcGc@._V1_SX300.jpg',
+  'Two People Exchanging Saliva': 'https://m.media-amazon.com/images/M/MV5BMmJjYzIzNjQtMDhlYy00YjEzLTg0NzgtZjFkZDcyZDA4ODg1XkEyXkFqcGc@._V1_SX300.jpg',
+  'All the Empty Rooms': 'https://m.media-amazon.com/images/M/MV5BMDExYmE3ZDgtMDhmYy00OTQ1LWI5OTktMzJkOTIwNzc0MDBkXkEyXkFqcGc@._V1_SX300.jpg',
+  'Armed Only with a Camera: The Life and Death of Brent Renaud': 'https://m.media-amazon.com/images/M/MV5BZTc2YmQzZmMtYjQxYS00ZTYzLThhMDEtNzhlMjVhMTNiYmQ1XkEyXkFqcGc@._V1_SX300.jpg',
+  'Children No More: "Were and Are Gone"': 'https://m.media-amazon.com/images/M/MV5BOGMwMDJlMzAtNThhMS00MTYxLWE2MGItOTE2OGNmM2UxOWFhXkEyXkFqcGc@._V1_SX300.jpg',
+  'The Devil Is Busy': 'https://m.media-amazon.com/images/M/MV5BZmI2ODhjOGYtMGMxMi00MjdiLWI4ZGUtZTkzNDE3NzQ5NmRlXkEyXkFqcGc@._V1_SX300.jpg',
+  'Perfectly a Strangeness': 'https://m.media-amazon.com/images/M/MV5BMzU0MGEyMWEtMWQyZS00NDNkLTg2ZGYtOGMwYjQ4NGFhZTllXkEyXkFqcGdeQXVyMTU5NjYxNzE5._V1_SX300.jpg',
+  'Diane Warren: Relentless': 'https://m.media-amazon.com/images/M/MV5BYmIzYjIyMjMtOTBhYy00ODAyLWFiM2YtZjY5ZGUzNGIwNDlmXkEyXkFqcGc@._V1_SX300.jpg',
+  'Highest 2 Lowest': 'https://m.media-amazon.com/images/M/MV5BNTExYmRjMmMtMGRjMi00ZGIyLTkwZTAtOWExOTYwNmM4NTk3XkEyXkFqcGc@._V1_SX300.jpg'
+};
+
 // ==================== STATE ====================
 const picks = {};
 let playerName = '';
@@ -826,6 +1035,66 @@ function startVoting() {
   window.scrollTo(0, 0);
 }
 
+// ==================== IMDB FUNCTIONS ====================
+function getImdbUrl(nominee) {
+  // Direct lookup first
+  if (IMDB_URLS[nominee]) return { url: IMDB_URLS[nominee], film: nominee, poster: POSTER_URLS[nominee] || null };
+
+  // Remove country in parentheses: "The Secret Agent (Brasil)" → "The Secret Agent"
+  const withoutCountry = nominee.replace(/\s*\([^)]+\)\s*$/, '');
+  if (IMDB_URLS[withoutCountry]) return { url: IMDB_URLS[withoutCountry], film: withoutCountry, poster: POSTER_URLS[withoutCountry] || null };
+
+  // Split by " — " and try last part (e.g. "Ryan Coogler — Sinners" → "Sinners")
+  if (nominee.includes(' \u2014 ')) {
+    const parts = nominee.split(' \u2014 ');
+    const filmPart = parts[parts.length - 1].trim();
+    if (IMDB_URLS[filmPart]) return { url: IMDB_URLS[filmPart], film: filmPart, poster: POSTER_URLS[filmPart] || null };
+    // Try removing country from film part
+    const filmClean = filmPart.replace(/\s*\([^)]+\)\s*$/, '');
+    if (IMDB_URLS[filmClean]) return { url: IMDB_URLS[filmClean], film: filmClean, poster: POSTER_URLS[filmClean] || null };
+  }
+
+  return null;
+}
+
+function openImdb(url, filmName, posterUrl) {
+  // Remove existing modal if any
+  closeImdb();
+
+  const overlay = document.createElement('div');
+  overlay.className = 'imdb-modal-overlay';
+  overlay.addEventListener('click', closeImdb);
+
+  const posterHtml = posterUrl && posterUrl !== ''
+    ? `<img class="imdb-modal-poster" src="${esc(posterUrl)}" alt="${esc(filmName)}">`
+    : '';
+
+  const modal = document.createElement('div');
+  modal.className = 'imdb-modal';
+  modal.addEventListener('click', e => e.stopPropagation());
+  modal.innerHTML = `
+    <div class="imdb-modal-titlebar">
+      <span>imdb</span>
+      <button class="imdb-modal-close" onclick="closeImdb()">&times;</button>
+    </div>
+    <div class="imdb-modal-body">
+      ${posterHtml}
+      <div class="imdb-modal-film">${esc(filmName)}</div>
+      <a href="${esc(url)}" target="_blank" rel="noopener" class="imdb-modal-btn">Ver no IMDb</a>
+    </div>
+  `;
+
+  document.body.appendChild(overlay);
+  document.body.appendChild(modal);
+}
+
+function closeImdb() {
+  const overlay = document.querySelector('.imdb-modal-overlay');
+  const modal = document.querySelector('.imdb-modal');
+  if (overlay) overlay.remove();
+  if (modal) modal.remove();
+}
+
 // ==================== VOTE SCREEN ====================
 function buildCategories() {
   progressTotal.textContent = CATEGORIES.length;
@@ -837,11 +1106,15 @@ function buildCategories() {
         <span class="category-number">${i + 1}.</span> ${esc(cat.name)}
       </div>
       <div class="nominees">
-        ${cat.nominees.map(nom => `
+        ${cat.nominees.map(nom => {
+          const imdb = getImdbUrl(nom);
+          const imdbHtml = imdb ? `<span class="imdb-link" data-imdb-url="${esc(imdb.url)}" data-imdb-film="${esc(imdb.film)}" data-imdb-poster="${esc(imdb.poster || '')}" onclick="event.stopPropagation(); openImdb(this.dataset.imdbUrl, this.dataset.imdbFilm, this.dataset.imdbPoster || '')">imdb</span>` : '';
+          return `
           <button class="nominee-tile" data-category="${esc(cat.name)}" data-nominee="${esc(nom)}" onclick="selectNominee(this)">
             <span class="nominee-name">${esc(nom)}</span>
-          </button>
-        `).join('')}
+            ${imdbHtml}
+          </button>`;
+        }).join('')}
       </div>
     </div>
   `).join('');
