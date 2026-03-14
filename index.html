@@ -881,6 +881,144 @@
       display: none;
     }
 
+    /* ── File viewer dialog ── */
+    .file-viewer-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 60;
+      background: rgba(0, 0, 0, 0.75);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+    }
+
+    .file-viewer-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .file-viewer {
+      background: rgba(0, 0, 0, 0.92);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      width: 600px;
+      max-width: 92vw;
+      max-height: 85vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      transform: scale(0.9);
+      transition: transform 0.3s;
+      position: relative;
+    }
+
+    .file-viewer-overlay.open .file-viewer {
+      transform: scale(1);
+    }
+
+    .file-viewer-titlebar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.7rem;
+      color: #93c5fd;
+      flex-shrink: 0;
+    }
+
+    .file-viewer-close {
+      background: none;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #e5e7eb;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.7rem;
+      cursor: pointer;
+      padding: 2px 6px;
+      border-radius: 2px;
+      transition: background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .file-viewer-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .file-viewer-body {
+      overflow: auto;
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255,255,255,0.15) transparent;
+      touch-action: pan-x pan-y pinch-zoom;
+    }
+
+    .file-viewer-body::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .file-viewer-body::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.15);
+      border-radius: 2px;
+    }
+
+    .file-viewer-body img {
+      width: 100%;
+      height: auto;
+      border-radius: 4px;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      cursor: zoom-in;
+      transition: width 0.3s ease;
+    }
+
+    .file-viewer-body img.zoomed {
+      width: 180%;
+      max-width: none;
+      cursor: zoom-out;
+    }
+
+    .file-viewer-caption {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 0.68rem;
+      color: rgba(255, 255, 255, 0.4);
+      line-height: 1.5;
+    }
+
+    .file-viewer-scanlines {
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 2px,
+        rgba(0, 0, 0, 0.08) 2px,
+        rgba(0, 0, 0, 0.08) 4px
+      );
+      pointer-events: none;
+      z-index: 1;
+      border-radius: 6px;
+    }
+
+    .collact-link {
+      color: #93c5fd;
+      cursor: pointer;
+      text-decoration: none;
+      border-bottom: 1px dashed rgba(147, 197, 253, 0.4);
+      transition: border-color 0.2s;
+    }
+
+    .collact-link:hover {
+      color: #93c5fd;
+      text-decoration: none;
+      border-bottom-color: #93c5fd;
+    }
+
     /* Chat panel scanlines overlay */
     .chat-scanlines {
       position: absolute;
@@ -1129,9 +1267,9 @@
       <p>
         My name is Bernardo Calaça Brugnara. I'm a <strong>product builder</strong> by nature. My curiosity drives me across philosophy, design, business strategy, marketing, systems engineering, entertainment, whatever feels interesting to me. I'm a generalist focused on creating experiences that I would love to live myself.
         <br><br>
-        In 2012 I founded <strong>Collact</strong>, <a href="https://braziljournal.com/stone-abre-o-quimono-e-acao-sobe-quase-20/" target="_blank" rel="noopener noreferrer">sold it</a> to <strong>Stone</strong> in 2021, became their Head of Product Design, and then led their software for commerce initiative. Recently I came back to my essence: building from scratch.
+        In 2012 I founded <span class="collact-link" id="collactLink">Collact</span>, <a class="collact-link" href="https://braziljournal.com/stone-abre-o-quimono-e-acao-sobe-quase-20/" target="_blank" rel="noopener noreferrer">sold it to Stone</a> in 2021, became their Head of Product Design, and then led their software for commerce initiative. Recently I came back to my essence: building from scratch.
         <br><br>
-        <a href="mailto:bernardo.cb@gmail.com" target="_blank" rel="noopener noreferrer">Let's get in touch:</a> I can help you build your stuff. Or just stay and enjoy the sound :]
+        <a class="collact-link" href="mailto:bernardo.cb@gmail.com" target="_blank" rel="noopener noreferrer">Let's get in touch:</a> I can help you build your stuff. Or just stay and enjoy the sound :]
       </p>
     </section>
 
@@ -1201,6 +1339,21 @@
       <span class="chat-input-prompt">&gt;</span>
       <input type="text" class="chat-input" id="chatInput" placeholder="say something..." maxlength="500" autocomplete="off" aria-label="Chat message">
       <button class="chat-send" id="chatSend" aria-label="Send message">&gt;</button>
+    </div>
+  </div>
+
+  <!-- File viewer dialog (Collact article) -->
+  <div class="file-viewer-overlay" id="fileViewerOverlay">
+    <div class="file-viewer">
+      <div class="file-viewer-scanlines"></div>
+      <div class="file-viewer-titlebar">
+        <span>&gt; OPEN collact_folha_2013.png</span>
+        <button class="file-viewer-close" id="fileViewerClose">[X]</button>
+      </div>
+      <div class="file-viewer-body">
+        <img src="collact-folha-de-sao-paulo.png" alt="Folha de S.Paulo — Collact article, April 2013" loading="lazy" id="fileViewerImg">
+        <div class="file-viewer-caption">&gt; Folha de S.Paulo &mdash; B10 folhainvest &mdash; 15 de abril de 2013<br>&gt; &quot;Novo aplicativo permite fidelizar o cliente com o uso do celular&quot;<br>&gt; tap image to zoom</div>
+      </div>
     </div>
   </div>
 
@@ -1762,6 +1915,37 @@
       div.textContent = str;
       return div.innerHTML;
     }
+
+    // ── File viewer (Collact article) ──
+    const fileOverlay = document.getElementById('fileViewerOverlay');
+    const fileClose = document.getElementById('fileViewerClose');
+    const collactLink = document.getElementById('collactLink');
+
+    const fileImg = document.getElementById('fileViewerImg');
+
+    collactLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      fileImg.classList.remove('zoomed');
+      fileOverlay.classList.add('open');
+    });
+
+    fileImg.addEventListener('click', () => {
+      fileImg.classList.toggle('zoomed');
+    });
+
+    fileClose.addEventListener('click', () => {
+      fileOverlay.classList.remove('open');
+    });
+
+    fileOverlay.addEventListener('click', (e) => {
+      if (e.target === fileOverlay) fileOverlay.classList.remove('open');
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && fileOverlay.classList.contains('open')) {
+        fileOverlay.classList.remove('open');
+      }
+    });
 
     // ── Init ──
     setupScrollTrigger();
