@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Resultados — Bolao Oscar 2026</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0a0a0a url('../bg.jpg') no-repeat center top / cover fixed;
+  color: #f0f0f0;
+  font-family: 'Courier New', Courier, monospace;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
+  text-rendering: optimizeSpeed;
+  image-rendering: pixelated;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    transparent 0px, transparent 2px,
+    rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.82);
+  pointer-events: none;
+  z-index: 9998;
+}
+
+a { color: #93c5fd; text-decoration: none; }
+a:hover { color: #bfdbfe; text-decoration: underline; }
+
+.container {
+  position: relative;
+  z-index: 10000;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 20px 80px;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header-ascii {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.5rem;
+  white-space: pre;
+  color: #93c5fd;
+  line-height: 1.1;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.header h1 {
+  font-family: 'Silkscreen', cursive;
+  font-size: 1.3rem;
+  color: #93c5fd;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.c {
+  display: inline;
+  animation: rainbow 4s linear infinite;
+}
+
+@keyframes rainbow {
+  0%   { color: #ff0055; }
+  14%  { color: #ff5500; }
+  28%  { color: #ffaa00; }
+  42%  { color: #55ff00; }
+  57%  { color: #00aaff; }
+  71%  { color: #5500ff; }
+  85%  { color: #ff00aa; }
+  100% { color: #ff0055; }
+}
+
+.header p {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+.header .vote-link {
+  display: inline-block;
+  margin-top: 12px;
+  font-size: 0.75rem;
+}
+
+/* Loading */
+.loading-screen {
+  text-align: center;
+  padding-top: 80px;
+}
+
+.spinner {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  border: 2px solid rgba(147,197,253,0.3);
+  border-top-color: #93c5fd;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.loading-text {
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 16px;
+}
+
+/* Error */
+.error-screen {
+  text-align: center;
+  padding-top: 80px;
+  color: #f87171;
+  font-size: 0.8rem;
+}
+
+/* Stats */
+.stats {
+  text-align: center;
+  margin-bottom: 32px;
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.7rem;
+  color: #9ca3af;
+}
+
+.stats span { color: #93c5fd; }
+
+/* Category */
+.category {
+  margin-bottom: 36px;
+}
+
+.category-title {
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.8rem;
+  color: #93c5fd;
+  margin-bottom: 12px;
+  letter-spacing: 0.04em;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(147,197,253,0.2);
+}
+
+.category-number {
+  color: #6b7280;
+  font-size: 0.65rem;
+}
+
+.nominees {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nominee-tile {
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  color: #d1d5db;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.8rem;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.nominee-tile.has-votes {
+  border-color: rgba(147,197,253,0.25);
+}
+
+.nominee-tile.top-pick {
+  background: rgba(147,197,253,0.1);
+  border-color: #93c5fd;
+}
+
+.nominee-name {
+  display: block;
+  font-weight: bold;
+  color: #e5e7eb;
+}
+
+.nominee-tile.top-pick .nominee-name {
+  color: #f0f0f0;
+}
+
+.vote-count {
+  display: inline-block;
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.55rem;
+  color: #93c5fd;
+  margin-left: 8px;
+  opacity: 0.8;
+}
+
+.voters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.voter-tag {
+  display: inline-block;
+  padding: 3px 8px;
+  background: rgba(147,197,253,0.1);
+  border: 1px solid rgba(147,197,253,0.2);
+  border-radius: 3px;
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.55rem;
+  color: #93c5fd;
+  letter-spacing: 0.02em;
+}
+
+/* No votes */
+.no-votes {
+  text-align: center;
+  padding-top: 60px;
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* Back link */
+.back-link {
+  display: inline-block;
+  margin-top: 24px;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+.back-link:hover { color: #93c5fd; }
+
+@media (max-width: 640px) {
+  .container { padding: 24px 16px 60px; }
+  .header-ascii { font-size: 0.3rem; }
+  .header h1 { font-size: 1.1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>Resultados</h1>
+    <p>Quem apostou no que</p>
+    <a href="/bolao-oscar-2026/" class="vote-link">&larr; voltar para o bolao</a>
+  </div>
+
+  <div id="loading" class="loading-screen">
+    <div class="spinner"></div>
+    <div class="loading-text">Carregando votos...</div>
+  </div>
+
+  <div id="error" class="error-screen" style="display:none;"></div>
+
+  <div id="results" style="display:none;">
+    <div id="stats" class="stats"></div>
+    <div id="categories-list"></div>
+  </div>
+
+  <div id="no-votes" class="no-votes" style="display:none;">
+    Ninguem votou ainda!<br>
+    <a href="/bolao-oscar-2026/" class="back-link">Seja o primeiro &rarr;</a>
+  </div>
+</div>
+
+<script>
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCCE3C6XXZ7CrfDN_6EIh7xRrpVhR78hAWAHV1ZUsFKqEXw8QLygtcp8cCY9uqh37T/exec';
+
+const CATEGORIES = [
+  'Melhor Filme','Melhor Diretor','Melhor Ator','Melhor Atriz',
+  'Melhor Ator Coadjuvante','Melhor Atriz Coadjuvante',
+  'Melhor Roteiro Original','Melhor Roteiro Adaptado',
+  'Melhor Filme de Animacao','Melhor Filme Internacional',
+  'Melhor Fotografia','Melhor Figurino','Melhor Montagem',
+  'Melhor Trilha Sonora','Melhor Cancao Original','Melhor Som',
+  'Melhores Efeitos Visuais','Melhor Maquiagem e Cabelo',
+  'Melhor Design de Producao','Melhor Documentario',
+  'Melhor Curta de Animacao','Melhor Curta Live Action',
+  'Melhor Curta Documentario','Melhor Elenco (Casting)'
+];
+
+const NOMINEES = {
+  'Melhor Filme': ['Bugonia','F1','Frankenstein','Hamnet','Marty Supreme','One Battle After Another','The Secret Agent','Sentimental Value','Sinners','Train Dreams'],
+  'Melhor Diretor': ['Chloe Zhao — Hamnet','Josh Safdie — Marty Supreme','Paul Thomas Anderson — One Battle After Another','Joachim Trier — Sentimental Value','Ryan Coogler — Sinners'],
+  'Melhor Ator': ['Timothee Chalamet — Marty Supreme','Leonardo DiCaprio — One Battle After Another','Ethan Hawke — Blue Moon','Michael B. Jordan — Sinners','Wagner Moura — The Secret Agent'],
+  'Melhor Atriz': ['Jessie Buckley — Hamnet','Rose Byrne — If I Had Legs I\'d Kick You','Kate Hudson — Song Sung Blue','Renate Reinsve — Sentimental Value','Emma Stone — Bugonia'],
+  'Melhor Ator Coadjuvante': ['Benicio Del Toro — One Battle After Another','Jacob Elordi — Frankenstein','Delroy Lindo — Sinners','Sean Penn — One Battle After Another','Stellan Skarsgard — Sentimental Value'],
+  'Melhor Atriz Coadjuvante': ['Elle Fanning — Sentimental Value','Inga Ibsdotter Lilleaas — Sentimental Value','Amy Madigan — Weapons','Wunmi Mosaku — Sinners','Teyana Taylor — One Battle After Another'],
+  'Melhor Roteiro Original': ['Blue Moon — Robert Kaplow','It Was Just an Accident — Jafar Panahi','Marty Supreme — Ronald Bronstein, Josh Safdie','Sentimental Value — Joachim Trier, Eskil Vogt','Sinners — Ryan Coogler'],
+  'Melhor Roteiro Adaptado': ['Bugonia — Will Tracy','Frankenstein — Guillermo del Toro','Hamnet — Chloe Zhao, Maggie O\'Farrell','One Battle After Another — Paul Thomas Anderson','Train Dreams — Clint Bentley, Greg Kwedar'],
+  'Melhor Filme de Animacao': ['Arco','Elio','KPop Demon Hunters','Little Amelie or the Character of Rain','Zootopia 2'],
+  'Melhor Filme Internacional': ['The Secret Agent (Brasil)','It Was Just an Accident (Franca)','Sentimental Value (Noruega)','Sirat (Espanha)','The Voice of Hind Rajab (Tunisia)'],
+  'Melhor Fotografia': ['Frankenstein','Marty Supreme','One Battle After Another','Sinners','Train Dreams'],
+  'Melhor Figurino': ['Avatar: Fire and Ash','Frankenstein','Hamnet','Marty Supreme','Sinners'],
+  'Melhor Montagem': ['F1','Marty Supreme','One Battle After Another','Sentimental Value','Sinners'],
+  'Melhor Trilha Sonora': ['Bugonia','Frankenstein','Hamnet','One Battle After Another','Sinners'],
+  'Melhor Cancao Original': ['"Dear Me" — Diane Warren: Relentless','"Golden" — KPop Demon Hunters','"I Lied to You" — Sinners','"Sweet Dreams of Joy" — Viva Verdi!','"Train Dreams" — Train Dreams'],
+  'Melhor Som': ['F1','Frankenstein','One Battle After Another','Sinners','Sirat'],
+  'Melhores Efeitos Visuais': ['Avatar: Fire and Ash','F1','Jurassic World Rebirth','The Lost Bus','Sinners'],
+  'Melhor Maquiagem e Cabelo': ['Frankenstein','Kokuho','Sinners','The Smashing Machine','The Ugly Stepsister'],
+  'Melhor Design de Producao': ['Frankenstein','Hamnet','Marty Supreme','One Battle After Another','Sinners'],
+  'Melhor Documentario': ['The Alabama Solution','Come See Me in the Good Light','Cutting Through Rocks','Mr. Nobody Against Putin','The Perfect Neighbor'],
+  'Melhor Curta de Animacao': ['Butterfly','Forevergreen','The Girl Who Cried Pearls','Retirement Plan','The Three Sisters'],
+  'Melhor Curta Live Action': ['Butcher\'s Stain','A Friend of Dorothy','Jane Austen\'s Period Drama','The Singers','Two People Exchanging Saliva'],
+  'Melhor Curta Documentario': ['All the Empty Rooms','Armed Only with a Camera: The Life and Death of Brent Renaud','Children No More: "Were and Are Gone"','The Devil Is Busy','Perfectly a Strangeness'],
+  'Melhor Elenco (Casting)': ['Hamnet','Marty Supreme','One Battle After Another','The Secret Agent','Sinners']
+};
+
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+async function loadResults() {
+  const loading = document.getElementById('loading');
+  const error = document.getElementById('error');
+  const results = document.getElementById('results');
+  const noVotes = document.getElementById('no-votes');
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL);
+    if (!res.ok) throw new Error('Erro ao carregar');
+    const data = await res.json();
+
+    loading.style.display = 'none';
+
+    if (!data.length) {
+      noVotes.style.display = '';
+      return;
+    }
+
+    // Build vote map: { category: { nominee: [names] } }
+    const voteMap = {};
+    CATEGORIES.forEach(cat => {
+      voteMap[cat] = {};
+      (NOMINEES[cat] || []).forEach(nom => { voteMap[cat][nom] = []; });
+    });
+
+    // Normalize keys (sheet headers may have trailing spaces)
+    const normalized = data.map(row => {
+      const obj = {};
+      Object.keys(row).forEach(k => { obj[k.trim()] = row[k]; });
+      return obj;
+    });
+
+    normalized.forEach(row => {
+      const name = row['Nome'];
+      if (!name) return;
+      CATEGORIES.forEach(cat => {
+        const pick = row[cat];
+        if (pick) {
+          if (!voteMap[cat][pick]) voteMap[cat][pick] = [];
+          voteMap[cat][pick].push(name);
+        }
+      });
+    });
+
+    document.getElementById('stats').innerHTML =
+      '<span>' + normalized.length + '</span> ' + (normalized.length === 1 ? 'pessoa votou' : 'pessoas votaram');
+
+    const list = document.getElementById('categories-list');
+    list.innerHTML = CATEGORIES.map((cat, i) => {
+      const nominees = NOMINEES[cat] || [];
+      // Sort by vote count descending
+      const sorted = [...nominees].sort((a, b) =>
+        (voteMap[cat][b] || []).length - (voteMap[cat][a] || []).length
+      );
+      const maxVotes = Math.max(...sorted.map(n => (voteMap[cat][n] || []).length));
+
+      return `
+        <div class="category">
+          <div class="category-title">
+            <span class="category-number">${i + 1}.</span> ${esc(cat)}
+          </div>
+          <div class="nominees">
+            ${sorted.map(nom => {
+              const voters = voteMap[cat][nom] || [];
+              const isTop = voters.length > 0 && voters.length === maxVotes;
+              const cls = isTop ? 'nominee-tile top-pick' : voters.length > 0 ? 'nominee-tile has-votes' : 'nominee-tile';
+              return `
+                <div class="${cls}">
+                  <span class="nominee-name">${esc(nom)}${voters.length > 0 ? '<span class="vote-count">' + voters.length + (voters.length === 1 ? ' voto' : ' votos') + '</span>' : ''}</span>
+                  ${voters.length > 0 ? '<div class="voters">' + voters.map(v => '<span class="voter-tag">' + esc(v) + '</span>').join('') + '</div>' : ''}
+                </div>`;
+            }).join('')}
+          </div>
+        </div>`;
+    }).join('');
+
+    results.style.display = '';
+  } catch (err) {
+    loading.style.display = 'none';
+    error.style.display = '';
+    error.textContent = 'Erro ao carregar os resultados. Tente novamente.';
+  }
+}
+
+// Rainbowize title
+(function() {
+  const el = document.querySelector('.header h1');
+  const text = el.textContent;
+  el.innerHTML = '';
+  let i = 0;
+  for (const ch of text) {
+    if (ch === ' ' || ch === '\n') {
+      el.appendChild(document.createTextNode(ch));
+    } else {
+      const span = document.createElement('span');
+      span.className = 'c';
+      span.textContent = ch;
+      span.style.animationDelay = (i * 0.1) + 's';
+      el.appendChild(span);
+      i++;
+    }
+  }
+})();
+
+loadResults();
+</script>
+</body>
+</html>

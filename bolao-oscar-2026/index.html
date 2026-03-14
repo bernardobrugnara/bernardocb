@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bolao Oscar 2026 | bernardocb.com</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #0a0a0a url('bg.jpg') no-repeat center top / cover fixed;
+  color: #f0f0f0;
+  font-family: 'Courier New', Courier, monospace;
+  -webkit-font-smoothing: none;
+  -moz-osx-font-smoothing: unset;
+  text-rendering: optimizeSpeed;
+  image-rendering: pixelated;
+  line-height: 1.6;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* Scanlines */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: repeating-linear-gradient(
+    transparent 0px, transparent 2px,
+    rgba(0,0,0,0.15) 2px, rgba(0,0,0,0.15) 4px
+  );
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Vignette */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.82);
+  pointer-events: none;
+  z-index: 9998;
+}
+
+a { color: #93c5fd; text-decoration: none; }
+a:hover { color: #bfdbfe; text-decoration: underline; }
+
+.container {
+  position: relative;
+  z-index: 10000;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 40px 20px 120px;
+}
+
+/* Header */
+.header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.header-ascii {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.5rem;
+  white-space: pre;
+  color: #93c5fd;
+  line-height: 1.1;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+
+.header h1 {
+  font-family: 'Silkscreen', cursive;
+  font-size: 1.3rem;
+  color: #93c5fd;
+  letter-spacing: 0.04em;
+  margin-bottom: 6px;
+}
+
+.c {
+  display: inline;
+  animation: rainbow 4s linear infinite;
+}
+
+@keyframes rainbow {
+  0%   { color: #ff0055; }
+  14%  { color: #ff5500; }
+  28%  { color: #ffaa00; }
+  42%  { color: #55ff00; }
+  57%  { color: #00aaff; }
+  71%  { color: #5500ff; }
+  85%  { color: #ff00aa; }
+  100% { color: #ff0055; }
+}
+
+.header p {
+  font-size: 0.8rem;
+  color: #9ca3af;
+}
+
+/* Screens */
+.screen { display: none; }
+.screen.active { display: block; }
+
+/* Name screen */
+.name-screen {
+  text-align: center;
+  padding-top: 60px;
+}
+
+.name-screen label {
+  display: block;
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.85rem;
+  color: #d1d5db;
+  margin-bottom: 16px;
+}
+
+.name-input {
+  width: 100%;
+  max-width: 320px;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 4px;
+  color: #f0f0f0;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 16px;
+  caret-color: #93c5fd;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.name-input:focus {
+  border-color: #93c5fd;
+}
+
+.name-input::placeholder {
+  color: #6b7280;
+}
+
+.btn {
+  display: inline-block;
+  padding: 12px 32px;
+  background: rgba(147,197,253,0.12);
+  border: 1px solid #93c5fd;
+  border-radius: 4px;
+  color: #93c5fd;
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.04em;
+}
+
+.btn:hover {
+  background: rgba(147,197,253,0.25);
+  color: #bfdbfe;
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.btn-enter {
+  margin-top: 20px;
+}
+
+/* Vote screen */
+.progress-bar {
+  position: sticky;
+  top: 0;
+  background: transparent;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding: 12px 0;
+  z-index: 100;
+  text-align: center;
+}
+
+.progress-text {
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.7rem;
+  color: #9ca3af;
+}
+
+.progress-text span {
+  color: #93c5fd;
+}
+
+.progress-track {
+  width: 100%;
+  max-width: 400px;
+  height: 3px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  margin: 8px auto 0;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #93c5fd;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+  width: 0%;
+}
+
+.category {
+  margin-bottom: 36px;
+}
+
+.category-title {
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.8rem;
+  color: #93c5fd;
+  margin-bottom: 12px;
+  letter-spacing: 0.04em;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(147,197,253,0.2);
+}
+
+.category-number {
+  color: #6b7280;
+  font-size: 0.65rem;
+}
+
+.nominees {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nominee-tile {
+  display: block;
+  width: 100%;
+  padding: 12px 16px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  color: #d1d5db;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.nominee-tile:hover {
+  background: rgba(147,197,253,0.08);
+  border-color: rgba(147,197,253,0.3);
+}
+
+.nominee-tile.selected {
+  background: rgba(147,197,253,0.15);
+  border-color: #93c5fd;
+  color: #f0f0f0;
+}
+
+.nominee-tile .nominee-name {
+  display: block;
+  font-weight: bold;
+}
+
+.nominee-tile .nominee-detail {
+  display: block;
+  font-size: 0.7rem;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+.nominee-tile.selected .nominee-detail {
+  color: #93c5fd;
+}
+
+/* Submit bar */
+.submit-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(10,10,10,0.95);
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding: 14px 20px;
+  text-align: center;
+  z-index: 10001;
+  backdrop-filter: blur(12px);
+}
+
+/* Confirmation screen */
+.confirm-screen {
+  text-align: center;
+  padding-top: 40px;
+}
+
+.confirm-screen h2 {
+  font-family: 'Silkscreen', cursive;
+  font-size: 1rem;
+  color: #93c5fd;
+  margin-bottom: 8px;
+}
+
+.confirm-screen .confirm-msg {
+  color: #9ca3af;
+  font-size: 0.8rem;
+  margin-bottom: 32px;
+}
+
+.summary {
+  text-align: left;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.summary-item {
+  padding: 8px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  font-size: 0.75rem;
+}
+
+.summary-item:last-child { border-bottom: none; }
+
+.summary-cat {
+  color: #6b7280;
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.6rem;
+  display: block;
+  margin-bottom: 2px;
+}
+
+.summary-pick {
+  color: #d1d5db;
+}
+
+/* Already voted screen */
+.already-screen {
+  text-align: center;
+  padding-top: 60px;
+}
+
+.already-screen h2 {
+  font-family: 'Silkscreen', cursive;
+  font-size: 1rem;
+  color: #93c5fd;
+  margin-bottom: 8px;
+}
+
+.already-screen p {
+  color: #9ca3af;
+  font-size: 0.8rem;
+  margin-bottom: 24px;
+}
+
+/* Error */
+.error-msg {
+  color: #f87171;
+  font-size: 0.75rem;
+  margin-top: 8px;
+  min-height: 1.2em;
+}
+
+/* Loading */
+.loading {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(147,197,253,0.3);
+  border-top-color: #93c5fd;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-left: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Back link */
+.back-link {
+  display: inline-block;
+  margin-top: 24px;
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.back-link:hover { color: #93c5fd; }
+
+/* Mobile */
+@media (max-width: 640px) {
+  .container { padding: 24px 16px 120px; }
+  .header-ascii { font-size: 0.3rem; }
+  .header h1 { font-size: 1.1rem; }
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>BOLAO LUIZA ROSAS 2026</h1>
+    <p>Faca suas apostas e boa sorte!</p>
+  </div>
+
+  <!-- Screen: Already Voted -->
+  <div id="screen-already" class="screen already-screen">
+    <h2>Voce ja votou!</h2>
+    <p>Suas apostas ja foram enviadas.</p>
+    <div id="already-summary" class="summary"></div>
+    <a href="https://bernardocb.com" class="back-link">&larr; voltar para bernardocb.com</a>
+  </div>
+
+  <!-- Screen: Name -->
+  <div id="screen-name" class="screen name-screen">
+    <label for="player-name">Qual seu nome?</label>
+    <input type="text" id="player-name" class="name-input" placeholder="Seu nome" maxlength="40" autocomplete="off">
+    <br>
+    <button id="btn-enter" class="btn btn-enter" disabled>Entrar</button>
+    <div id="name-error" class="error-msg"></div>
+  </div>
+
+  <!-- Screen: Vote -->
+  <div id="screen-vote" class="screen">
+    <div class="progress-bar">
+      <div class="progress-text"><span id="progress-count">0</span> de <span id="progress-total">0</span></div>
+      <div class="progress-track"><div id="progress-fill" class="progress-fill"></div></div>
+    </div>
+    <div id="categories-list"></div>
+  </div>
+
+  <!-- Screen: Confirm -->
+  <div id="screen-confirm" class="screen confirm-screen">
+    <h2>Apostas enviadas!</h2>
+    <p class="confirm-msg">Boa sorte, <span id="confirm-name"></span>!</p>
+    <div id="confirm-summary" class="summary"></div>
+    <a href="https://bernardocb.com" class="back-link">&larr; voltar para bernardocb.com</a>
+  </div>
+</div>
+
+<!-- Submit bar (only visible during voting) -->
+<div id="submit-bar" class="submit-bar" style="display:none;">
+  <button id="btn-submit" class="btn" disabled>Enviar apostas</button>
+  <span id="submit-loading" style="display:none;"><span class="loading"></span></span>
+  <div id="submit-error" class="error-msg"></div>
+</div>
+
+<script>
+// ==================== CONFIG ====================
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwCCE3C6XXZ7CrfDN_6EIh7xRrpVhR78hAWAHV1ZUsFKqEXw8QLygtcp8cCY9uqh37T/exec';
+
+// ==================== CATEGORIES ====================
+const CATEGORIES = [
+  {
+    name: 'Melhor Filme',
+    nominees: [
+      'Bugonia',
+      'F1',
+      'Frankenstein',
+      'Hamnet',
+      'Marty Supreme',
+      'One Battle After Another',
+      'The Secret Agent',
+      'Sentimental Value',
+      'Sinners',
+      'Train Dreams'
+    ]
+  },
+  {
+    name: 'Melhor Diretor',
+    nominees: [
+      'Chloe Zhao — Hamnet',
+      'Josh Safdie — Marty Supreme',
+      'Paul Thomas Anderson — One Battle After Another',
+      'Joachim Trier — Sentimental Value',
+      'Ryan Coogler — Sinners'
+    ]
+  },
+  {
+    name: 'Melhor Ator',
+    nominees: [
+      'Timothee Chalamet — Marty Supreme',
+      'Leonardo DiCaprio — One Battle After Another',
+      'Ethan Hawke — Blue Moon',
+      'Michael B. Jordan — Sinners',
+      'Wagner Moura — The Secret Agent'
+    ]
+  },
+  {
+    name: 'Melhor Atriz',
+    nominees: [
+      'Jessie Buckley — Hamnet',
+      'Rose Byrne — If I Had Legs I\'d Kick You',
+      'Kate Hudson — Song Sung Blue',
+      'Renate Reinsve — Sentimental Value',
+      'Emma Stone — Bugonia'
+    ]
+  },
+  {
+    name: 'Melhor Ator Coadjuvante',
+    nominees: [
+      'Benicio Del Toro — One Battle After Another',
+      'Jacob Elordi — Frankenstein',
+      'Delroy Lindo — Sinners',
+      'Sean Penn — One Battle After Another',
+      'Stellan Skarsgard — Sentimental Value'
+    ]
+  },
+  {
+    name: 'Melhor Atriz Coadjuvante',
+    nominees: [
+      'Elle Fanning — Sentimental Value',
+      'Inga Ibsdotter Lilleaas — Sentimental Value',
+      'Amy Madigan — Weapons',
+      'Wunmi Mosaku — Sinners',
+      'Teyana Taylor — One Battle After Another'
+    ]
+  },
+  {
+    name: 'Melhor Roteiro Original',
+    nominees: [
+      'Blue Moon — Robert Kaplow',
+      'It Was Just an Accident — Jafar Panahi',
+      'Marty Supreme — Ronald Bronstein, Josh Safdie',
+      'Sentimental Value — Joachim Trier, Eskil Vogt',
+      'Sinners — Ryan Coogler'
+    ]
+  },
+  {
+    name: 'Melhor Roteiro Adaptado',
+    nominees: [
+      'Bugonia — Will Tracy',
+      'Frankenstein — Guillermo del Toro',
+      'Hamnet — Chloe Zhao, Maggie O\'Farrell',
+      'One Battle After Another — Paul Thomas Anderson',
+      'Train Dreams — Clint Bentley, Greg Kwedar'
+    ]
+  },
+  {
+    name: 'Melhor Filme de Animacao',
+    nominees: [
+      'Arco',
+      'Elio',
+      'KPop Demon Hunters',
+      'Little Amelie or the Character of Rain',
+      'Zootopia 2'
+    ]
+  },
+  {
+    name: 'Melhor Filme Internacional',
+    nominees: [
+      'The Secret Agent (Brasil)',
+      'It Was Just an Accident (Franca)',
+      'Sentimental Value (Noruega)',
+      'Sirat (Espanha)',
+      'The Voice of Hind Rajab (Tunisia)'
+    ]
+  },
+  {
+    name: 'Melhor Fotografia',
+    nominees: [
+      'Frankenstein',
+      'Marty Supreme',
+      'One Battle After Another',
+      'Sinners',
+      'Train Dreams'
+    ]
+  },
+  {
+    name: 'Melhor Figurino',
+    nominees: [
+      'Avatar: Fire and Ash',
+      'Frankenstein',
+      'Hamnet',
+      'Marty Supreme',
+      'Sinners'
+    ]
+  },
+  {
+    name: 'Melhor Montagem',
+    nominees: [
+      'F1',
+      'Marty Supreme',
+      'One Battle After Another',
+      'Sentimental Value',
+      'Sinners'
+    ]
+  },
+  {
+    name: 'Melhor Trilha Sonora',
+    nominees: [
+      'Bugonia',
+      'Frankenstein',
+      'Hamnet',
+      'One Battle After Another',
+      'Sinners'
+    ]
+  },
+  {
+    name: 'Melhor Cancao Original',
+    nominees: [
+      '"Dear Me" — Diane Warren: Relentless',
+      '"Golden" — KPop Demon Hunters',
+      '"I Lied to You" — Sinners',
+      '"Sweet Dreams of Joy" — Viva Verdi!',
+      '"Train Dreams" — Train Dreams'
+    ]
+  },
+  {
+    name: 'Melhor Som',
+    nominees: [
+      'F1',
+      'Frankenstein',
+      'One Battle After Another',
+      'Sinners',
+      'Sirat'
+    ]
+  },
+  {
+    name: 'Melhores Efeitos Visuais',
+    nominees: [
+      'Avatar: Fire and Ash',
+      'F1',
+      'Jurassic World Rebirth',
+      'The Lost Bus',
+      'Sinners'
+    ]
+  },
+  {
+    name: 'Melhor Maquiagem e Cabelo',
+    nominees: [
+      'Frankenstein',
+      'Kokuho',
+      'Sinners',
+      'The Smashing Machine',
+      'The Ugly Stepsister'
+    ]
+  },
+  {
+    name: 'Melhor Design de Producao',
+    nominees: [
+      'Frankenstein',
+      'Hamnet',
+      'Marty Supreme',
+      'One Battle After Another',
+      'Sinners'
+    ]
+  },
+  {
+    name: 'Melhor Documentario',
+    nominees: [
+      'The Alabama Solution',
+      'Come See Me in the Good Light',
+      'Cutting Through Rocks',
+      'Mr. Nobody Against Putin',
+      'The Perfect Neighbor'
+    ]
+  },
+  {
+    name: 'Melhor Curta de Animacao',
+    nominees: [
+      'Butterfly',
+      'Forevergreen',
+      'The Girl Who Cried Pearls',
+      'Retirement Plan',
+      'The Three Sisters'
+    ]
+  },
+  {
+    name: 'Melhor Curta Live Action',
+    nominees: [
+      'Butcher\'s Stain',
+      'A Friend of Dorothy',
+      'Jane Austen\'s Period Drama',
+      'The Singers',
+      'Two People Exchanging Saliva'
+    ]
+  },
+  {
+    name: 'Melhor Curta Documentario',
+    nominees: [
+      'All the Empty Rooms',
+      'Armed Only with a Camera: The Life and Death of Brent Renaud',
+      'Children No More: "Were and Are Gone"',
+      'The Devil Is Busy',
+      'Perfectly a Strangeness'
+    ]
+  },
+  {
+    name: 'Melhor Elenco (Casting)',
+    nominees: [
+      'Hamnet',
+      'Marty Supreme',
+      'One Battle After Another',
+      'The Secret Agent',
+      'Sinners'
+    ]
+  }
+];
+
+// ==================== STATE ====================
+const picks = {};
+let playerName = '';
+
+// ==================== ELEMENTS ====================
+const $ = id => document.getElementById(id);
+
+const screenName = $('screen-name');
+const screenVote = $('screen-vote');
+const screenConfirm = $('screen-confirm');
+const screenAlready = $('screen-already');
+const nameInput = $('player-name');
+const btnEnter = $('btn-enter');
+const nameError = $('name-error');
+const categoriesList = $('categories-list');
+const progressCount = $('progress-count');
+const progressTotal = $('progress-total');
+const progressFill = $('progress-fill');
+const submitBar = $('submit-bar');
+const btnSubmit = $('btn-submit');
+const submitLoading = $('submit-loading');
+const submitError = $('submit-error');
+
+// ==================== CHECK ALREADY VOTED ====================
+function checkAlreadyVoted() {
+  const saved = localStorage.getItem('bolao-oscar-2026');
+  if (saved) {
+    try {
+      const data = JSON.parse(saved);
+      showAlreadyVoted(data);
+      return true;
+    } catch(e) { /* corrupted, allow re-vote */ }
+  }
+  return false;
+}
+
+function showAlreadyVoted(data) {
+  const container = $('already-summary');
+  container.innerHTML = data.picks
+    ? Object.entries(data.picks).map(([cat, pick]) =>
+        `<div class="summary-item"><span class="summary-cat">${esc(cat)}</span><span class="summary-pick">${esc(pick)}</span></div>`
+      ).join('')
+    : '';
+  showScreen('already');
+}
+
+// ==================== SCREENS ====================
+function showScreen(name) {
+  [screenName, screenVote, screenConfirm, screenAlready].forEach(s => s.classList.remove('active'));
+  submitBar.style.display = 'none';
+
+  if (name === 'name') screenName.classList.add('active');
+  else if (name === 'vote') { screenVote.classList.add('active'); submitBar.style.display = ''; }
+  else if (name === 'confirm') screenConfirm.classList.add('active');
+  else if (name === 'already') screenAlready.classList.add('active');
+}
+
+// ==================== NAME SCREEN ====================
+nameInput.addEventListener('input', () => {
+  btnEnter.disabled = nameInput.value.trim().length === 0;
+  nameError.textContent = '';
+});
+
+nameInput.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !btnEnter.disabled) startVoting();
+});
+
+btnEnter.addEventListener('click', startVoting);
+
+function startVoting() {
+  const name = nameInput.value.trim();
+  if (!name) { nameError.textContent = 'Digite seu nome.'; return; }
+  playerName = name;
+  buildCategories();
+  showScreen('vote');
+  window.scrollTo(0, 0);
+}
+
+// ==================== VOTE SCREEN ====================
+function buildCategories() {
+  progressTotal.textContent = CATEGORIES.length;
+  updateProgress();
+
+  categoriesList.innerHTML = CATEGORIES.map((cat, i) => `
+    <div class="category" id="cat-${i}">
+      <div class="category-title">
+        <span class="category-number">${i + 1}.</span> ${esc(cat.name)}
+      </div>
+      <div class="nominees">
+        ${cat.nominees.map(nom => `
+          <button class="nominee-tile" data-category="${esc(cat.name)}" data-nominee="${esc(nom)}" onclick="selectNominee(this)">
+            <span class="nominee-name">${esc(nom)}</span>
+          </button>
+        `).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+function selectNominee(el) {
+  const cat = el.dataset.category;
+  const nom = el.dataset.nominee;
+
+  // Deselect siblings
+  el.closest('.nominees').querySelectorAll('.nominee-tile').forEach(t => t.classList.remove('selected'));
+  el.classList.add('selected');
+
+  picks[cat] = nom;
+  updateProgress();
+}
+
+function updateProgress() {
+  const count = Object.keys(picks).length;
+  progressCount.textContent = count;
+  progressFill.style.width = (count / CATEGORIES.length * 100) + '%';
+  btnSubmit.disabled = count < CATEGORIES.length;
+}
+
+// ==================== SUBMIT ====================
+btnSubmit.addEventListener('click', submitPicks);
+
+async function submitPicks() {
+  if (Object.keys(picks).length < CATEGORIES.length) {
+    submitError.textContent = 'Vote em todas as categorias antes de enviar.';
+    return;
+  }
+
+  btnSubmit.disabled = true;
+  submitLoading.style.display = '';
+  submitError.textContent = '';
+
+  const payload = { name: playerName, picks };
+
+  try {
+    const res = await fetch(APPS_SCRIPT_URL, {
+      method: 'POST',
+      body: JSON.stringify(payload),
+      headers: { 'Content-Type': 'text/plain' }
+    });
+
+    if (!res.ok) throw new Error('Erro no servidor');
+
+    // Save to localStorage
+    localStorage.setItem('bolao-oscar-2026', JSON.stringify(payload));
+
+    // Show confirmation
+    showConfirmation();
+  } catch (err) {
+    submitError.textContent = 'Erro ao enviar. Tente novamente.';
+    btnSubmit.disabled = false;
+  } finally {
+    submitLoading.style.display = 'none';
+  }
+}
+
+function showConfirmation() {
+  $('confirm-name').textContent = playerName;
+  $('confirm-summary').innerHTML = Object.entries(picks).map(([cat, pick]) =>
+    `<div class="summary-item"><span class="summary-cat">${esc(cat)}</span><span class="summary-pick">${esc(pick)}</span></div>`
+  ).join('');
+  showScreen('confirm');
+  window.scrollTo(0, 0);
+}
+
+// ==================== UTILS ====================
+function esc(s) {
+  const d = document.createElement('div');
+  d.textContent = s;
+  return d.innerHTML;
+}
+
+// ==================== RAINBOWIZE ====================
+function rainbowize(el, delayStep) {
+  const text = el.textContent;
+  el.innerHTML = '';
+  let i = 0;
+  for (const ch of text) {
+    if (ch === ' ' || ch === '\n') {
+      el.appendChild(document.createTextNode(ch));
+    } else {
+      const span = document.createElement('span');
+      span.className = 'c';
+      span.textContent = ch;
+      span.style.animationDelay = (i * (delayStep || 0.1)) + 's';
+      el.appendChild(span);
+      i++;
+    }
+  }
+}
+rainbowize(document.querySelector('.header h1'), 0.1);
+
+// ==================== INIT ====================
+if (!checkAlreadyVoted()) {
+  showScreen('name');
+  nameInput.focus();
+}
+</script>
+</body>
+</html>
