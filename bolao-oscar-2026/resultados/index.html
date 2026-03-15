@@ -267,6 +267,95 @@ a:hover { color: #bfdbfe; text-decoration: underline; }
 }
 .back-link:hover { color: #93c5fd; }
 
+/* Admin button */
+.admin-btn {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 12px;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 3px;
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.5rem;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.admin-btn:hover { border-color: #fbbf24; color: #fbbf24; }
+.admin-btn.active { border-color: #fbbf24; color: #fbbf24; background: rgba(251,191,36,0.1); }
+
+/* Leaderboard */
+.leaderboard { margin-bottom: 36px; }
+.leaderboard-title {
+  font-family: 'Silkscreen', cursive;
+  font-size: 1rem;
+  color: #fbbf24;
+  text-align: center;
+  margin-bottom: 4px;
+}
+.leaderboard-subtitle {
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.6rem;
+  color: #9ca3af;
+  text-align: center;
+  margin-bottom: 16px;
+}
+.leaderboard-row {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 4px;
+  margin-bottom: 4px;
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+}
+.leaderboard-row.first {
+  background: rgba(251,191,36,0.1);
+  border-color: #fbbf24;
+}
+.lb-rank { color: #6b7280; width: 30px; font-family: 'Silkscreen', cursive; font-size: 0.65rem; }
+.lb-name { flex: 1; color: #e5e7eb; }
+.leaderboard-row.first .lb-name { color: #fbbf24; }
+.lb-score { font-family: 'Silkscreen', cursive; font-size: 0.65rem; color: #93c5fd; }
+.leaderboard-row.first .lb-score { color: #fbbf24; }
+
+/* Winner marking */
+.nominee-tile.is-winner {
+  background: rgba(251,191,36,0.12);
+  border-color: #fbbf24 !important;
+}
+.nominee-tile.is-winner .nominee-name { color: #fbbf24; }
+.nominee-tile.is-decided { opacity: 0.4; }
+.winner-badge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 6px;
+  background: rgba(251,191,36,0.2);
+  border: 1px solid #fbbf24;
+  border-radius: 3px;
+  font-family: 'Silkscreen', cursive;
+  font-size: 0.5rem;
+  color: #fbbf24;
+  vertical-align: middle;
+}
+.voter-tag.got-it {
+  background: rgba(251,191,36,0.15);
+  border-color: rgba(251,191,36,0.3);
+  color: #fbbf24;
+}
+
+/* Admin mode: make nominees clickable */
+body.admin-active .nominee-tile {
+  cursor: pointer;
+  transition: all 0.15s;
+}
+body.admin-active .nominee-tile:hover {
+  border-color: #fbbf24;
+  background: rgba(251,191,36,0.06);
+}
+
 @media (max-width: 640px) {
   .container { padding: 24px 16px 60px; }
   .header-ascii { font-size: 0.3rem; }
@@ -283,6 +372,8 @@ a:hover { color: #bfdbfe; text-decoration: underline; }
     <h1>BOLAO OSCAR 2026 BY LUIZA ROSAS</h1>
     <p>Quem apostou no que</p>
     <a href="/bolao-oscar-2026/" class="vote-link">&larr; voltar para o bolao</a>
+    <br>
+    <button id="admin-btn" class="admin-btn" onclick="toggleAdmin()">admin</button>
   </div>
 
   <div id="loading" class="loading-screen">
@@ -293,6 +384,7 @@ a:hover { color: #bfdbfe; text-decoration: underline; }
   <div id="error" class="error-screen" style="display:none;"></div>
 
   <div id="results" style="display:none;">
+    <div id="leaderboard"></div>
     <div id="stats" class="stats"></div>
     <div id="categories-list"></div>
   </div>
@@ -352,6 +444,43 @@ function esc(s) {
   return d.innerHTML.replace(/"/g, '&quot;');
 }
 
+// ==================== WINNERS STATE ====================
+let WINNERS = JSON.parse(localStorage.getItem('bolao-oscar-2026-winners') || '{}');
+let isAdmin = false;
+let cachedVoteMap = null;
+let cachedNormalized = null;
+
+function saveWinners() {
+  localStorage.setItem('bolao-oscar-2026-winners', JSON.stringify(WINNERS));
+}
+
+function toggleAdmin() {
+  isAdmin = !isAdmin;
+  document.body.classList.toggle('admin-active', isAdmin);
+  document.getElementById('admin-btn').classList.toggle('active', isAdmin);
+  if (cachedVoteMap) renderResults();
+}
+
+function setWinner(cat, nom) {
+  if (!isAdmin) return;
+  if (WINNERS[cat] === nom) {
+    delete WINNERS[cat];
+  } else {
+    WINNERS[cat] = nom;
+  }
+  saveWinners();
+  renderResults();
+}
+
+// Event delegation for nominee clicks (avoids inline onclick with special chars)
+document.addEventListener('click', function(e) {
+  const tile = e.target.closest('.nominee-tile[data-cat]');
+  if (tile && isAdmin) {
+    setWinner(tile.dataset.cat, tile.dataset.nom);
+  }
+});
+
+// ==================== FETCH ====================
 async function loadResults() {
   const loading = document.getElementById('loading');
   const error = document.getElementById('error');
@@ -371,69 +500,132 @@ async function loadResults() {
     }
 
     // Build vote map: { category: { nominee: [names] } }
-    const voteMap = {};
+    cachedVoteMap = {};
     CATEGORIES.forEach(cat => {
-      voteMap[cat] = {};
-      (NOMINEES[cat] || []).forEach(nom => { voteMap[cat][nom] = []; });
+      cachedVoteMap[cat] = {};
+      (NOMINEES[cat] || []).forEach(nom => { cachedVoteMap[cat][nom] = []; });
     });
 
     // Normalize keys (sheet headers may have trailing spaces)
-    const normalized = data.map(row => {
+    cachedNormalized = data.map(row => {
       const obj = {};
       Object.keys(row).forEach(k => { obj[k.trim()] = row[k]; });
       return obj;
     });
 
-    normalized.forEach(row => {
+    cachedNormalized.forEach(row => {
       const name = row['Nome'];
       if (!name) return;
       CATEGORIES.forEach(cat => {
         const pick = row[cat];
         if (pick) {
-          if (!voteMap[cat][pick]) voteMap[cat][pick] = [];
-          voteMap[cat][pick].push(name);
+          if (!cachedVoteMap[cat][pick]) cachedVoteMap[cat][pick] = [];
+          cachedVoteMap[cat][pick].push(name);
         }
       });
     });
 
-    document.getElementById('stats').innerHTML =
-      '<span>' + normalized.length + '</span> ' + (normalized.length === 1 ? 'pessoa votou' : 'pessoas votaram');
-
-    const list = document.getElementById('categories-list');
-    list.innerHTML = CATEGORIES.map((cat, i) => {
-      const nominees = NOMINEES[cat] || [];
-      // Sort by vote count descending
-      const sorted = [...nominees].sort((a, b) =>
-        (voteMap[cat][b] || []).length - (voteMap[cat][a] || []).length
-      );
-      const maxVotes = Math.max(...sorted.map(n => (voteMap[cat][n] || []).length));
-
-      return `
-        <div class="category">
-          <div class="category-title">
-            <span class="category-number">${i + 1}.</span> ${esc(cat)}
-          </div>
-          <div class="nominees">
-            ${sorted.map(nom => {
-              const voters = voteMap[cat][nom] || [];
-              const isTop = voters.length > 0 && voters.length === maxVotes;
-              const cls = isTop ? 'nominee-tile top-pick' : voters.length > 0 ? 'nominee-tile has-votes' : 'nominee-tile';
-              return `
-                <div class="${cls}">
-                  <span class="nominee-name">${esc(nom)}${voters.length > 0 ? '<span class="vote-count">' + voters.length + (voters.length === 1 ? ' voto' : ' votos') + '</span>' : ''}</span>
-                  ${voters.length > 0 ? '<div class="voters">' + voters.map(v => '<span class="voter-tag">' + esc(v) + '</span>').join('') + '</div>' : ''}
-                </div>`;
-            }).join('')}
-          </div>
-        </div>`;
-    }).join('');
-
+    renderResults();
     results.style.display = '';
   } catch (err) {
     loading.style.display = 'none';
     error.style.display = '';
     error.textContent = 'Erro ao carregar os resultados. Tente novamente.';
   }
+}
+
+// ==================== RENDER ====================
+function renderResults() {
+  const voteMap = cachedVoteMap;
+  const normalized = cachedNormalized;
+  if (!voteMap || !normalized) return;
+
+  const announcedCount = Object.keys(WINNERS).length;
+
+  // Stats
+  const statsParts = ['<span>' + normalized.length + '</span> ' + (normalized.length === 1 ? 'pessoa votou' : 'pessoas votaram')];
+  if (announcedCount > 0) {
+    statsParts.push('<span>' + announcedCount + '</span> de ' + CATEGORIES.length + ' categorias decididas');
+  }
+  document.getElementById('stats').innerHTML = statsParts.join(' &middot; ');
+
+  // Leaderboard
+  const lbEl = document.getElementById('leaderboard');
+  if (announcedCount > 0) {
+    const scores = {};
+    normalized.forEach(row => {
+      const name = row['Nome'];
+      if (!name) return;
+      let correct = 0;
+      CATEGORIES.forEach(cat => {
+        if (WINNERS[cat] && row[cat] === WINNERS[cat]) correct++;
+      });
+      scores[name] = correct;
+    });
+
+    const ranking = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+
+    lbEl.innerHTML = `
+      <div class="leaderboard">
+        <div class="leaderboard-title">RANKING</div>
+        <div class="leaderboard-subtitle">${announcedCount} de ${CATEGORIES.length} categorias</div>
+        ${ranking.map(([name, score], idx) => {
+          const isFirst = idx === 0 || score === ranking[0][1];
+          return `
+          <div class="leaderboard-row${isFirst ? ' first' : ''}">
+            <span class="lb-rank">${idx + 1}.</span>
+            <span class="lb-name">${esc(name)}</span>
+            <span class="lb-score">${score}/${announcedCount}</span>
+          </div>`;
+        }).join('')}
+      </div>`;
+  } else {
+    lbEl.innerHTML = '';
+  }
+
+  // Categories
+  const list = document.getElementById('categories-list');
+  list.innerHTML = CATEGORIES.map((cat, i) => {
+    const nominees = NOMINEES[cat] || [];
+    const winner = WINNERS[cat];
+    // Sort by vote count descending
+    const sorted = [...nominees].sort((a, b) =>
+      (voteMap[cat][b] || []).length - (voteMap[cat][a] || []).length
+    );
+    const maxVotes = Math.max(...sorted.map(n => (voteMap[cat][n] || []).length));
+
+    return `
+      <div class="category">
+        <div class="category-title">
+          <span class="category-number">${i + 1}.</span> ${esc(cat)}
+        </div>
+        <div class="nominees">
+          ${sorted.map(nom => {
+            const voters = voteMap[cat][nom] || [];
+            const isTop = voters.length > 0 && voters.length === maxVotes;
+            const isWinner = winner && nom === winner;
+            const isDecided = winner && nom !== winner;
+
+            let cls = 'nominee-tile';
+            if (isWinner) cls += ' is-winner';
+            else if (isDecided) cls += ' is-decided';
+            else if (isTop) cls += ' top-pick';
+            else if (voters.length > 0) cls += ' has-votes';
+
+            const winnerBadge = isWinner ? '<span class="winner-badge">VENCEDOR</span>' : '';
+
+            return `
+              <div class="${cls}" data-cat="${esc(cat)}" data-nom="${esc(nom)}">
+                <span class="nominee-name">${esc(nom)}${winnerBadge}${voters.length > 0 ? '<span class="vote-count">' + voters.length + (voters.length === 1 ? ' voto' : ' votos') + '</span>' : ''}</span>
+                ${voters.length > 0 ? '<div class="voters">' + voters.map(v => {
+                  const gotIt = isWinner ? ' got-it' : '';
+                  return '<span class="voter-tag' + gotIt + '">' + esc(v) + '</span>';
+                }).join('') + '</div>' : ''}
+              </div>`;
+          }).join('')}
+        </div>
+      </div>`;
+  }).join('');
 }
 
 // Rainbowize title
