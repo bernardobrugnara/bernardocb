@@ -1236,7 +1236,7 @@
   <audio id="audioPlayer" preload="auto"></audio>
 
   <!-- Video background -->
-  <video class="video-bg" autoplay muted loop playsinline>
+  <video class="video-bg" autoplay muted loop playsinline webkit-playsinline preload="auto">
     <source src="bg.mp4" type="video/mp4">
   </video>
   <div class="video-overlay"></div>
@@ -1448,11 +1448,29 @@
       [playlist[i], playlist[j]] = [playlist[j], playlist[i]];
     }
 
+    // Ensure background video is playing (iOS Safari may block even muted autoplay)
+    const bgVideo = document.querySelector('.video-bg');
+    if (bgVideo) {
+      const tryAutoplay = bgVideo.play();
+      if (tryAutoplay !== undefined) {
+        tryAutoplay.catch(() => {
+          // Autoplay blocked — will be started on splash gate click
+        });
+      }
+    }
+
     // Splash — start playing on click
     document.getElementById('splashGate').addEventListener('click', () => {
       const splash = document.getElementById('splashGate');
       splash.classList.add('hidden');
       setTimeout(() => splash.remove(), 600);
+
+      // Ensure background video plays after user interaction (iOS Safari fix)
+      if (bgVideo && bgVideo.paused) {
+        bgVideo.muted = true;
+        bgVideo.play();
+      }
+
       loadTrack(0);
       playTrack();
     });
