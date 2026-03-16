@@ -18,8 +18,29 @@ Rules:
 const RATE_LIMIT_MAX = 20;
 const RATE_LIMIT_WINDOW = 3600; // 1 hour in seconds
 
+async function logChat(env, { ip, geo, messages, currentTrack }) {
+  if (!env.CHAT_LOGS_KV) return;
+  try {
+    const now = new Date();
+    const key = `chat:${now.toISOString()}:${crypto.randomUUID().slice(0, 8)}`;
+    const entry = {
+      timestamp: now.toISOString(),
+      ip,
+      geo,
+      currentTrack: currentTrack || null,
+      messages,
+    };
+    // Keep logs for 90 days
+    await env.CHAT_LOGS_KV.put(key, JSON.stringify(entry), {
+      expirationTtl: 90 * 24 * 3600,
+    });
+  } catch (e) {
+    console.error('Log write failed:', e);
+  }
+}
+
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const origin = request.headers.get('Origin') || '';
     const allowedOrigins = [
       env.ALLOWED_ORIGIN,
@@ -114,6 +135,23 @@ export default {
       role: m.role === 'assistant' ? 'assistant' : 'user',
       content: String(m.content).slice(0, 500),
     }));
+
+    // Log conversation asynchronously (non-blocking)
+    const cf = request.cf || {};
+    ctx.waitUntil(
+      logChat(env, {
+        ip: clientIP,
+        geo: {
+          country: cf.country || null,
+          region: cf.region || null,
+          city: cf.city || null,
+          timezone: cf.timezone || null,
+          continent: cf.continent || null,
+        },
+        messages: sanitizedMessages,
+        currentTrack: currentTrack || null,
+      })
+    );
 
     try {
       const response = await fetch('https://api.anthropic.com/v1/messages', {

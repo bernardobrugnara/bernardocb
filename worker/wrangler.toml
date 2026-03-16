@@ -6,5 +6,9 @@ compatibility_date = "2024-12-01"
 binding = "RATE_LIMIT_KV"
 id = "ce5fc06aa3b840cfb7ee85b0de18b424"
 
+[[kv_namespaces]]
+binding = "CHAT_LOGS_KV"
+id = "PLACEHOLDER_CREATE_KV_NAMESPACE"
+
 [vars]
 ALLOWED_ORIGIN = "https://bernardocb.com"
