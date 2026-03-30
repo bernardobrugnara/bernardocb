@@ -194,10 +194,10 @@
       flex-shrink: 0;
     }
 
-    .bar-basico { background: #4ade80; color: #0a0a0a; }
-    .bar-intermediario { background: #60a5fa; color: #0a0a0a; }
-    .bar-avancado { background: #a78bfa; color: #0a0a0a; }
-    .bar-expert { background: #fbbf24; color: #0a0a0a; }
+    .bar-consultas_basicas { background: #4ade80; color: #0a0a0a; }
+    .bar-assistente_esporadico { background: #60a5fa; color: #0a0a0a; }
+    .bar-copiloto { background: #a78bfa; color: #0a0a0a; }
+    .bar-piloto_automatico { background: #fbbf24; color: #0a0a0a; }
 
     /* ── Summary Content ───────────────────────────────── */
     .summary-content {
@@ -358,10 +358,10 @@
       container.innerHTML = '';
 
       const levels = [
-        { key: 'basico', label: 'Basico', cls: 'bar-basico' },
-        { key: 'intermediario', label: 'Intermediario', cls: 'bar-intermediario' },
-        { key: 'avancado', label: 'Avancado', cls: 'bar-avancado' },
-        { key: 'expert', label: 'Expert', cls: 'bar-expert' },
+        { key: 'consultas_basicas', label: 'Consultas Basicas', cls: 'bar-consultas_basicas' },
+        { key: 'assistente_esporadico', label: 'Assistente Esporadico', cls: 'bar-assistente_esporadico' },
+        { key: 'copiloto', label: 'Copiloto', cls: 'bar-copiloto' },
+        { key: 'piloto_automatico', label: 'Piloto Automatico', cls: 'bar-piloto_automatico' },
       ];
 
       for (const level of levels) {

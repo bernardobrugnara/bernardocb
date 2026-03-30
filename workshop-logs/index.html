@@ -152,10 +152,10 @@
       letter-spacing: 0.5px;
     }
 
-    .badge-basico { background: #4ade8022; color: #4ade80; border: 1px solid #4ade8044; }
-    .badge-intermediario { background: #60a5fa22; color: #60a5fa; border: 1px solid #60a5fa44; }
-    .badge-avancado { background: #a78bfa22; color: #a78bfa; border: 1px solid #a78bfa44; }
-    .badge-expert { background: #fbbf2422; color: #fbbf24; border: 1px solid #fbbf2444; }
+    .badge-consultas_basicas { background: #4ade8022; color: #4ade80; border: 1px solid #4ade8044; }
+    .badge-assistente_esporadico { background: #60a5fa22; color: #60a5fa; border: 1px solid #60a5fa44; }
+    .badge-copiloto { background: #a78bfa22; color: #a78bfa; border: 1px solid #a78bfa44; }
+    .badge-piloto_automatico { background: #fbbf2422; color: #fbbf24; border: 1px solid #fbbf2444; }
     .badge-indefinido { background: #88888822; color: #888; border: 1px solid #88888844; }
 
     .conv-arrow { color: #444; font-size: 18px; }
@@ -431,10 +431,10 @@
 
     function badgeLabel(classification) {
       const labels = {
-        basico: 'Basico',
-        intermediario: 'Intermediario',
-        avancado: 'Avancado',
-        expert: 'Expert',
+        consultas_basicas: 'Consultas Basicas',
+        assistente_esporadico: 'Assistente Esporadico',
+        copiloto: 'Copiloto',
+        piloto_automatico: 'Piloto Automatico',
         indefinido: 'Indefinido',
       };
       return labels[classification] || classification;

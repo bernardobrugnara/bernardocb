@@ -30,20 +30,20 @@ Nome do participante: {PARTICIPANT_NAME}
 - Reaja com entusiasmo genuino as respostas
 - Mantenha respostas curtas (2-4 frases max)
 
-## Fluxo da conversa:
+## Fluxo da conversa (MAXIMO 5 perguntas):
 1. Comece cumprimentando pelo nome e perguntando se a pessoa ja usa alguma ferramenta de IA no trabalho
 2. Se sim: pergunte QUAIS ferramentas usa e PARA QUE
-3. Aprofunde: peca exemplos concretos do dia a dia
-4. Explore frequencia: usa todo dia? Esporadicamente?
-5. Descubra o nivel de sofisticacao: e mais busca/chat? Gera conteudo? Tem agentes? Automacoes rodando sozinhas?
-6. Depois de 4-6 trocas substantivas, faca um resumo breve e agradeca
+3. Aprofunde: peca um exemplo concreto do dia a dia
+4. Descubra o nivel de sofisticacao: e mais busca/chat? Gera conteudo? Tem agentes? Automacoes rodando sozinhas?
+5. Se necessario, faca uma ultima pergunta para confirmar sua classificacao
+Apos no maximo 5 perguntas suas, faca o resumo e encerre.
 
 ## Classificacao interna (NUNCA revele ao usuario):
 Classifique mentalmente o usuario em um destes niveis baseado nas respostas:
-- BASICO: Usa IA como substituto de busca/Google, faz perguntas simples, tira duvidas pontuais
-- INTERMEDIARIO: Gera conteudo, resume textos, traduz, usa para produtividade no dia a dia
-- AVANCADO: Usa agentes de IA que executam tarefas (ex: Claude Code, copilots, automacoes de workflow)
-- EXPERT: Tem workers/agentes de IA autonomos rodando 24/7, integracoes profundas nos processos
+- CONSULTAS_BASICAS: Usa IA como substituto de busca/Google, faz perguntas simples, tira duvidas pontuais, pede explicacoes
+- ASSISTENTE_ESPORADICO: Gera conteudo, resume textos, traduz, usa para produtividade mas de forma esporadica e pontual
+- COPILOTO: Usa IA de forma integrada no fluxo de trabalho diario, com agentes ou copilots que ajudam a executar tarefas (ex: Claude Code, GitHub Copilot, automacoes de workflow)
+- PILOTO_AUTOMATICO: Tem workers/agentes de IA autonomos rodando 24/7, integracoes profundas nos processos, IA executa tarefas de ponta a ponta sem supervisao constante
 
 ## Regras:
 - NUNCA mencione os niveis de classificacao
@@ -51,11 +51,13 @@ Classifique mentalmente o usuario em um destes niveis baseado nas respostas:
 - Se o usuario perguntar o que voce esta fazendo, diga que esta conhecendo como as pessoas usam IA para entender melhor o grupo
 - Responda SEMPRE em portugues brasileiro
 - Se o usuario responder em ingles, continue em portugues mas de forma natural
-- Depois de ter informacao suficiente (~6 trocas), sinalize no final da sua mensagem com [READY] (o frontend usa isso para acionar o salvamento)
+- Voce tem no MAXIMO 5 perguntas. Conte suas perguntas e encerre apos a 5a.
+- Ao encerrar, sinalize no final da sua mensagem com [READY] (o frontend usa isso para acionar o salvamento)
 
 ## Na sua ultima mensagem (quando incluir [READY]):
 Faca um breve resumo amigavel do que entendeu sobre o uso de IA da pessoa e agradeca pela participacao. Inclua a classificacao no formato [CLASSIFICATION:nivel] no final (o frontend remove isso antes de exibir).
-Exemplo final: "...Muito obrigado por compartilhar, Maria! [READY][CLASSIFICATION:intermediario]"`;
+Niveis validos: consultas_basicas, assistente_esporadico, copiloto, piloto_automatico
+Exemplo final: "...Muito obrigado por compartilhar, Maria! [READY][CLASSIFICATION:assistente_esporadico]"`;
 
 const SUMMARY_SYSTEM_PROMPT = `Voce e um analista de dados especializado em adocao de Inteligencia Artificial nas empresas. Voce recebera dados de conversas individuais de um workshop.
 
@@ -63,10 +65,10 @@ const SUMMARY_SYSTEM_PROMPT = `Voce e um analista de dados especializado em adoc
 Analise as conversas e gere um relatorio estruturado em Markdown com:
 
 1. **Visao Geral**: Quantas pessoas participaram, distribuicao por nivel
-2. **Nivel Basico**: Quem sao, como usam IA (resumo)
-3. **Nivel Intermediario**: Quem sao, como usam IA (resumo)
-4. **Nivel Avancado**: Quem sao, como usam IA (resumo)
-5. **Nivel Expert**: Quem sao, como usam IA (resumo)
+2. **Consultas Basicas**: Quem sao, como usam IA (resumo)
+3. **Assistente Esporadico**: Quem sao, como usam IA (resumo)
+4. **Copiloto**: Quem sao, como usam IA (resumo)
+5. **Piloto Automatico**: Quem sao, como usam IA (resumo)
 6. **Padroes Observados**: Ferramentas mais mencionadas, casos de uso comuns, gaps de conhecimento
 7. **Recomendacoes**: Sugestoes para o proximo passo de cada grupo
 
@@ -268,7 +270,7 @@ async function handleWorkshopSave(request, env, corsHeaders) {
     return jsonResponse({ error: 'At least 2 messages required' }, 400, corsHeaders);
   }
 
-  const validClassifications = ['basico', 'intermediario', 'avancado', 'expert', 'indefinido'];
+  const validClassifications = ['consultas_basicas', 'assistente_esporadico', 'copiloto', 'piloto_automatico', 'indefinido'];
   const safeClassification = validClassifications.includes(classification) ? classification : 'indefinido';
   const safeName = String(name).slice(0, 100).replace(/[<>"']/g, '');
   const now = Date.now();
@@ -386,7 +388,7 @@ async function handleWorkshopSummary(request, env, corsHeaders) {
   }
 
   const allConversations = [];
-  const breakdown = { basico: 0, intermediario: 0, avancado: 0, expert: 0, indefinido: 0 };
+  const breakdown = { consultas_basicas: 0, assistente_esporadico: 0, copiloto: 0, piloto_automatico: 0, indefinido: 0 };
 
   for (const key of index) {
     const raw = await env.WORKSHOP_KV.get(key);
