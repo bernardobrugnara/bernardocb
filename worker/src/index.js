@@ -75,7 +75,7 @@ Analise as conversas e gere um relatorio estruturado em Markdown com:
 ## Regras:
 - Escreva em portugues brasileiro
 - Seja conciso mas informativo
-- Use nomes reais das pessoas
+- Use os identificadores anonimos dos participantes (Participante 1, 2, etc.)
 - Destaque insights interessantes
 - O tom deve ser profissional mas acessivel
 - Se um nivel nao tiver participantes, pule a secao`;
@@ -322,26 +322,43 @@ async function handleWorkshopLogs(request, env, corsHeaders) {
 
   const requestedKey = url.searchParams.get('key');
 
+  // Load index for anonymization (position-based: Participante 1, 2, 3...)
+  const indexRaw = await env.WORKSHOP_KV.get('index');
+  const index = indexRaw ? JSON.parse(indexRaw) : [];
+
   // Single conversation detail
   if (requestedKey) {
     const raw = await env.WORKSHOP_KV.get(requestedKey);
     if (!raw) return jsonResponse({ error: 'Not found' }, 404, corsHeaders);
     const conv = JSON.parse(raw);
-    return jsonResponse({ key: requestedKey, ...conv }, 200, corsHeaders);
+    const position = index.indexOf(requestedKey) + 1;
+    const anonName = `Participante ${position || '?'}`;
+    // Replace real name in assistant messages
+    const anonMessages = conv.messages.map((m) => ({
+      role: m.role,
+      content: m.role === 'assistant' && conv.name
+        ? m.content.replace(new RegExp(conv.name, 'gi'), anonName)
+        : m.content,
+    }));
+    return jsonResponse({
+      key: requestedKey,
+      name: anonName,
+      startedAt: conv.startedAt,
+      savedAt: conv.savedAt,
+      messages: anonMessages,
+      classification: conv.classification,
+    }, 200, corsHeaders);
   }
 
   // List all conversations
-  const indexRaw = await env.WORKSHOP_KV.get('index');
-  const index = indexRaw ? JSON.parse(indexRaw) : [];
-
   const conversations = [];
-  for (const key of index) {
-    const raw = await env.WORKSHOP_KV.get(key);
+  for (let i = 0; i < index.length; i++) {
+    const raw = await env.WORKSHOP_KV.get(index[i]);
     if (!raw) continue;
     const conv = JSON.parse(raw);
     conversations.push({
-      key,
-      name: conv.name,
+      key: index[i],
+      name: `Participante ${i + 1}`,
       savedAt: conv.savedAt,
       classification: conv.classification,
       messageCount: conv.messages.length,
@@ -400,13 +417,13 @@ async function handleWorkshopSummary(request, env, corsHeaders) {
     }
   }
 
-  // Build condensed data for Claude
-  const condensed = allConversations.map((c) => {
+  // Build condensed data for Claude (anonymized)
+  const condensed = allConversations.map((c, i) => {
     const userMessages = c.messages
       .filter((m) => m.role === 'user')
       .map((m) => m.content.slice(0, 300))
       .slice(0, 4);
-    return `Nome: ${c.name}\nClassificacao: ${c.classification}\nRespostas do participante:\n${userMessages.join('\n')}`;
+    return `Participante ${i + 1}\nClassificacao: ${c.classification}\nRespostas do participante:\n${userMessages.join('\n')}`;
   }).join('\n\n---\n\n');
 
   try {
