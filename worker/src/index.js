@@ -62,23 +62,21 @@ Exemplo final: "...Muito obrigado por compartilhar, Maria! [READY][CLASSIFICATIO
 const SUMMARY_SYSTEM_PROMPT = `Voce e um analista de dados especializado em adocao de Inteligencia Artificial nas empresas. Voce recebera dados de conversas individuais de um workshop.
 
 ## Sua tarefa:
-Analise as conversas e gere um relatorio estruturado em Markdown com:
+Analise as conversas e gere um relatorio CONCISO em Markdown com:
 
-1. **Visao Geral**: Quantas pessoas participaram, distribuicao por nivel
-2. **Consultas Basicas**: Quem sao, como usam IA (resumo)
-3. **Assistente Esporadico**: Quem sao, como usam IA (resumo)
-4. **Copiloto**: Quem sao, como usam IA (resumo)
-5. **Piloto Automatico**: Quem sao, como usam IA (resumo)
-6. **Padroes Observados**: Ferramentas mais mencionadas, casos de uso comuns, gaps de conhecimento
-7. **Recomendacoes**: Sugestoes para o proximo passo de cada grupo
+1. **Visao Geral**: Quantas pessoas participaram, distribuicao por nivel (1-2 frases)
+2. **Padroes por Nivel**: Para cada nivel com participantes, descreva em 2-3 frases os padroes de uso de IA observados. NAO liste participantes individualmente.
+3. **Ferramentas Mais Usadas**: Liste as ferramentas de IA mais mencionadas
+4. **Principais Insights**: 3-5 bullet points com observacoes interessantes sobre o grupo
+5. **Proximo Passo**: Uma recomendacao geral para o grupo evoluir no uso de IA
 
 ## Regras:
 - Escreva em portugues brasileiro
-- Seja conciso mas informativo
-- Use os identificadores anonimos dos participantes (Participante 1, 2, etc.)
+- Seja MUITO conciso — o relatorio inteiro deve caber em uma tela
+- NAO liste participantes individualmente, foque em padroes do grupo
 - Destaque insights interessantes
 - O tom deve ser profissional mas acessivel
-- Se um nivel nao tiver participantes, pule a secao`;
+- Se um nivel nao tiver participantes, pule-o`;
 
 // ── Constants ───────────────────────────────────────────────────────────────
 
