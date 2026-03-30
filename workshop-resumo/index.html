@@ -145,6 +145,38 @@
       color: #666;
     }
 
+    /* ── Stats Counter ──────────────────────────────────── */
+    .stats-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .stat-card {
+      flex: 1;
+      min-width: 100px;
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .stat-number {
+      font-size: 32px;
+      font-weight: bold;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-label {
+      font-size: 11px;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
     /* ── Breakdown Bars ────────────────────────────────── */
     .breakdown {
       display: flex;
@@ -365,6 +397,7 @@
       <h1 class="page-title">Resumo do Workshop</h1>
       <button class="regen-btn" id="regenBtn">Regenerar</button>
     </div>
+    <div class="stats-row" id="statsRow"></div>
     <div class="breakdown" id="breakdown"></div>
     <div class="summary-content" id="summaryContent"></div>
     <p class="summary-meta" id="summaryMeta"></p>
@@ -476,10 +509,35 @@
 
     // ── Render ────────────────────────────────────────
     function renderSummary(data) {
+      renderStats(data.breakdown, data.conversationCount);
       renderBreakdown(data.breakdown, data.conversationCount);
       document.getElementById('summaryContent').innerHTML = markdownToHtml(data.summary);
       document.getElementById('summaryMeta').textContent =
         `Gerado em: ${new Date(data.generatedAt).toLocaleString('pt-BR')} — ${data.conversationCount} conversas analisadas`;
+    }
+
+    function renderStats(breakdown, total) {
+      const row = document.getElementById('statsRow');
+      const advanced = (breakdown.copiloto || 0) + (breakdown.piloto_automatico || 0);
+      const advPct = total > 0 ? Math.round((advanced / total) * 100) : 0;
+      row.innerHTML = `
+        <div class="stat-card">
+          <div class="stat-number" style="color: #93c5fd">${total}</div>
+          <div class="stat-label">Participantes</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" style="color: #a78bfa">${advPct}%</div>
+          <div class="stat-label">Copiloto ou acima</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" style="color: #4ade80">${breakdown.consultas_basicas || 0}</div>
+          <div class="stat-label">Consultas Basicas</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-number" style="color: #fbbf24">${breakdown.piloto_automatico || 0}</div>
+          <div class="stat-label">Piloto Automatico</div>
+        </div>
+      `;
     }
 
     function renderBreakdown(breakdown, total) {

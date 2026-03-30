@@ -64,17 +64,16 @@ const SUMMARY_SYSTEM_PROMPT = `Voce e um analista de dados especializado em adoc
 ## Sua tarefa:
 Analise as conversas e gere um relatorio CONCISO em Markdown com:
 
-1. **Visao Geral**: Quantas pessoas participaram, distribuicao por nivel (1-2 frases)
-2. **Padroes por Nivel**: Para cada nivel com participantes, descreva em 2-3 frases os padroes de uso de IA observados. NAO liste participantes individualmente.
-3. **Ferramentas Mais Usadas**: Liste as ferramentas de IA mais mencionadas
-4. **Principais Insights**: 3-5 bullet points com observacoes interessantes sobre o grupo
-5. **Proximo Passo**: Uma recomendacao geral para o grupo evoluir no uso de IA
+1. **Padroes por Nivel**: Para cada nivel com participantes, descreva em 2-3 frases os padroes de uso de IA observados. NAO liste participantes individualmente.
+2. **Ferramentas Mais Usadas**: Liste as ferramentas de IA mais mencionadas pelo grupo
+3. **Impacto Estrategico**: Como a distribuicao de niveis do grupo impacta a capacidade da empresa de adotar IA. Que riscos e oportunidades isso revela para a estrategia da empresa?
+4. **Benchmark**: Compare o perfil do grupo com o mercado. Empresas lideres em IA tipicamente tem 30-40% do time no nivel Copiloto ou acima. Como esse grupo se compara? Seja especifico.
+5. **Plano de Acao**: 3-4 acoes concretas e praticas que a empresa pode tomar para evoluir o nivel de maturidade em IA do grupo. Priorize por impacto.
 
 ## Regras:
 - Escreva em portugues brasileiro
-- Seja MUITO conciso — o relatorio inteiro deve caber em uma tela
+- Seja MUITO conciso — maximo 2-3 frases por secao
 - NAO liste participantes individualmente, foque em padroes do grupo
-- Destaque insights interessantes
 - O tom deve ser profissional mas acessivel
 - Se um nivel nao tiver participantes, pule-o`;
 
