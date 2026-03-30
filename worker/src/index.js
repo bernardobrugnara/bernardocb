@@ -542,9 +542,13 @@ async function handleWorkshopFeedbackResolve(request, env, corsHeaders) {
   const raw = await env.WORKSHOP_KV.get(key);
   if (!raw) return jsonResponse({ error: 'Not found' }, 404, corsHeaders);
 
+  const validStatuses = ['approved', 'rejected', 'done'];
+  const newStatus = validStatuses.includes(body.status) ? body.status : 'done';
+
   const fb = JSON.parse(raw);
-  fb.status = 'done';
-  fb.resolvedAt = new Date().toISOString();
+  fb.status = newStatus;
+  if (newStatus === 'done') fb.resolvedAt = new Date().toISOString();
+  if (newStatus === 'approved') fb.approvedAt = new Date().toISOString();
   await env.WORKSHOP_KV.put(key, JSON.stringify(fb));
 
   return jsonResponse({ success: true }, 200, corsHeaders);

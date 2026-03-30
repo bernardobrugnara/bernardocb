@@ -30,16 +30,16 @@ echo ""
 
 # ── Main Loop ────────────────────────────────────────────────────────────────
 while true; do
-  echo "[$(date '+%H:%M:%S')] Checking for pending feedback..."
+  echo "[$(date '+%H:%M:%S')] Checking for approved feedback..."
 
-  # 1. Fetch pending feedbacks
-  FEEDBACK_RESPONSE=$(curl -s "${API_BASE}/workshop/feedback?token=${WORKSHOP_ADMIN_TOKEN}&status=pending")
+  # 1. Fetch approved feedbacks (approved by admin in /workshop-backlog)
+  FEEDBACK_RESPONSE=$(curl -s "${API_BASE}/workshop/feedback?token=${WORKSHOP_ADMIN_TOKEN}&status=approved")
 
   # Check if there are feedbacks
   FEEDBACK_COUNT=$(echo "$FEEDBACK_RESPONSE" | jq '.feedbacks | length')
 
   if [[ "$FEEDBACK_COUNT" == "0" || "$FEEDBACK_COUNT" == "null" ]]; then
-    echo "[$(date '+%H:%M:%S')] No pending feedback. Sleeping ${LOOP_INTERVAL}s..."
+    echo "[$(date '+%H:%M:%S')] No approved feedback. Sleeping ${LOOP_INTERVAL}s..."
     sleep "$LOOP_INTERVAL"
     continue
   fi

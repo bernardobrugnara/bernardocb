@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Workshop IA — Backlog</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      color: #f0f0f0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100dvh;
+    }
+
+    /* ── Auth Gate ──────────────────────────────────────── */
+    .auth-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100dvh;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .auth-screen.hidden { display: none; }
+
+    .auth-title {
+      font-size: 18px;
+      color: #93c5fd;
+      margin-bottom: 20px;
+    }
+
+    .auth-input {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #f0f0f0;
+      font-family: inherit;
+      font-size: 16px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+      outline: none;
+    }
+
+    .auth-input:focus { border-color: #93c5fd; }
+
+    .auth-btn {
+      margin-top: 16px;
+      background: #93c5fd;
+      color: #0a0a0a;
+      border: none;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: bold;
+      padding: 10px 32px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .auth-btn:hover { opacity: 0.85; }
+
+    .auth-error {
+      color: #f87171;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* ── Main ───────────────────────────────────────────── */
+    .main-content {
+      display: none;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    .main-content.active { display: block; }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .page-title {
+      font-size: 18px;
+      color: #93c5fd;
+    }
+
+    .refresh-btn {
+      background: none;
+      border: 1px solid #333;
+      color: #888;
+      font-family: inherit;
+      font-size: 12px;
+      padding: 4px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .refresh-btn:hover { border-color: #93c5fd; color: #93c5fd; }
+
+    /* ── Tabs ───────────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #222;
+      padding-bottom: 0;
+    }
+
+    .tab {
+      background: none;
+      border: none;
+      color: #666;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 8px 16px;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+    }
+
+    .tab:hover { color: #aaa; }
+    .tab.active { color: #93c5fd; border-bottom-color: #93c5fd; }
+
+    .tab-count {
+      display: inline-block;
+      background: #222;
+      color: #888;
+      font-size: 11px;
+      padding: 1px 6px;
+      border-radius: 8px;
+      margin-left: 4px;
+    }
+
+    .tab.active .tab-count { background: #93c5fd33; color: #93c5fd; }
+
+    /* ── Feedback Cards ────────────────────────────────── */
+    .feedback-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .feedback-card {
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .feedback-message {
+      font-size: 14px;
+      color: #e0e0e0;
+      margin-bottom: 10px;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .feedback-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .feedback-time {
+      font-size: 12px;
+      color: #555;
+    }
+
+    .feedback-actions {
+      display: flex;
+      gap: 6px;
+    }
+
+    .btn-approve {
+      background: #4ade8022;
+      border: 1px solid #4ade8044;
+      color: #4ade80;
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: bold;
+      padding: 5px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-approve:hover { background: #4ade8044; }
+
+    .btn-reject {
+      background: #f8717122;
+      border: 1px solid #f8717144;
+      color: #f87171;
+      font-family: inherit;
+      font-size: 12px;
+      padding: 5px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-reject:hover { background: #f8717144; }
+
+    .status-badge {
+      font-size: 11px;
+      font-weight: bold;
+      padding: 3px 10px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-pending { background: #fbbf2422; color: #fbbf24; border: 1px solid #fbbf2444; }
+    .status-approved { background: #4ade8022; color: #4ade80; border: 1px solid #4ade8044; }
+    .status-done { background: #60a5fa22; color: #60a5fa; border: 1px solid #60a5fa44; }
+    .status-rejected { background: #f8717122; color: #f87171; border: 1px solid #f8717144; }
+
+    .empty-state {
+      text-align: center;
+      color: #555;
+      padding: 48px 20px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Auth Screen -->
+  <div class="auth-screen" id="authScreen">
+    <h1 class="auth-title">Workshop IA — Backlog</h1>
+    <input type="password" class="auth-input" id="tokenInput" placeholder="Senha de acesso" autocomplete="off">
+    <button class="auth-btn" id="authBtn">Entrar</button>
+    <p class="auth-error" id="authError">Senha incorreta</p>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <div class="page-header">
+      <h1 class="page-title">Backlog de Feedback</h1>
+      <button class="refresh-btn" id="refreshBtn">Atualizar</button>
+    </div>
+    <div class="tabs" id="tabs">
+      <button class="tab active" data-status="pending">Pendentes <span class="tab-count" id="countPending">0</span></button>
+      <button class="tab" data-status="approved">Aprovados <span class="tab-count" id="countApproved">0</span></button>
+      <button class="tab" data-status="done">Implementados <span class="tab-count" id="countDone">0</span></button>
+      <button class="tab" data-status="rejected">Rejeitados <span class="tab-count" id="countRejected">0</span></button>
+    </div>
+    <div class="feedback-list" id="feedbackList"></div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://bernardocb-chat.bernardocb.workers.dev';
+    const REFRESH_INTERVAL = 15000;
+
+    let token = sessionStorage.getItem('workshop_token') || '';
+    let allFeedbacks = [];
+    let currentTab = 'pending';
+    let refreshTimer = null;
+
+    // DOM
+    const authScreen = document.getElementById('authScreen');
+    const mainContent = document.getElementById('mainContent');
+    const tokenInput = document.getElementById('tokenInput');
+    const authBtn = document.getElementById('authBtn');
+    const authError = document.getElementById('authError');
+    const feedbackList = document.getElementById('feedbackList');
+    const refreshBtn = document.getElementById('refreshBtn');
+
+    // ── Auth ──────────────────────────────────────────
+    if (token) tryAuth(token);
+
+    authBtn.addEventListener('click', () => tryAuth(tokenInput.value.trim()));
+    tokenInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') tryAuth(tokenInput.value.trim()); });
+
+    async function tryAuth(t) {
+      if (!t) return;
+      try {
+        const resp = await fetch(`${API_BASE}/workshop/feedback?token=${encodeURIComponent(t)}`);
+        if (resp.status === 401) { authError.style.display = 'block'; return; }
+        if (!resp.ok) throw new Error();
+        token = t;
+        sessionStorage.setItem('workshop_token', token);
+        authScreen.classList.add('hidden');
+        mainContent.classList.add('active');
+        const data = await resp.json();
+        allFeedbacks = data.feedbacks || [];
+        renderAll();
+        startAutoRefresh();
+      } catch {
+        authError.textContent = 'Erro ao conectar';
+        authError.style.display = 'block';
+      }
+    }
+
+    // ── Tabs ──────────────────────────────────────────
+    document.getElementById('tabs').addEventListener('click', (e) => {
+      const tab = e.target.closest('.tab');
+      if (!tab) return;
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentTab = tab.dataset.status;
+      renderList();
+    });
+
+    // ── Render ────────────────────────────────────────
+    function renderAll() {
+      updateCounts();
+      renderList();
+    }
+
+    function updateCounts() {
+      const counts = { pending: 0, approved: 0, done: 0, rejected: 0 };
+      for (const fb of allFeedbacks) counts[fb.status] = (counts[fb.status] || 0) + 1;
+      document.getElementById('countPending').textContent = counts.pending;
+      document.getElementById('countApproved').textContent = counts.approved;
+      document.getElementById('countDone').textContent = counts.done;
+      document.getElementById('countRejected').textContent = counts.rejected;
+    }
+
+    function renderList() {
+      const filtered = allFeedbacks.filter(fb => fb.status === currentTab);
+
+      if (filtered.length === 0) {
+        feedbackList.innerHTML = `<div class="empty-state">Nenhum feedback ${currentTab === 'pending' ? 'pendente' : currentTab === 'approved' ? 'aprovado' : currentTab === 'done' ? 'implementado' : 'rejeitado'}.</div>`;
+        return;
+      }
+
+      feedbackList.innerHTML = '';
+      for (const fb of filtered) {
+        const card = document.createElement('div');
+        card.className = 'feedback-card';
+        card.innerHTML = `
+          <div class="feedback-message">${esc(fb.message)}</div>
+          <div class="feedback-meta">
+            <span class="feedback-time">${relativeTime(fb.createdAt)}</span>
+            <div class="feedback-actions">
+              ${fb.status === 'pending' ? `
+                <button class="btn-approve" data-key="${esc(fb.key)}" data-action="approved">Aprovar</button>
+                <button class="btn-reject" data-key="${esc(fb.key)}" data-action="rejected">Rejeitar</button>
+              ` : `
+                <span class="status-badge status-${fb.status}">${statusLabel(fb.status)}</span>
+              `}
+            </div>
+          </div>
+        `;
+        feedbackList.appendChild(card);
+      }
+
+      // Action handlers
+      feedbackList.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => updateStatus(btn.dataset.key, btn.dataset.action));
+      });
+    }
+
+    async function updateStatus(key, status) {
+      try {
+        const resp = await fetch(`${API_BASE}/workshop/feedback/resolve`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, key, status }),
+        });
+        if (!resp.ok) return;
+        // Update local state
+        const fb = allFeedbacks.find(f => f.key === key);
+        if (fb) fb.status = status;
+        renderAll();
+      } catch {}
+    }
+
+    // ── Auto-refresh ──────────────────────────────────
+    refreshBtn.addEventListener('click', loadFeedbacks);
+
+    function startAutoRefresh() {
+      refreshTimer = setInterval(loadFeedbacks, REFRESH_INTERVAL);
+    }
+
+    async function loadFeedbacks() {
+      try {
+        const resp = await fetch(`${API_BASE}/workshop/feedback?token=${encodeURIComponent(token)}`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        allFeedbacks = data.feedbacks || [];
+        renderAll();
+      } catch {}
+    }
+
+    // ── Helpers ───────────────────────────────────────
+    function esc(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    function statusLabel(s) {
+      return { pending: 'Pendente', approved: 'Aprovado', done: 'Implementado', rejected: 'Rejeitado' }[s] || s;
+    }
+
+    function relativeTime(iso) {
+      const diff = Date.now() - new Date(iso).getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return 'agora';
+      if (mins < 60) return `ha ${mins} min`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return `ha ${hours}h`;
+      return new Date(iso).toLocaleDateString('pt-BR');
+    }
+  </script>
+</body>
+</html>
