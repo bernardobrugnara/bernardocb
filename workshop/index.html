@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Workshop IA — Purple Metrics</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      color: #f0f0f0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 15px;
+      line-height: 1.5;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    /* ── Name Entry Screen ─────────────────────────────── */
+    .entry-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100dvh;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .entry-screen.hidden { display: none; }
+
+    .entry-logo {
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 8px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .entry-title {
+      font-size: 22px;
+      color: #93c5fd;
+      margin-bottom: 8px;
+    }
+
+    .entry-subtitle {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 40px;
+      max-width: 400px;
+    }
+
+    .entry-label {
+      font-size: 16px;
+      color: #ccc;
+      margin-bottom: 12px;
+    }
+
+    .name-input {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #f0f0f0;
+      font-family: inherit;
+      font-size: 18px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 340px;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .name-input:focus { border-color: #93c5fd; }
+
+    .start-btn {
+      margin-top: 20px;
+      background: #93c5fd;
+      color: #0a0a0a;
+      border: none;
+      font-family: inherit;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 12px 40px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .start-btn:hover { opacity: 0.85; }
+    .start-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Chat Screen ───────────────────────────────────── */
+    .chat-screen {
+      display: none;
+      flex-direction: column;
+      height: 100dvh;
+    }
+
+    .chat-screen.active { display: flex; }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 16px;
+      border-bottom: 1px solid #222;
+      background: #111;
+      flex-shrink: 0;
+    }
+
+    .chat-header-name {
+      font-size: 14px;
+      color: #93c5fd;
+    }
+
+    .chat-header-timer {
+      font-size: 13px;
+      color: #666;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .msg {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+
+    .msg.assistant {
+      align-self: flex-start;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      background: #1e3a5f;
+      color: #f0f0f0;
+      border-bottom-right-radius: 4px;
+    }
+
+    .msg.typing {
+      color: #666;
+      font-style: italic;
+    }
+
+    .chat-input-row {
+      display: flex;
+      gap: 8px;
+      padding: 12px 16px;
+      border-top: 1px solid #222;
+      background: #111;
+      flex-shrink: 0;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #f0f0f0;
+      font-family: inherit;
+      font-size: 15px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .chat-input:focus { border-color: #93c5fd; }
+
+    .send-btn {
+      background: #93c5fd;
+      color: #0a0a0a;
+      border: none;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: bold;
+      padding: 10px 20px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+      flex-shrink: 0;
+    }
+
+    .send-btn:hover { opacity: 0.85; }
+    .send-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Completion Screen ─────────────────────────────── */
+    .done-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100dvh;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .done-screen.active { display: flex; }
+
+    .done-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+
+    .done-title {
+      font-size: 22px;
+      color: #93c5fd;
+      margin-bottom: 12px;
+    }
+
+    .done-summary {
+      font-size: 14px;
+      color: #aaa;
+      max-width: 480px;
+      margin-bottom: 24px;
+      line-height: 1.6;
+    }
+
+    .done-badge {
+      display: inline-block;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: bold;
+      margin-bottom: 24px;
+    }
+
+    .done-note {
+      font-size: 13px;
+      color: #555;
+    }
+
+    /* ── Scrollbar ─────────────────────────────────────── */
+    .chat-messages::-webkit-scrollbar { width: 6px; }
+    .chat-messages::-webkit-scrollbar-track { background: transparent; }
+    .chat-messages::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+
+    @media (max-width: 600px) {
+      .msg { max-width: 90%; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Entry Screen -->
+  <div class="entry-screen" id="entryScreen">
+    <div class="entry-logo">Purple Metrics</div>
+    <h1 class="entry-title">Workshop IA</h1>
+    <p class="entry-subtitle">Vamos conversar sobre como voce usa Inteligencia Artificial no seu dia a dia.</p>
+    <label class="entry-label" for="nameInput">Qual e o seu nome?</label>
+    <input type="text" class="name-input" id="nameInput" placeholder="Seu nome" autocomplete="off" maxlength="100">
+    <button class="start-btn" id="startBtn" disabled>Comecar</button>
+  </div>
+
+  <!-- Chat Screen -->
+  <div class="chat-screen" id="chatScreen">
+    <div class="chat-header">
+      <span class="chat-header-name" id="chatHeaderName"></span>
+      <span class="chat-header-timer" id="chatTimer">00:00</span>
+    </div>
+    <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-input-row">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Digite sua mensagem..." autocomplete="off" maxlength="1000">
+      <button class="send-btn" id="sendBtn" disabled>Enviar</button>
+    </div>
+  </div>
+
+  <!-- Done Screen -->
+  <div class="done-screen" id="doneScreen">
+    <div class="done-icon">&#10003;</div>
+    <h2 class="done-title" id="doneTitle"></h2>
+    <p class="done-summary" id="doneSummary"></p>
+    <div class="done-badge" id="doneBadge"></div>
+    <p class="done-note">Sua conversa foi salva. Obrigado por participar!</p>
+  </div>
+
+  <script>
+    const CHAT_API_URL = 'https://bernardocb-chat.bernardocb.workers.dev/workshop/chat';
+    const SAVE_API_URL = 'https://bernardocb-chat.bernardocb.workers.dev/workshop/save';
+    const FALLBACK_TIMEOUT = 8 * 60 * 1000; // 8 minutes
+    const MIN_EXCHANGES_FOR_FALLBACK = 6;
+
+    // State
+    let participantName = '';
+    let chatMessages = [];
+    let isStreaming = false;
+    let isSaved = false;
+    let startedAt = null;
+    let timerInterval = null;
+    let fallbackTimer = null;
+
+    // DOM
+    const entryScreen = document.getElementById('entryScreen');
+    const chatScreen = document.getElementById('chatScreen');
+    const doneScreen = document.getElementById('doneScreen');
+    const nameInput = document.getElementById('nameInput');
+    const startBtn = document.getElementById('startBtn');
+    const chatHeaderName = document.getElementById('chatHeaderName');
+    const chatTimerEl = document.getElementById('chatTimer');
+    const chatMessagesEl = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendBtn = document.getElementById('sendBtn');
+
+    // ── Entry Screen ──────────────────────────────────
+    nameInput.addEventListener('input', () => {
+      startBtn.disabled = nameInput.value.trim().length === 0;
+    });
+
+    nameInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !startBtn.disabled) startChat();
+    });
+
+    startBtn.addEventListener('click', startChat);
+
+    function startChat() {
+      participantName = nameInput.value.trim();
+      if (!participantName) return;
+
+      entryScreen.classList.add('hidden');
+      chatScreen.classList.add('active');
+
+      chatHeaderName.textContent = 'Workshop IA — ' + participantName;
+      startedAt = new Date().toISOString();
+
+      // Start timer
+      const startTime = Date.now();
+      timerInterval = setInterval(() => {
+        const elapsed = Date.now() - startTime;
+        const mins = String(Math.floor(elapsed / 60000)).padStart(2, '0');
+        const secs = String(Math.floor((elapsed % 60000) / 1000)).padStart(2, '0');
+        chatTimerEl.textContent = `${mins}:${secs}`;
+      }, 1000);
+
+      // Fallback auto-save
+      fallbackTimer = setTimeout(() => {
+        const userMsgCount = chatMessages.filter(m => m.role === 'user').length;
+        if (!isSaved && userMsgCount >= MIN_EXCHANGES_FOR_FALLBACK) {
+          saveConversation('indefinido');
+        }
+      }, FALLBACK_TIMEOUT);
+
+      // Send initial empty message to trigger agent greeting
+      chatInput.focus();
+      sendMessage('oi');
+    }
+
+    // ── Chat ──────────────────────────────────────────
+    chatInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !sendBtn.disabled) handleSend();
+    });
+
+    sendBtn.addEventListener('click', handleSend);
+
+    function handleSend() {
+      const text = chatInput.value.trim();
+      if (!text || isStreaming) return;
+      chatInput.value = '';
+      sendMessage(text);
+    }
+
+    function addMessageBubble(role, content) {
+      const div = document.createElement('div');
+      div.className = `msg ${role}`;
+      div.textContent = content;
+      chatMessagesEl.appendChild(div);
+      chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+      return div;
+    }
+
+    async function sendMessage(text) {
+      // Show user message
+      addMessageBubble('user', text);
+      chatMessages.push({ role: 'user', content: text });
+
+      isStreaming = true;
+      sendBtn.disabled = true;
+      chatInput.disabled = true;
+
+      // Show typing indicator
+      const typingDiv = addMessageBubble('assistant', '...');
+      typingDiv.classList.add('typing');
+
+      try {
+        const response = await fetch(CHAT_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            messages: chatMessages,
+            participantName,
+          }),
+        });
+
+        if (!response.ok) {
+          typingDiv.textContent = 'Erro ao conectar. Tente novamente.';
+          typingDiv.classList.remove('typing');
+          isStreaming = false;
+          sendBtn.disabled = false;
+          chatInput.disabled = false;
+          return;
+        }
+
+        // Parse SSE stream
+        const reader = response.body.getReader();
+        const decoder = new TextDecoder();
+        let fullText = '';
+        let buffer = '';
+
+        typingDiv.textContent = '';
+        typingDiv.classList.remove('typing');
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split('\n');
+          buffer = lines.pop() || '';
+
+          for (const line of lines) {
+            if (!line.startsWith('data: ')) continue;
+            const data = line.slice(6).trim();
+            if (data === '[DONE]') continue;
+
+            try {
+              const parsed = JSON.parse(data);
+              if (parsed.type === 'content_block_delta' && parsed.delta && parsed.delta.text) {
+                fullText += parsed.delta.text;
+                // Display without tags
+                typingDiv.textContent = fullText
+                  .replace(/\[READY\]/g, '')
+                  .replace(/\[CLASSIFICATION:\w+\]/g, '')
+                  .trim();
+                chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+              }
+            } catch {}
+          }
+        }
+
+        // Store full message (with tags for extraction)
+        chatMessages.push({ role: 'assistant', content: fullText });
+
+        // Check for completion signal
+        if (fullText.includes('[READY]')) {
+          const classMatch = fullText.match(/\[CLASSIFICATION:(\w+)\]/);
+          const classification = classMatch ? classMatch[1] : 'indefinido';
+          saveConversation(classification);
+        }
+
+      } catch (err) {
+        console.error('Stream error:', err);
+        typingDiv.textContent = 'Erro de conexao. Tente novamente.';
+        typingDiv.classList.remove('typing');
+      }
+
+      isStreaming = false;
+      sendBtn.disabled = false;
+      chatInput.disabled = false;
+      chatInput.focus();
+    }
+
+    // ── Save & Done ───────────────────────────────────
+    async function saveConversation(classification) {
+      if (isSaved) return;
+      isSaved = true;
+
+      clearInterval(timerInterval);
+      clearTimeout(fallbackTimer);
+
+      // Clean messages for storage (strip tags from assistant messages)
+      const cleanMessages = chatMessages.map((m) => ({
+        role: m.role,
+        content: m.content
+          .replace(/\[READY\]/g, '')
+          .replace(/\[CLASSIFICATION:\w+\]/g, '')
+          .trim(),
+      }));
+
+      try {
+        await fetch(SAVE_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: participantName,
+            messages: cleanMessages,
+            classification,
+            startedAt,
+          }),
+        });
+      } catch (err) {
+        console.error('Save error:', err);
+      }
+
+      showDoneScreen(classification);
+    }
+
+    function showDoneScreen(classification) {
+      chatScreen.classList.remove('active');
+      doneScreen.classList.add('active');
+
+      document.getElementById('doneTitle').textContent = `Obrigado, ${participantName}!`;
+
+      // Get last assistant message as summary
+      const lastAssistant = chatMessages.filter(m => m.role === 'assistant').pop();
+      if (lastAssistant) {
+        const summary = lastAssistant.content
+          .replace(/\[READY\]/g, '')
+          .replace(/\[CLASSIFICATION:\w+\]/g, '')
+          .trim();
+        document.getElementById('doneSummary').textContent = summary;
+      }
+
+      const badgeEl = document.getElementById('doneBadge');
+      const labels = {
+        basico: { text: 'Explorador', color: '#4ade80' },
+        intermediario: { text: 'Praticante', color: '#60a5fa' },
+        avancado: { text: 'Avancado', color: '#a78bfa' },
+        expert: { text: 'Expert', color: '#fbbf24' },
+        indefinido: { text: 'Participante', color: '#888' },
+      };
+      const badge = labels[classification] || labels.indefinido;
+      badgeEl.textContent = badge.text;
+      badgeEl.style.background = badge.color + '22';
+      badgeEl.style.color = badge.color;
+      badgeEl.style.border = `1px solid ${badge.color}44`;
+    }
+
+    // ── Prevent accidental exit ───────────────────────
+    window.addEventListener('beforeunload', (e) => {
+      if (!isSaved && chatMessages.length > 0) {
+        e.preventDefault();
+      }
+    });
+  </script>
+</body>
+</html>

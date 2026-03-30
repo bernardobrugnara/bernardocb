@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Workshop IA — Resumo</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      color: #f0f0f0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100dvh;
+    }
+
+    /* ── Auth Gate ──────────────────────────────────────── */
+    .auth-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100dvh;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .auth-screen.hidden { display: none; }
+
+    .auth-title {
+      font-size: 18px;
+      color: #93c5fd;
+      margin-bottom: 20px;
+    }
+
+    .auth-input {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #f0f0f0;
+      font-family: inherit;
+      font-size: 16px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .auth-input:focus { border-color: #93c5fd; }
+
+    .auth-btn {
+      margin-top: 16px;
+      background: #93c5fd;
+      color: #0a0a0a;
+      border: none;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: bold;
+      padding: 10px 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .auth-btn:hover { opacity: 0.85; }
+
+    .auth-error {
+      color: #f87171;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* ── Main Content ──────────────────────────────────── */
+    .main-content {
+      display: none;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: 24px 16px 60px;
+    }
+
+    .main-content.active { display: block; }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .page-title {
+      font-size: 18px;
+      color: #93c5fd;
+    }
+
+    .regen-btn {
+      background: none;
+      border: 1px solid #333;
+      color: #888;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 6px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s;
+    }
+
+    .regen-btn:hover { border-color: #93c5fd; color: #93c5fd; }
+    .regen-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ── Loading ───────────────────────────────────────── */
+    .loading-screen {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100dvh;
+      text-align: center;
+      padding: 24px;
+    }
+
+    .loading-screen.active { display: flex; }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #333;
+      border-top-color: #93c5fd;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 16px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .loading-text {
+      font-size: 14px;
+      color: #666;
+    }
+
+    /* ── Breakdown Bars ────────────────────────────────── */
+    .breakdown {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 32px;
+    }
+
+    .breakdown-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .breakdown-label {
+      width: 120px;
+      font-size: 13px;
+      text-align: right;
+      flex-shrink: 0;
+    }
+
+    .breakdown-bar-bg {
+      flex: 1;
+      height: 24px;
+      background: #1a1a1a;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .breakdown-bar {
+      height: 100%;
+      border-radius: 4px;
+      transition: width 0.6s ease;
+      display: flex;
+      align-items: center;
+      padding-left: 8px;
+      font-size: 12px;
+      font-weight: bold;
+      min-width: 0;
+    }
+
+    .breakdown-count {
+      font-size: 13px;
+      width: 40px;
+      text-align: right;
+      color: #888;
+      flex-shrink: 0;
+    }
+
+    .bar-basico { background: #4ade80; color: #0a0a0a; }
+    .bar-intermediario { background: #60a5fa; color: #0a0a0a; }
+    .bar-avancado { background: #a78bfa; color: #0a0a0a; }
+    .bar-expert { background: #fbbf24; color: #0a0a0a; }
+
+    /* ── Summary Content ───────────────────────────────── */
+    .summary-content {
+      background: #111;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 24px;
+      line-height: 1.7;
+    }
+
+    .summary-content h1 { font-size: 20px; color: #93c5fd; margin: 24px 0 12px; }
+    .summary-content h2 { font-size: 17px; color: #93c5fd; margin: 20px 0 10px; }
+    .summary-content h3 { font-size: 15px; color: #a78bfa; margin: 16px 0 8px; }
+    .summary-content p { margin: 8px 0; color: #ccc; }
+    .summary-content strong { color: #f0f0f0; }
+    .summary-content ul { margin: 8px 0; padding-left: 24px; }
+    .summary-content li { margin: 4px 0; color: #ccc; }
+    .summary-content hr { border: none; border-top: 1px solid #333; margin: 16px 0; }
+
+    .summary-meta {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #444;
+      text-align: right;
+    }
+
+    .error-msg {
+      text-align: center;
+      color: #f87171;
+      padding: 40px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 600px) {
+      .breakdown-label { width: 90px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Auth Screen -->
+  <div class="auth-screen" id="authScreen">
+    <h1 class="auth-title">Workshop IA — Resumo</h1>
+    <input type="password" class="auth-input" id="tokenInput" placeholder="Senha de acesso" autocomplete="off">
+    <button class="auth-btn" id="authBtn">Entrar</button>
+    <p class="auth-error" id="authError">Senha incorreta</p>
+  </div>
+
+  <!-- Loading -->
+  <div class="loading-screen" id="loadingScreen">
+    <div class="spinner"></div>
+    <p class="loading-text">Gerando analise com IA...</p>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <div class="page-header">
+      <h1 class="page-title">Resumo do Workshop</h1>
+      <button class="regen-btn" id="regenBtn">Regenerar</button>
+    </div>
+    <div class="breakdown" id="breakdown"></div>
+    <div class="summary-content" id="summaryContent"></div>
+    <p class="summary-meta" id="summaryMeta"></p>
+  </div>
+
+  <script>
+    const SUMMARY_API_URL = 'https://bernardocb-chat.bernardocb.workers.dev/workshop/summary';
+
+    let token = sessionStorage.getItem('workshop_token') || '';
+
+    // DOM
+    const authScreen = document.getElementById('authScreen');
+    const loadingScreen = document.getElementById('loadingScreen');
+    const mainContent = document.getElementById('mainContent');
+    const tokenInput = document.getElementById('tokenInput');
+    const authBtn = document.getElementById('authBtn');
+    const authError = document.getElementById('authError');
+    const regenBtn = document.getElementById('regenBtn');
+
+    // ── Auth ──────────────────────────────────────────
+    if (token) {
+      authScreen.classList.add('hidden');
+      generateSummary(false);
+    }
+
+    authBtn.addEventListener('click', () => {
+      const t = tokenInput.value.trim();
+      if (!t) return;
+      token = t;
+      sessionStorage.setItem('workshop_token', token);
+      authScreen.classList.add('hidden');
+      generateSummary(false);
+    });
+
+    tokenInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') authBtn.click();
+    });
+
+    regenBtn.addEventListener('click', () => generateSummary(true));
+
+    // ── Generate Summary ──────────────────────────────
+    async function generateSummary(force) {
+      loadingScreen.classList.add('active');
+      mainContent.classList.remove('active');
+      regenBtn.disabled = true;
+
+      try {
+        const resp = await fetch(SUMMARY_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token, force }),
+        });
+
+        if (resp.status === 401) {
+          loadingScreen.classList.remove('active');
+          authScreen.classList.remove('hidden');
+          authError.style.display = 'block';
+          sessionStorage.removeItem('workshop_token');
+          token = '';
+          return;
+        }
+
+        if (resp.status === 404) {
+          loadingScreen.classList.remove('active');
+          mainContent.classList.add('active');
+          document.getElementById('summaryContent').innerHTML =
+            '<div class="error-msg">Nenhuma conversa registrada ainda. Aguarde os participantes interagirem no chat.</div>';
+          regenBtn.disabled = false;
+          return;
+        }
+
+        if (!resp.ok) throw new Error('API error');
+
+        const data = await resp.json();
+        loadingScreen.classList.remove('active');
+        mainContent.classList.add('active');
+        renderSummary(data);
+      } catch (err) {
+        console.error('Summary error:', err);
+        loadingScreen.classList.remove('active');
+        mainContent.classList.add('active');
+        document.getElementById('summaryContent').innerHTML =
+          '<div class="error-msg">Erro ao gerar resumo. Tente novamente.</div>';
+      }
+
+      regenBtn.disabled = false;
+    }
+
+    // ── Render ────────────────────────────────────────
+    function renderSummary(data) {
+      renderBreakdown(data.breakdown, data.conversationCount);
+      document.getElementById('summaryContent').innerHTML = markdownToHtml(data.summary);
+      document.getElementById('summaryMeta').textContent =
+        `Gerado em: ${new Date(data.generatedAt).toLocaleString('pt-BR')} — ${data.conversationCount} conversas analisadas`;
+    }
+
+    function renderBreakdown(breakdown, total) {
+      const container = document.getElementById('breakdown');
+      container.innerHTML = '';
+
+      const levels = [
+        { key: 'basico', label: 'Basico', cls: 'bar-basico' },
+        { key: 'intermediario', label: 'Intermediario', cls: 'bar-intermediario' },
+        { key: 'avancado', label: 'Avancado', cls: 'bar-avancado' },
+        { key: 'expert', label: 'Expert', cls: 'bar-expert' },
+      ];
+
+      for (const level of levels) {
+        const count = breakdown[level.key] || 0;
+        const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+
+        const row = document.createElement('div');
+        row.className = 'breakdown-row';
+        row.innerHTML = `
+          <span class="breakdown-label" style="color: ${getColor(level.key)}">${level.label}</span>
+          <div class="breakdown-bar-bg">
+            <div class="breakdown-bar ${level.cls}" style="width: ${Math.max(pct, 0)}%">
+              ${pct > 10 ? pct + '%' : ''}
+            </div>
+          </div>
+          <span class="breakdown-count">${count}</span>
+        `;
+        container.appendChild(row);
+      }
+    }
+
+    function getColor(level) {
+      const colors = { basico: '#4ade80', intermediario: '#60a5fa', avancado: '#a78bfa', expert: '#fbbf24' };
+      return colors[level] || '#888';
+    }
+
+    // ── Minimal Markdown to HTML ──────────────────────
+    function markdownToHtml(md) {
+      if (!md) return '';
+      return md
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        // Headings
+        .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+        .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+        .replace(/^# (.+)$/gm, '<h1>$1</h1>')
+        // Bold
+        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+        // Italic
+        .replace(/\*(.+?)\*/g, '<em>$1</em>')
+        // Horizontal rule
+        .replace(/^---$/gm, '<hr>')
+        // Unordered lists
+        .replace(/^- (.+)$/gm, '<li>$1</li>')
+        .replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>')
+        // Paragraphs (double newline)
+        .replace(/\n\n/g, '</p><p>')
+        // Single newlines within paragraphs
+        .replace(/\n/g, '<br>')
+        // Wrap in paragraph
+        .replace(/^(?!<[hul]|<hr)/, '<p>')
+        .replace(/(?<![>])$/, '</p>');
+    }
+  </script>
+</body>
+</html>

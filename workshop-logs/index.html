@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Workshop IA — Logs</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #0a0a0a;
+      color: #f0f0f0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 15px;
+      line-height: 1.5;
+      min-height: 100dvh;
+    }
+
+    /* ── Auth Gate ──────────────────────────────────────── */
+    .auth-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100dvh;
+      padding: 24px;
+      text-align: center;
+    }
+
+    .auth-screen.hidden { display: none; }
+
+    .auth-title {
+      font-size: 18px;
+      color: #93c5fd;
+      margin-bottom: 20px;
+    }
+
+    .auth-input {
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #f0f0f0;
+      font-family: inherit;
+      font-size: 16px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 300px;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .auth-input:focus { border-color: #93c5fd; }
+
+    .auth-btn {
+      margin-top: 16px;
+      background: #93c5fd;
+      color: #0a0a0a;
+      border: none;
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: bold;
+      padding: 10px 32px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .auth-btn:hover { opacity: 0.85; }
+
+    .auth-error {
+      color: #f87171;
+      font-size: 13px;
+      margin-top: 12px;
+      display: none;
+    }
+
+    /* ── Main Content ──────────────────────────────────── */
+    .main-content {
+      display: none;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+
+    .main-content.active { display: block; }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+
+    .page-title {
+      font-size: 18px;
+      color: #93c5fd;
+    }
+
+    .stats-bar {
+      font-size: 13px;
+      color: #666;
+    }
+
+    .refresh-note {
+      font-size: 11px;
+      color: #444;
+      text-align: right;
+      margin-bottom: 16px;
+    }
+
+    /* ── Conversation Cards ────────────────────────────── */
+    .conv-list { display: flex; flex-direction: column; gap: 8px; }
+
+    .conv-card {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 8px;
+      padding: 12px 16px;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .conv-card:hover { border-color: #444; background: #1a1a1a; }
+
+    .conv-left { display: flex; flex-direction: column; gap: 4px; }
+
+    .conv-name {
+      font-size: 15px;
+      font-weight: bold;
+      color: #f0f0f0;
+    }
+
+    .conv-meta {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .conv-right { display: flex; align-items: center; gap: 10px; }
+
+    .badge {
+      display: inline-block;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .badge-basico { background: #4ade8022; color: #4ade80; border: 1px solid #4ade8044; }
+    .badge-intermediario { background: #60a5fa22; color: #60a5fa; border: 1px solid #60a5fa44; }
+    .badge-avancado { background: #a78bfa22; color: #a78bfa; border: 1px solid #a78bfa44; }
+    .badge-expert { background: #fbbf2422; color: #fbbf24; border: 1px solid #fbbf2444; }
+    .badge-indefinido { background: #88888822; color: #888; border: 1px solid #88888844; }
+
+    .conv-arrow { color: #444; font-size: 18px; }
+
+    .empty-state {
+      text-align: center;
+      color: #555;
+      padding: 60px 20px;
+      font-size: 14px;
+    }
+
+    /* ── Detail View ───────────────────────────────────── */
+    .detail-view { display: none; }
+    .detail-view.active { display: block; }
+    .list-view.hidden { display: none; }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: #93c5fd;
+      font-family: inherit;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 4px 0;
+      margin-bottom: 16px;
+    }
+
+    .back-btn:hover { text-decoration: underline; }
+
+    .detail-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .detail-name {
+      font-size: 18px;
+      color: #f0f0f0;
+    }
+
+    .detail-time {
+      font-size: 12px;
+      color: #555;
+      margin-bottom: 20px;
+    }
+
+    .detail-messages {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .msg {
+      max-width: 80%;
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      word-wrap: break-word;
+      white-space: pre-wrap;
+    }
+
+    .msg.assistant {
+      align-self: flex-start;
+      background: #1a1a2e;
+      color: #e0e0e0;
+      border-bottom-left-radius: 4px;
+    }
+
+    .msg.user {
+      align-self: flex-end;
+      background: #1e3a5f;
+      color: #f0f0f0;
+      border-bottom-right-radius: 4px;
+    }
+
+    .loading {
+      text-align: center;
+      color: #555;
+      padding: 40px;
+    }
+
+    @media (max-width: 600px) {
+      .msg { max-width: 90%; }
+      .conv-card { flex-direction: column; align-items: flex-start; gap: 8px; }
+      .conv-right { align-self: flex-end; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Auth Screen -->
+  <div class="auth-screen" id="authScreen">
+    <h1 class="auth-title">Workshop IA — Logs</h1>
+    <input type="password" class="auth-input" id="tokenInput" placeholder="Senha de acesso" autocomplete="off">
+    <button class="auth-btn" id="authBtn">Entrar</button>
+    <p class="auth-error" id="authError">Senha incorreta</p>
+  </div>
+
+  <!-- Main Content -->
+  <div class="main-content" id="mainContent">
+    <!-- List View -->
+    <div class="list-view" id="listView">
+      <div class="page-header">
+        <h1 class="page-title">Conversas do Workshop</h1>
+        <span class="stats-bar" id="statsBar"></span>
+      </div>
+      <p class="refresh-note" id="refreshNote"></p>
+      <div class="conv-list" id="convList"></div>
+    </div>
+
+    <!-- Detail View -->
+    <div class="detail-view" id="detailView">
+      <button class="back-btn" id="backBtn">&larr; voltar</button>
+      <div class="detail-header">
+        <span class="detail-name" id="detailName"></span>
+        <span class="badge" id="detailBadge"></span>
+      </div>
+      <p class="detail-time" id="detailTime"></p>
+      <div class="detail-messages" id="detailMessages"></div>
+    </div>
+  </div>
+
+  <script>
+    const LOGS_API_URL = 'https://bernardocb-chat.bernardocb.workers.dev/workshop/logs';
+    const REFRESH_INTERVAL = 30000;
+
+    let token = sessionStorage.getItem('workshop_token') || '';
+    let conversationsCache = {};
+    let refreshTimer = null;
+
+    // DOM
+    const authScreen = document.getElementById('authScreen');
+    const mainContent = document.getElementById('mainContent');
+    const tokenInput = document.getElementById('tokenInput');
+    const authBtn = document.getElementById('authBtn');
+    const authError = document.getElementById('authError');
+    const listView = document.getElementById('listView');
+    const detailView = document.getElementById('detailView');
+    const convList = document.getElementById('convList');
+    const statsBar = document.getElementById('statsBar');
+    const refreshNote = document.getElementById('refreshNote');
+    const backBtn = document.getElementById('backBtn');
+
+    // ── Auth ──────────────────────────────────────────
+    if (token) {
+      tryAuth(token);
+    }
+
+    authBtn.addEventListener('click', () => tryAuth(tokenInput.value.trim()));
+    tokenInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') tryAuth(tokenInput.value.trim());
+    });
+
+    async function tryAuth(t) {
+      if (!t) return;
+      try {
+        const resp = await fetch(`${LOGS_API_URL}?token=${encodeURIComponent(t)}`);
+        if (resp.status === 401) {
+          authError.style.display = 'block';
+          return;
+        }
+        if (!resp.ok) throw new Error('API error');
+        token = t;
+        sessionStorage.setItem('workshop_token', token);
+        authScreen.classList.add('hidden');
+        mainContent.classList.add('active');
+        const data = await resp.json();
+        renderList(data.conversations);
+        startAutoRefresh();
+      } catch (err) {
+        console.error('Auth error:', err);
+        authError.textContent = 'Erro ao conectar';
+        authError.style.display = 'block';
+      }
+    }
+
+    // ── List ──────────────────────────────────────────
+    function renderList(conversations) {
+      statsBar.textContent = `${conversations.length} conversa${conversations.length !== 1 ? 's' : ''}`;
+      refreshNote.textContent = `Atualizado: ${new Date().toLocaleTimeString('pt-BR')}`;
+
+      if (conversations.length === 0) {
+        convList.innerHTML = '<div class="empty-state">Nenhuma conversa registrada ainda.</div>';
+        return;
+      }
+
+      convList.innerHTML = '';
+      for (const conv of conversations) {
+        const card = document.createElement('div');
+        card.className = 'conv-card';
+        card.innerHTML = `
+          <div class="conv-left">
+            <span class="conv-name">${esc(conv.name)}</span>
+            <span class="conv-meta">${relativeTime(conv.savedAt)} &middot; ${conv.messageCount} mensagens</span>
+          </div>
+          <div class="conv-right">
+            <span class="badge badge-${conv.classification}">${badgeLabel(conv.classification)}</span>
+            <span class="conv-arrow">&rsaquo;</span>
+          </div>
+        `;
+        card.addEventListener('click', () => showDetail(conv.key));
+        convList.appendChild(card);
+      }
+    }
+
+    async function loadList() {
+      try {
+        const resp = await fetch(`${LOGS_API_URL}?token=${encodeURIComponent(token)}`);
+        if (!resp.ok) return;
+        const data = await resp.json();
+        renderList(data.conversations);
+      } catch {}
+    }
+
+    function startAutoRefresh() {
+      refreshTimer = setInterval(loadList, REFRESH_INTERVAL);
+    }
+
+    // ── Detail ────────────────────────────────────────
+    async function showDetail(key) {
+      listView.classList.add('hidden');
+      detailView.classList.add('active');
+      clearInterval(refreshTimer);
+
+      const detailMessages = document.getElementById('detailMessages');
+      detailMessages.innerHTML = '<div class="loading">Carregando...</div>';
+
+      let conv = conversationsCache[key];
+      if (!conv) {
+        try {
+          const resp = await fetch(`${LOGS_API_URL}?token=${encodeURIComponent(token)}&key=${encodeURIComponent(key)}`);
+          if (!resp.ok) {
+            detailMessages.innerHTML = '<div class="loading">Erro ao carregar</div>';
+            return;
+          }
+          conv = await resp.json();
+          conversationsCache[key] = conv;
+        } catch {
+          detailMessages.innerHTML = '<div class="loading">Erro de conexao</div>';
+          return;
+        }
+      }
+
+      document.getElementById('detailName').textContent = conv.name;
+      const detailBadge = document.getElementById('detailBadge');
+      detailBadge.textContent = badgeLabel(conv.classification);
+      detailBadge.className = `badge badge-${conv.classification}`;
+      document.getElementById('detailTime').textContent =
+        `${new Date(conv.startedAt).toLocaleString('pt-BR')} — ${conv.messages.length} mensagens`;
+
+      detailMessages.innerHTML = '';
+      for (const m of conv.messages) {
+        const div = document.createElement('div');
+        div.className = `msg ${m.role}`;
+        div.textContent = m.content;
+        detailMessages.appendChild(div);
+      }
+    }
+
+    backBtn.addEventListener('click', () => {
+      detailView.classList.remove('active');
+      listView.classList.remove('hidden');
+      startAutoRefresh();
+    });
+
+    // ── Helpers ───────────────────────────────────────
+    function esc(str) {
+      const d = document.createElement('div');
+      d.textContent = str;
+      return d.innerHTML;
+    }
+
+    function badgeLabel(classification) {
+      const labels = {
+        basico: 'Basico',
+        intermediario: 'Intermediario',
+        avancado: 'Avancado',
+        expert: 'Expert',
+        indefinido: 'Indefinido',
+      };
+      return labels[classification] || classification;
+    }
+
+    function relativeTime(iso) {
+      const diff = Date.now() - new Date(iso).getTime();
+      const mins = Math.floor(diff / 60000);
+      if (mins < 1) return 'agora';
+      if (mins < 60) return `ha ${mins} min`;
+      const hours = Math.floor(mins / 60);
+      if (hours < 24) return `ha ${hours}h`;
+      return new Date(iso).toLocaleDateString('pt-BR');
+    }
+  </script>
+</body>
+</html>
