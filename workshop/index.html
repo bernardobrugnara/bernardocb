@@ -206,10 +206,10 @@
       display: none;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
-      height: 100dvh;
-      padding: 24px;
+      min-height: 100dvh;
+      padding: 40px 24px;
       text-align: center;
+      overflow-y: auto;
     }
 
     .done-screen.active { display: flex; }
@@ -245,6 +245,40 @@
     .done-note {
       font-size: 13px;
       color: #555;
+    }
+
+    .done-recs {
+      max-width: 480px;
+      text-align: left;
+      margin-bottom: 24px;
+    }
+
+    .done-recs-title {
+      font-size: 14px;
+      color: #93c5fd;
+      margin-bottom: 10px;
+    }
+
+    .done-recs ul {
+      list-style: none;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .done-recs li {
+      font-size: 13px;
+      color: #ccc;
+      padding: 8px 12px;
+      background: #141414;
+      border: 1px solid #222;
+      border-radius: 8px;
+      line-height: 1.5;
+    }
+
+    .done-recs li strong {
+      color: #f0f0f0;
     }
 
     /* ── Scrollbar ─────────────────────────────────────── */
@@ -288,6 +322,7 @@
     <h2 class="done-title" id="doneTitle"></h2>
     <p class="done-summary" id="doneSummary"></p>
     <div class="done-badge" id="doneBadge"></div>
+    <div class="done-recs" id="doneRecs"></div>
     <p class="done-note">Sua conversa foi salva. Obrigado por participar!</p>
   </div>
 
@@ -539,6 +574,42 @@
       badgeEl.style.background = badge.color + '22';
       badgeEl.style.color = badge.color;
       badgeEl.style.border = `1px solid ${badge.color}44`;
+
+      // Recommendations per level
+      const recommendations = {
+        consultas_basicas: [
+          '<strong>Experimente pedir para a IA reescrever textos</strong> — cole um e-mail ou relatorio e peca para resumir, melhorar o tom ou simplificar.',
+          '<strong>Use a IA como brainstorm partner</strong> — em vez de perguntas simples, descreva um problema e peca sugestoes de abordagem.',
+          '<strong>Tente o Claude ou ChatGPT para analise de dados</strong> — cole uma tabela e peca insights, tendencias ou graficos.',
+        ],
+        assistente_esporadico: [
+          '<strong>Crie o habito de usar IA diariamente</strong> — comece o dia pedindo para a IA organizar suas prioridades com base no que voce tem pendente.',
+          '<strong>Explore "Projects" no Claude ou GPTs customizados</strong> — crie assistentes com instrucoes fixas para tarefas recorrentes (ex: revisor de copy, analista de dados).',
+          '<strong>Integre IA no seu fluxo de trabalho</strong> — experimente extensoes de browser ou plugins no Google Docs/Sheets que trazem IA para onde voce ja trabalha.',
+        ],
+        copiloto: [
+          '<strong>Experimente AI workers autonomos</strong> — ferramentas como Claude Code podem executar tarefas complexas de ponta a ponta com minima supervisao.',
+          '<strong>Automatize fluxos repetitivos</strong> — use plataformas como Zapier AI, n8n ou Make para criar automacoes que usam IA como parte do pipeline.',
+          '<strong>Crie agentes especializados</strong> — monte agentes com instrucoes detalhadas e acesso a ferramentas (APIs, bancos de dados) para resolver problemas especificos do seu time.',
+        ],
+        piloto_automatico: [
+          '<strong>Compartilhe seu conhecimento</strong> — voce esta a frente da maioria. Considere documentar seus fluxos e ajudar colegas a adotar IA.',
+          '<strong>Explore multi-agent systems</strong> — orquestre multiplos agentes que colaboram entre si para resolver problemas mais complexos.',
+          '<strong>Avalie ROI e metricas</strong> — mensure o impacto real das automacoes no tempo economizado e na qualidade do output do seu time.',
+        ],
+        indefinido: [
+          '<strong>Comece com algo simples</strong> — abra o Claude (claude.ai) e peca ajuda com uma tarefa real do seu trabalho hoje.',
+          '<strong>IA aprende com contexto</strong> — quanto mais detalhes voce der sobre o que precisa, melhor sera a resposta.',
+          '<strong>Nao tenha medo de experimentar</strong> — a melhor forma de aprender e testando com tarefas reais do dia a dia.',
+        ],
+      };
+
+      const recs = recommendations[classification] || recommendations.indefinido;
+      const recsEl = document.getElementById('doneRecs');
+      recsEl.innerHTML = `
+        <p class="done-recs-title">Recomendacoes para voce:</p>
+        <ul>${recs.map(r => `<li>${r}</li>`).join('')}</ul>
+      `;
     }
 
     // ── Prevent accidental exit ───────────────────────
