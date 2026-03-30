@@ -234,6 +234,114 @@
     @media (max-width: 600px) {
       .breakdown-label { width: 90px; font-size: 12px; }
     }
+
+    /* ── Feedback FAB + Modal ──────────────────────────── */
+    .feedback-fab {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #93c5fd;
+      color: #0a0a0a;
+      border: none;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: bold;
+      padding: 12px 20px;
+      border-radius: 24px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 100;
+    }
+
+    .feedback-fab:hover { opacity: 0.9; transform: translateY(-2px); }
+
+    .feedback-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 200;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .feedback-overlay.active { display: flex; }
+
+    .feedback-modal {
+      background: #111;
+      border: 1px solid #333;
+      border-radius: 12px;
+      padding: 24px;
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .feedback-modal h3 {
+      font-size: 16px;
+      color: #93c5fd;
+      margin-bottom: 12px;
+    }
+
+    .feedback-textarea {
+      width: 100%;
+      height: 100px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      color: #f0f0f0;
+      font-family: inherit;
+      font-size: 14px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      outline: none;
+      resize: vertical;
+      transition: border-color 0.2s;
+    }
+
+    .feedback-textarea:focus { border-color: #93c5fd; }
+
+    .feedback-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+      margin-top: 12px;
+    }
+
+    .feedback-cancel {
+      background: none;
+      border: 1px solid #333;
+      color: #888;
+      font-family: inherit;
+      font-size: 13px;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .feedback-submit {
+      background: #93c5fd;
+      color: #0a0a0a;
+      border: none;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: bold;
+      padding: 8px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .feedback-submit:hover { opacity: 0.85; }
+    .feedback-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .feedback-success {
+      display: none;
+      text-align: center;
+      padding: 20px 0;
+      color: #4ade80;
+      font-size: 14px;
+    }
   </style>
 </head>
 <body>
@@ -262,8 +370,29 @@
     <p class="summary-meta" id="summaryMeta"></p>
   </div>
 
+  <!-- Feedback FAB -->
+  <button class="feedback-fab" id="feedbackFab">Feedback</button>
+
+  <!-- Feedback Modal -->
+  <div class="feedback-overlay" id="feedbackOverlay">
+    <div class="feedback-modal">
+      <div id="feedbackForm">
+        <h3>Como esse resumo poderia ficar melhor?</h3>
+        <textarea class="feedback-textarea" id="feedbackText" placeholder="Ex: Poderia ter graficos, mostrar as ferramentas mais usadas, ter cores diferentes..." maxlength="500"></textarea>
+        <div class="feedback-actions">
+          <button class="feedback-cancel" id="feedbackCancel">Cancelar</button>
+          <button class="feedback-submit" id="feedbackSubmit">Enviar</button>
+        </div>
+      </div>
+      <div class="feedback-success" id="feedbackSuccess">
+        Feedback enviado! Sua sugestao sera implementada em breve.
+      </div>
+    </div>
+  </div>
+
   <script>
     const SUMMARY_API_URL = 'https://bernardocb-chat.bernardocb.workers.dev/workshop/summary';
+    const FEEDBACK_API_URL = 'https://bernardocb-chat.bernardocb.workers.dev/workshop/feedback';
 
     let token = sessionStorage.getItem('workshop_token') || '';
 
@@ -387,6 +516,57 @@
       const colors = { basico: '#4ade80', intermediario: '#60a5fa', avancado: '#a78bfa', expert: '#fbbf24' };
       return colors[level] || '#888';
     }
+
+    // ── Feedback ───────────────────────────────────────
+    const feedbackFab = document.getElementById('feedbackFab');
+    const feedbackOverlay = document.getElementById('feedbackOverlay');
+    const feedbackText = document.getElementById('feedbackText');
+    const feedbackSubmit = document.getElementById('feedbackSubmit');
+    const feedbackCancel = document.getElementById('feedbackCancel');
+    const feedbackForm = document.getElementById('feedbackForm');
+    const feedbackSuccess = document.getElementById('feedbackSuccess');
+
+    feedbackFab.addEventListener('click', () => {
+      feedbackOverlay.classList.add('active');
+      feedbackForm.style.display = 'block';
+      feedbackSuccess.style.display = 'none';
+      feedbackText.value = '';
+      feedbackText.focus();
+    });
+
+    feedbackCancel.addEventListener('click', () => {
+      feedbackOverlay.classList.remove('active');
+    });
+
+    feedbackOverlay.addEventListener('click', (e) => {
+      if (e.target === feedbackOverlay) feedbackOverlay.classList.remove('active');
+    });
+
+    feedbackSubmit.addEventListener('click', async () => {
+      const msg = feedbackText.value.trim();
+      if (!msg) return;
+      feedbackSubmit.disabled = true;
+
+      try {
+        const resp = await fetch(FEEDBACK_API_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: msg }),
+        });
+
+        if (resp.ok) {
+          feedbackForm.style.display = 'none';
+          feedbackSuccess.style.display = 'block';
+          setTimeout(() => feedbackOverlay.classList.remove('active'), 2000);
+        } else {
+          alert('Erro ao enviar feedback. Tente novamente.');
+        }
+      } catch {
+        alert('Erro de conexao. Tente novamente.');
+      }
+
+      feedbackSubmit.disabled = false;
+    });
 
     // ── Minimal Markdown to HTML ──────────────────────
     function markdownToHtml(md) {

@@ -451,6 +451,105 @@ async function handleWorkshopSummary(request, env, corsHeaders) {
   }
 }
 
+const FEEDBACK_RATE_LIMIT_MAX = 10;
+
+async function handleWorkshopFeedbackSubmit(request, env, corsHeaders) {
+  if (!env.WORKSHOP_KV) return jsonResponse({ error: 'Storage unavailable' }, 503, corsHeaders);
+
+  const clientIP = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const rateCheck = await checkRateLimit(env, `rate:feedback:${clientIP}`, FEEDBACK_RATE_LIMIT_MAX);
+  if (!rateCheck.allowed) return jsonResponse({ error: rateCheck.error }, rateCheck.status, corsHeaders);
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: 'Invalid JSON' }, 400, corsHeaders);
+  }
+
+  const { message } = body;
+  if (!message || typeof message !== 'string' || message.trim().length === 0) {
+    return jsonResponse({ error: 'Message required' }, 400, corsHeaders);
+  }
+
+  const safeMessage = String(message).slice(0, 500).replace(/[<>"']/g, '');
+  const now = Date.now();
+  const key = `feedback:${now}`;
+
+  const feedback = {
+    message: safeMessage,
+    createdAt: new Date(now).toISOString(),
+    status: 'pending',
+  };
+
+  await env.WORKSHOP_KV.put(key, JSON.stringify(feedback));
+
+  const indexRaw = await env.WORKSHOP_KV.get('feedback-index');
+  const index = indexRaw ? JSON.parse(indexRaw) : [];
+  index.push(key);
+  await env.WORKSHOP_KV.put('feedback-index', JSON.stringify(index));
+
+  return jsonResponse({ success: true, key }, 200, corsHeaders);
+}
+
+async function handleWorkshopFeedbackList(request, env, corsHeaders) {
+  if (!env.WORKSHOP_KV) return jsonResponse({ error: 'Storage unavailable' }, 503, corsHeaders);
+
+  const url = new URL(request.url);
+  const token = url.searchParams.get('token');
+  if (!token || token !== env.WORKSHOP_ADMIN_TOKEN) {
+    return jsonResponse({ error: 'Unauthorized' }, 401, corsHeaders);
+  }
+
+  const statusFilter = url.searchParams.get('status');
+
+  const indexRaw = await env.WORKSHOP_KV.get('feedback-index');
+  const index = indexRaw ? JSON.parse(indexRaw) : [];
+
+  const feedbacks = [];
+  for (const key of index) {
+    const raw = await env.WORKSHOP_KV.get(key);
+    if (!raw) continue;
+    const fb = JSON.parse(raw);
+    if (statusFilter && fb.status !== statusFilter) continue;
+    feedbacks.push({ key, ...fb });
+  }
+
+  feedbacks.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+  return jsonResponse({ feedbacks }, 200, corsHeaders);
+}
+
+async function handleWorkshopFeedbackResolve(request, env, corsHeaders) {
+  if (!env.WORKSHOP_KV) return jsonResponse({ error: 'Storage unavailable' }, 503, corsHeaders);
+
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return jsonResponse({ error: 'Invalid JSON' }, 400, corsHeaders);
+  }
+
+  if (!body.token || body.token !== env.WORKSHOP_ADMIN_TOKEN) {
+    return jsonResponse({ error: 'Unauthorized' }, 401, corsHeaders);
+  }
+
+  const { key } = body;
+  if (!key || typeof key !== 'string') {
+    return jsonResponse({ error: 'Key required' }, 400, corsHeaders);
+  }
+
+  const raw = await env.WORKSHOP_KV.get(key);
+  if (!raw) return jsonResponse({ error: 'Not found' }, 404, corsHeaders);
+
+  const fb = JSON.parse(raw);
+  fb.status = 'done';
+  fb.resolvedAt = new Date().toISOString();
+  await env.WORKSHOP_KV.put(key, JSON.stringify(fb));
+
+  return jsonResponse({ success: true }, 200, corsHeaders);
+}
+
 // ── Main Entry ──────────────────────────────────────────────────────────────
 
 export default {
@@ -488,6 +587,17 @@ export default {
     if (path === '/workshop/summary' && request.method === 'POST') {
       if (!allowedOrigins.includes(origin)) return jsonResponse({ error: 'Forbidden' }, 403, corsHeaders);
       return handleWorkshopSummary(request, env, corsHeaders);
+    }
+    if (path === '/workshop/feedback' && request.method === 'POST') {
+      if (!allowedOrigins.includes(origin)) return jsonResponse({ error: 'Forbidden' }, 403, corsHeaders);
+      return handleWorkshopFeedbackSubmit(request, env, corsHeaders);
+    }
+    if (path === '/workshop/feedback' && request.method === 'GET') {
+      return handleWorkshopFeedbackList(request, env, corsHeaders);
+    }
+    if (path === '/workshop/feedback/resolve' && request.method === 'POST') {
+      if (!allowedOrigins.includes(origin)) return jsonResponse({ error: 'Forbidden' }, 403, corsHeaders);
+      return handleWorkshopFeedbackResolve(request, env, corsHeaders);
     }
 
     // Home chat (existing behavior - POST to root)
