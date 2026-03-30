@@ -268,6 +268,8 @@
     }
 
     /* ── Feedback FAB + Modal ──────────────────────────── */
+    .sr-only { position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0; }
+
     .feedback-fab {
       position: fixed;
       bottom: 24px;
@@ -378,11 +380,12 @@
 </head>
 <body>
   <!-- Auth Screen -->
-  <div class="auth-screen" id="authScreen">
+  <div class="auth-screen" id="authScreen" role="form" aria-label="Autenticacao">
     <h1 class="auth-title">Workshop IA — Resumo</h1>
-    <input type="password" class="auth-input" id="tokenInput" placeholder="Senha de acesso" autocomplete="off">
+    <label for="tokenInput" style="font-size:13px;color:#666;margin-bottom:8px;">Senha de acesso</label>
+    <input type="password" class="auth-input" id="tokenInput" placeholder="Digite a senha" autocomplete="off">
     <button class="auth-btn" id="authBtn">Entrar</button>
-    <p class="auth-error" id="authError">Senha incorreta</p>
+    <p class="auth-error" id="authError" role="alert">Senha incorreta</p>
   </div>
 
   <!-- Loading -->
@@ -392,26 +395,31 @@
   </div>
 
   <!-- Main Content -->
-  <div class="main-content" id="mainContent">
-    <div class="page-header">
+  <main class="main-content" id="mainContent">
+    <header class="page-header">
       <h1 class="page-title">Resumo do Workshop</h1>
-      <button class="regen-btn" id="regenBtn">Regenerar</button>
-    </div>
-    <div class="stats-row" id="statsRow"></div>
-    <div class="breakdown" id="breakdown"></div>
-    <div class="summary-content" id="summaryContent"></div>
+      <button class="regen-btn" id="regenBtn" aria-label="Regenerar resumo">Regenerar</button>
+    </header>
+    <section aria-label="Estatisticas">
+      <div class="stats-row" id="statsRow"></div>
+      <div class="breakdown" id="breakdown"></div>
+    </section>
+    <section aria-label="Analise detalhada">
+      <div class="summary-content" id="summaryContent"></div>
+    </section>
     <p class="summary-meta" id="summaryMeta"></p>
-  </div>
+  </main>
 
   <!-- Feedback FAB -->
   <button class="feedback-fab" id="feedbackFab">Feedback</button>
 
   <!-- Feedback Modal -->
-  <div class="feedback-overlay" id="feedbackOverlay">
-    <div class="feedback-modal">
+  <div class="feedback-overlay" id="feedbackOverlay" aria-hidden="true">
+    <div class="feedback-modal" role="dialog" aria-modal="true" aria-label="Enviar feedback">
       <div id="feedbackForm">
-        <h3>Como esse resumo poderia ficar melhor?</h3>
-        <textarea class="feedback-textarea" id="feedbackText" placeholder="Ex: Poderia ter graficos, mostrar as ferramentas mais usadas, ter cores diferentes..." maxlength="500"></textarea>
+        <h3 id="feedbackTitle">Como esse resumo poderia ficar melhor?</h3>
+        <label for="feedbackText" class="sr-only">Sua sugestao</label>
+        <textarea class="feedback-textarea" id="feedbackText" aria-labelledby="feedbackTitle" placeholder="Ex: Poderia ter graficos, mostrar as ferramentas mais usadas, ter cores diferentes..." maxlength="500"></textarea>
         <div class="feedback-actions">
           <button class="feedback-cancel" id="feedbackCancel">Cancelar</button>
           <button class="feedback-submit" id="feedbackSubmit">Enviar</button>
@@ -584,20 +592,30 @@
     const feedbackForm = document.getElementById('feedbackForm');
     const feedbackSuccess = document.getElementById('feedbackSuccess');
 
-    feedbackFab.addEventListener('click', () => {
+    function openFeedback() {
       feedbackOverlay.classList.add('active');
+      feedbackOverlay.setAttribute('aria-hidden', 'false');
       feedbackForm.style.display = 'block';
       feedbackSuccess.style.display = 'none';
       feedbackText.value = '';
       feedbackText.focus();
-    });
+    }
 
-    feedbackCancel.addEventListener('click', () => {
+    function closeFeedback() {
       feedbackOverlay.classList.remove('active');
-    });
+      feedbackOverlay.setAttribute('aria-hidden', 'true');
+      feedbackFab.focus();
+    }
+
+    feedbackFab.addEventListener('click', openFeedback);
+    feedbackCancel.addEventListener('click', closeFeedback);
 
     feedbackOverlay.addEventListener('click', (e) => {
-      if (e.target === feedbackOverlay) feedbackOverlay.classList.remove('active');
+      if (e.target === feedbackOverlay) closeFeedback();
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && feedbackOverlay.classList.contains('active')) closeFeedback();
     });
 
     feedbackSubmit.addEventListener('click', async () => {
@@ -615,7 +633,7 @@
         if (resp.ok) {
           feedbackForm.style.display = 'none';
           feedbackSuccess.style.display = 'block';
-          setTimeout(() => feedbackOverlay.classList.remove('active'), 2000);
+          setTimeout(() => closeFeedback(), 2000);
         } else {
           alert('Erro ao enviar feedback. Tente novamente.');
         }
