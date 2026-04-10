@@ -1,0 +1,6 @@
+proposal/
+v5.3_Prototype.html
+worker/node_modules/
+worker/.wrangler/
+lighthouse-report.json
+.claude/

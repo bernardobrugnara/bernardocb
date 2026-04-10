@@ -6,6 +6,16 @@ API_BASE="https://bernardocb-chat.bernardocb.workers.dev"
 PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 LOOP_INTERVAL=120  # seconds between iterations
 
+# Find jq (winget installs to a non-PATH location for Git Bash)
+if command -v jq &>/dev/null; then
+  JQ="jq"
+elif [[ -f "/c/Users/${USER:-${USERNAME:-desktop}}/AppData/Local/Microsoft/WinGet/Links/jq.exe" ]]; then
+  JQ="/c/Users/${USER:-${USERNAME:-desktop}}/AppData/Local/Microsoft/WinGet/Links/jq.exe"
+else
+  echo "ERROR: jq not found. Install with: winget install jqlang.jq"
+  exit 1
+fi
+
 if [[ -z "${WORKSHOP_ADMIN_TOKEN:-}" ]]; then
   echo "ERROR: WORKSHOP_ADMIN_TOKEN not set. Run: export WORKSHOP_ADMIN_TOKEN=your_token"
   exit 1
@@ -22,7 +32,7 @@ while true; do
 
   # 1. Fetch approved feedbacks
   FEEDBACK_RESPONSE=$(curl -s "${API_BASE}/workshop/feedback?token=${WORKSHOP_ADMIN_TOKEN}&status=approved")
-  FEEDBACK_COUNT=$(echo "$FEEDBACK_RESPONSE" | jq '.feedbacks | length')
+  FEEDBACK_COUNT=$(echo "$FEEDBACK_RESPONSE" | "$JQ" '.feedbacks | length')
 
   if [[ "$FEEDBACK_COUNT" == "0" || "$FEEDBACK_COUNT" == "null" ]]; then
     echo "[$(date '+%H:%M:%S')] No approved feedback. Sleeping ${LOOP_INTERVAL}s..."
@@ -33,8 +43,8 @@ while true; do
   echo "[$(date '+%H:%M:%S')] Found $FEEDBACK_COUNT approved feedback(s)!"
 
   # 2. Extract feedback messages and keys
-  FEEDBACK_MESSAGES=$(echo "$FEEDBACK_RESPONSE" | jq -r '.feedbacks[] | "- " + .message')
-  FEEDBACK_KEYS=$(echo "$FEEDBACK_RESPONSE" | jq -r '.feedbacks[].key')
+  FEEDBACK_MESSAGES=$(echo "$FEEDBACK_RESPONSE" | "$JQ" -r '.feedbacks[] | "- " + .message')
+  FEEDBACK_KEYS=$(echo "$FEEDBACK_RESPONSE" | "$JQ" -r '.feedbacks[].key')
 
   echo ""
   echo "Feedbacks to implement:"
@@ -70,7 +80,7 @@ Nao pergunte nada, apenas implemente e faca deploy."
   for KEY in $FEEDBACK_KEYS; do
     curl -s -X POST "${API_BASE}/workshop/feedback/resolve" \
       -H "Content-Type: application/json" \
-      -d "$(jq -n --arg token "$WORKSHOP_ADMIN_TOKEN" --arg key "$KEY" '{token: $token, key: $key, status: "done"}')" > /dev/null
+      -d "$("$JQ" -n --arg token "$WORKSHOP_ADMIN_TOKEN" --arg key "$KEY" '{token: $token, key: $key, status: "done"}')" > /dev/null
     echo "[$(date '+%H:%M:%S')] Marked $KEY as done"
   done
 
