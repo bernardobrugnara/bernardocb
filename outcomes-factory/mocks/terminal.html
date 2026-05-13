@@ -1,0 +1,36 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,Figtree,system-ui,sans-serif}
+  body{background:#0a0a0a;color:#fafafa;min-height:100vh;display:flex;flex-direction:column}
+  .top{padding:14px 16px;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#a1a1aa}
+  .brand{font-weight:700;letter-spacing:.5px;color:#84cc16;font-size:13px}
+  .body{flex:1;padding:24px 20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+  .hint{font-size:11px;color:#a1a1aa;text-transform:uppercase;letter-spacing:1.2px}
+  .amount{font-size:48px;font-weight:700;letter-spacing:-1px}
+  .currency{font-size:18px;color:#71717a;margin-right:4px;vertical-align:top;display:inline-block;margin-top:8px}
+  .keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%;margin-top:8px}
+  .key{background:#18181b;border:1px solid #27272a;border-radius:10px;padding:14px 0;text-align:center;font-size:18px;font-weight:600}
+  .cta{margin:14px 16px 18px;background:#84cc16;color:#0a0a0a;font-weight:700;text-align:center;padding:14px;border-radius:14px;font-size:14px}
+  .row{width:100%;display:flex;justify-content:space-between;font-size:11px;color:#71717a;margin-top:4px}
+</style>
+</head>
+<body>
+  <div class="top"><div class="brand">teya</div><div>Terminal · #4821</div></div>
+  <div class="body">
+    <div class="hint">Charge customer</div>
+    <div class="amount"><span class="currency">£</span>42.50</div>
+    <div class="row"><span>VAT included</span><span>UK · GBP</span></div>
+    <div class="keypad">
+      <div class="key">1</div><div class="key">2</div><div class="key">3</div>
+      <div class="key">4</div><div class="key">5</div><div class="key">6</div>
+      <div class="key">7</div><div class="key">8</div><div class="key">9</div>
+      <div class="key">·</div><div class="key">0</div><div class="key">⌫</div>
+    </div>
+  </div>
+  <div class="cta">Tap to pay</div>
+</body>
+</html>
