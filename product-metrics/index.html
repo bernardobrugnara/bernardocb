@@ -1,0 +1,2589 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Teya Product Metrics - April 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700;800&amp;display=swap" rel="stylesheet">
+  <style>
+    /* ── RESET ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Figtree', Arial, sans-serif; background: #F2F2F2; color: #111; font-size: 14px; }
+
+    /* ── HEADER ── */
+    .hdr { background: #000; padding: 14px 32px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 100; }
+    .hdr-left  { display: flex; align-items: center; gap: 14px; }
+    .hdr-logo  { width: 34px; height: 34px; background: #E0E722; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 19px; color: #000; letter-spacing: -1px; flex-shrink: 0; }
+    .hdr-name  { color: #fff; font-size: 17px; font-weight: 700; line-height: 1.1; }
+    .hdr-sub   { color: #E0E722; font-size: 11px; font-weight: 500; letter-spacing: 0.3px; margin-top: 1px; }
+    .hdr-right { display: flex; align-items: center; gap: 10px; }
+    .hdr-badge { background: #1a1a1a; border: 1px solid #333; color: #aaa; font-size: 11px; padding: 5px 12px; border-radius: 20px; font-family: 'Figtree', Arial, sans-serif; }
+    .month-sel { background: #1a1a1a; border: 1px solid #444; color: #fff; padding: 7px 14px; border-radius: 6px; font-family: 'Figtree', Arial, sans-serif; font-size: 13px; font-weight: 600; cursor: pointer; }
+    .month-sel:focus { outline: none; border-color: #E0E722; }
+
+    /* ── REPORT MODE TOGGLE BTN (in header) ── */
+    .btn-report {
+      background: #E0E722; color: #000; border: none; padding: 7px 16px;
+      border-radius: 6px; font-family: 'Figtree', Arial, sans-serif;
+      font-size: 12.5px; font-weight: 700; cursor: pointer; display: flex;
+      align-items: center; gap: 6px; transition: background .15s;
+    }
+    .btn-report:hover { background: #cdd01e; }
+    .btn-report svg  { width: 14px; height: 14px; }
+
+    /* ── SIDEBAR NAV ── */
+    .app-body { display: flex; align-items: flex-start; min-height: calc(100vh - 62px); }
+    .tabs-sidebar {
+      width: 196px;
+      min-width: 196px;
+      background: #111;
+      position: sticky;
+      top: 62px;
+      height: calc(100vh - 62px);
+      overflow-y: auto;
+      padding: 20px 0 32px;
+      flex-shrink: 0;
+    }
+    .tabs-sidebar::-webkit-scrollbar { width: 3px; }
+    .tabs-sidebar::-webkit-scrollbar-thumb { background: #333; border-radius: 2px; }
+    .tabs-sidebar .sidebar-label {
+      font-size: 9px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: 1px; color: #555; padding: 0 20px 10px;
+    }
+    .tab {
+      display: block;
+      padding: 10px 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: color .15s, background .15s, border-color .15s;
+      user-select: none;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tab:hover  { color: #fff; background: #1c1c1c; }
+    .tab.active { color: #E0E722; border-left-color: #E0E722; background: #1c1c1c; }
+
+    /* ── SIDEBAR GROUPS (folders) ── */
+    .tab-group-hdr {
+      display: flex; align-items: center;
+      padding: 10px 20px;
+      font-size: 12px; font-weight: 700;
+      color: #fff; cursor: pointer; user-select: none;
+      border-left: 3px solid transparent;
+      transition: color .15s, background .15s;
+    }
+    .tab-group-hdr:hover { color: #fff; background: #1c1c1c; }
+    .tab-group-hdr.open  { color: #fff; background: #181818; }
+    .tab-group-hdr .grp-arrow {
+      margin-left: auto; font-size: 14px; opacity: .7;
+      transition: transform .2s; flex-shrink: 0;
+    }
+    .tab-group-hdr.open .grp-arrow { transform: rotate(180deg); opacity: 1; }
+    .tab-children { display: none; background: #0d0d0d; }
+    .tab-children.open { display: block; }
+    .tab.tab-child {
+      padding-left: 30px; font-size: 11.5px;
+      border-left: 3px solid transparent;
+    }
+    .tab.tab-child::before { display: none; }
+    .tab.tab-child:hover  { color: #fff; background: #161616; }
+    .tab.tab-child.active { color: #E0E722; border-left-color: #E0E722; background: #161616; }
+
+    /* ── DASHBOARD LAYOUT ── */
+    .page   { padding: 24px 32px; flex: 1; min-width: 0; }
+    .sec    { display: none; }
+    .sec.active { display: block; }
+
+    /* ── SECTION HEADER ── */
+    .sec-hdr       { margin-bottom: 20px; }
+    .sec-hdr h2    { font-size: 21px; font-weight: 800; }
+    .sec-hdr p     { font-size: 12.5px; color: #666; margin-top: 3px; }
+    .lime-rule     { width: 36px; height: 4px; background: #E0E722; border-radius: 2px; margin-bottom: 7px; }
+
+    /* ── KPI CARDS ── */
+    .kpi-row   { display: grid; grid-template-columns: repeat(auto-fit, minmax(175px, 1fr)); gap: 14px; margin-bottom: 20px; }
+    .kpi-row-7 { grid-template-columns: repeat(7, 1fr); }
+    .kpi       { background: #fff; border-radius: 10px; padding: 18px 20px; box-shadow: 0 1px 3px rgba(0,0,0,.07); border-left: 4px solid #E0E722; }
+    .kpi.blue  { border-left-color: #008BB9; }
+    .kpi.dark  { border-left-color: #111; }
+    .kpi-lbl   { font-size: 10.5px; font-weight: 700; color: #999; text-transform: uppercase; letter-spacing: .5px; margin-bottom: 5px; }
+    .kpi-val   { font-size: 26px; font-weight: 800; color: #000; line-height: 1; }
+    .kpi-chg   { font-size: 11.5px; font-weight: 600; margin-top: 3px; }
+    .kpi-note  { font-size: 10.5px; color: #bbb; margin-top: 2px; }
+    .up   { color: #1d9955; }
+    .dn   { color: #d63c3c; }
+    .neu  { color: #888; }
+
+    /* ── PANELS ── */
+    .panel { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.07); }
+    .ptitle { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; color: #333; margin-bottom: 14px; display: flex; align-items: center; gap: 7px; }
+    .ptitle::before { content: ''; display: inline-block; width: 10px; height: 10px; background: #E0E722; border-radius: 2px; flex-shrink: 0; }
+    .ptitle.blue-dot::before { background: #008BB9; }
+
+    /* ── GRID HELPERS ── */
+    .g2    { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+    .g3    { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; margin-bottom: 18px; }
+    .g6040 { display: grid; grid-template-columns: 3fr 2fr; gap: 18px; margin-bottom: 18px; }
+    .g4060 { display: grid; grid-template-columns: 2fr 3fr; gap: 18px; margin-bottom: 18px; }
+    @media (max-width: 860px) { .g2,.g3,.g6040,.g4060 { grid-template-columns: 1fr; } }
+    .mb14 { margin-bottom: 14px; }
+    .mb18 { margin-bottom: 18px; }
+
+    /* ── TABLES ── */
+    .tbl-wrap { overflow-x: auto; }
+    table.dt  { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    table.dt thead tr { background: #F6F6F6; }
+    table.dt th { padding: 7px 10px; text-align: left; font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .4px; color: #666; border-bottom: 2px solid #E0E722; white-space: nowrap; }
+    table.dt td { padding: 7px 10px; border-bottom: 1px solid #F0F0F0; color: #333; white-space: nowrap; }
+    table.dt tr:last-child td { border-bottom: none; }
+    table.dt tr:hover td { background: #FAFAFA; }
+    table.dt .b  { font-weight: 700; color: #000; }
+    table.dt .hl td { background: #FFFFF0 !important; font-weight: 700; }
+    table.dt td.num, table.dt th.num { text-align: right; }
+    table.dt tr.group-sep td { border-top: 2px solid #E0E722; padding-top: 9px; }
+    .tbl-note { font-size: 10px; color: #aaa; margin-top: 8px; padding-top: 8px; border-top: 1px solid #F0F0F0; }
+    /* Sub-rows: indented label, smaller text, muted */
+    table.dt tr.dt-sub td:first-child { padding-left: 22px; color: #555; font-size: 12px; }
+    table.dt tr.dt-sub td { font-size: 12px; }
+    table.dt td.dt-sub-label { padding-left: 22px; color: #888; font-size: 12px; font-style: italic; }
+    table.dt.eq-cols { table-layout: fixed; width: 100%; }
+    table.dt.eq-cols th, table.dt.eq-cols td { width: calc(100% / var(--col-count, 7)); text-align: center; }
+    table.dt.eq-cols th:first-child, table.dt.eq-cols td:first-child { text-align: left; }
+    /* Heat-map cells for cohort table */
+    table.dt td.h-low  { background: #F4A09A !important; color: #7A1A1A; font-weight: 600; text-align:center; }
+    table.dt td.h-mid  { background: #FDD6A0 !important; color: #6B3D00; text-align:center; }
+    table.dt td.h-ok   { background: #C8E6CB !important; color: #1B5E20; text-align:center; }
+    table.dt td.h-good { background: #81C784 !important; color: #0A3D10; font-weight: 600; text-align:center; }
+    table.dt td.h-best { background: #388E3C !important; color: #fff; font-weight: 700; text-align:center; }
+    table.dt td.h-nil  { color: #CCC; text-align:center; }
+    /* Year separator between Dec-25 and Jan-26 columns */
+    table.dt th.yr-sep, table.dt td.yr-sep { border-left: 2.5px solid #999 !important; }
+
+    /* ── CHARTS ── */
+    .ch      { position: relative; height: 260px; }
+    .ch-tall { position: relative; height: 320px; }
+    /* chart-img replaces canvas in report mode */
+    .ch img, .ch-tall img { width: 100%; height: 100%; object-fit: contain; display: block; }
+
+    /* ── MISC ── */
+    .insight { background: #E6E6E6; color: #222; border-radius: 10px; padding: 20px 24px; margin-bottom: 20px; }
+    .insight h3 { color: #111; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .6px; margin-bottom: 8px; }
+    .insight p  { font-size: 12.5px; line-height: 1.65; color: #444; }
+    .ov-card { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 1px 3px rgba(0,0,0,.07); }
+    .ov-card h3 { font-size: 10.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color: #999; margin-bottom: 10px; }
+    .ov-card ul { list-style: none; }
+    .ov-card li { font-size: 12.5px; padding: 6px 0; border-bottom: 1px solid #F5F5F5; color: #444; line-height: 1.45; }
+    .ov-card li:last-child { border-bottom: none; }
+    .t-up::before  { content: '↑ '; color: #1d9955; font-weight: 700; }
+    .t-dn::before  { content: '↓ '; color: #d63c3c; font-weight: 700; }
+    .t-neu::before { content: '→ '; color: #888;    font-weight: 700; }
+    .divider { border: none; border-top: 1px solid #EFEFEF; margin: 14px 0; }
+
+    /* ═══════════════════════════════════════════════
+       REPORT MODE — screen preview
+    ═══════════════════════════════════════════════ */
+    body.report-mode { background: #6b6b6b; }
+
+    /* Hide interactive chrome */
+    body.report-mode .hdr      { position: static; }
+    body.report-mode .tabs-bar { display: none; }
+
+    /* Page wrapper */
+    body.report-mode .page {
+      padding: 24px;
+      max-width: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+    }
+
+    /* Each section = one A4 sheet */
+    body.report-mode .sec {
+      display: block !important;
+      width: 210mm;
+      min-height: 297mm;
+      background: #fff;
+      box-shadow: 0 4px 20px rgba(0,0,0,.35);
+      padding: 14mm 16mm 12mm;
+      position: relative;
+      overflow: hidden;
+      break-after: page;
+      page-break-after: always;
+    }
+
+    /* Per-page Teya header strip */
+    body.report-mode .sec .page-hdr {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 2.5px solid #E0E722;
+      padding-bottom: 7px;
+      margin-bottom: 14px;
+    }
+    body.report-mode .sec .page-hdr-left {
+      display: flex; align-items: center; gap: 8px;
+    }
+    body.report-mode .sec .page-hdr-logo {
+      width: 22px; height: 22px; background: #E0E722; border-radius: 3px;
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 900; font-size: 13px; color: #000;
+    }
+    body.report-mode .sec .page-hdr-title {
+      font-size: 11px; font-weight: 700; color: #000;
+    }
+    body.report-mode .sec .page-hdr-meta {
+      font-size: 10px; color: #aaa;
+    }
+
+    /* Scale down fonts and spacing inside report pages */
+    body.report-mode .sec-hdr h2    { font-size: 15px; }
+    body.report-mode .sec-hdr p     { font-size: 10px; }
+    body.report-mode .lime-rule     { width: 24px; height: 3px; margin-bottom: 4px; }
+    body.report-mode .kpi-row       { gap: 8px; margin-bottom: 12px; }
+    body.report-mode .kpi-row-7     { grid-template-columns: repeat(7, 1fr); }
+    body.report-mode .kpi           { padding: 10px 12px; border-radius: 6px; border-left-width: 3px; }
+    body.report-mode .kpi-lbl       { font-size: 8px; }
+    body.report-mode .kpi-val       { font-size: 18px; }
+    body.report-mode .kpi-chg       { font-size: 9px; }
+    body.report-mode .kpi-note      { font-size: 8.5px; }
+    body.report-mode .panel         { padding: 12px; border-radius: 6px; box-shadow: none; border: 1px solid #F0F0F0; }
+    body.report-mode .ptitle        { font-size: 9px; margin-bottom: 8px; }
+    body.report-mode .ptitle::before{ width: 7px; height: 7px; }
+    body.report-mode table.dt th    { font-size: 8.5px; padding: 5px 7px; }
+    body.report-mode table.dt td    { font-size: 9px; padding: 5px 7px; }
+    body.report-mode .g2            { gap: 10px; margin-bottom: 10px; }
+    body.report-mode .g3            { gap: 10px; margin-bottom: 10px; }
+    body.report-mode .g6040         { gap: 10px; margin-bottom: 10px; }
+    body.report-mode .g4060         { gap: 10px; margin-bottom: 10px; }
+    body.report-mode .mb18          { margin-bottom: 10px; }
+    body.report-mode .insight       { padding: 12px 14px; border-radius: 6px; margin-bottom: 12px; }
+    body.report-mode .insight h3    { font-size: 9px; }
+    body.report-mode .insight p     { font-size: 9.5px; line-height: 1.5; }
+    body.report-mode .ov-card       { padding: 12px; border-radius: 6px; box-shadow: none; border: 1px solid #F0F0F0; }
+    body.report-mode .ov-card h3    { font-size: 8.5px; }
+    body.report-mode .ov-card li    { font-size: 9.5px; padding: 4px 0; }
+    body.report-mode .ch            { height: 160px; }
+    body.report-mode .ch-tall       { height: 200px; }
+    /* Cap the ticketsChart standalone container which uses an inline height */
+    body.report-mode #ticketsChart  { height: 200px !important; }
+    body.report-mode #ticketsChart + * ,
+    body.report-mode #ticketsChart  { max-height: 200px; }
+    body.report-mode div[style*="height:360px"] { height: 200px !important; }
+    body.report-mode .sec-hdr       { margin-bottom: 12px; }
+    body.report-mode .tabs-sidebar  { display: none; }
+    body.report-mode .app-body      { display: block; }
+    body.report-mode .page          { padding: 0; }
+
+    /* ── TABLE OVERFLOW FIX FOR REPORT / PDF EXPORT ──
+       In dashboard mode .tbl-wrap scrolls horizontally.
+       html2canvas only captures the visible clip region,
+       so right-hand columns disappear. Fix: expose full
+       table width and shrink cells to fit the panel.      */
+    body.report-mode .tbl-wrap {
+      overflow: visible !important;
+    }
+    body.report-mode .panel {
+      overflow: visible !important;
+    }
+    /* Tighter cells — fits 4-5 cols in an 86mm half-page panel */
+    body.report-mode table.dt th {
+      font-size: 7px !important;
+      padding: 4px 5px !important;
+      white-space: normal !important;   /* let headers wrap so cols shrink */
+      line-height: 1.2;
+    }
+    body.report-mode table.dt td {
+      font-size: 7.5px !important;
+      padding: 4px 5px !important;
+      white-space: nowrap !important;   /* keep numbers on one line */
+    }
+    body.report-mode table.dt tr.dt-sub td,
+    body.report-mode table.dt td.dt-sub-label {
+      font-size: 7px !important;
+      padding: 3px 5px !important;
+    }
+    /* First (label) column can wrap so numeric cols get room */
+    body.report-mode table.dt td:first-child {
+      white-space: normal !important;
+      min-width: 60px;
+      max-width: 120px;
+      line-height: 1.2;
+    }
+    /* Compact VS BUDGET / delta column — often just "+3%" */
+    body.report-mode table.dt td:last-child,
+    body.report-mode table.dt th:last-child {
+      white-space: nowrap !important;
+      padding-left: 3px !important;
+      padding-right: 3px !important;
+    }
+
+    /* Page footer */
+    body.report-mode .sec .page-ftr {
+      position: absolute;
+      bottom: 8mm; left: 16mm; right: 16mm;
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 8px; color: #ccc;
+      border-top: 1px solid #EFEFEF;
+      padding-top: 5px;
+    }
+
+    /* Floating toolbar at bottom of viewport */
+    /* Back to Dashboard button — shown only in report mode */
+    .btn-back-dash {
+      display: none;
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #111;
+      color: #fff;
+      border: 1px solid #333;
+      border-radius: 8px;
+      padding: 10px 22px;
+      font-family: 'Figtree', Arial, sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      align-items: center;
+      gap: 7px;
+      box-shadow: 0 6px 24px rgba(0,0,0,.4);
+      z-index: 999;
+      transition: background .15s;
+    }
+    .btn-back-dash:hover { background: #222; }
+    .btn-back-dash.visible { display: flex; }
+    .rbar-btn {
+      background: none; border: none; cursor: pointer;
+      font-family: 'Figtree', Arial, sans-serif; font-size: 13px; font-weight: 700;
+      display: flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: 6px;
+      transition: background .15s;
+    }
+    .rbar-btn.rbar-ghost { color: #fff; }
+    .rbar-btn.rbar-ghost:hover { background: #2a2a2a; }
+    .rbar-btn.rbar-lime  { color: #000; background: #E0E722; padding: 6px 14px; }
+    .rbar-btn.rbar-lime:hover { background: #cdd01e; }
+
+    /* Spinner overlay during conversion */
+    .spinner-overlay {
+      display: none; position: fixed; inset: 0; background: rgba(0,0,0,.55);
+      z-index: 9999; align-items: center; justify-content: center; flex-direction: column; gap: 16px;
+    }
+    .spinner-overlay.visible { display: flex; }
+    .spinner { width: 36px; height: 36px; border: 3px solid #333; border-top-color: #E0E722; border-radius: 50%; animation: spin .7s linear infinite; }
+    .spinner-label { color: #fff; font-size: 13px; font-weight: 600; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ═══════════════════════════════════════════════
+       PRINT STYLES — actual PDF / browser print
+    ═══════════════════════════════════════════════ */
+    @media print {
+      @page { size: A4 portrait; margin: 0; }
+
+      /* Hide everything except the report pages */
+      .hdr, .tabs-bar, .report-toolbar, .spinner-overlay, .page-ftr { display: none !important; }
+
+      body { background: white !important; }
+
+      body.report-mode .page {
+        padding: 0;
+        gap: 0;
+      }
+      body.report-mode .sec {
+        width: 100%;
+        min-height: 100vh;
+        box-shadow: none;
+        padding: 12mm 14mm 10mm;
+        margin: 0;
+      }
+      /* Print page footer */
+      body.report-mode .sec .page-ftr { display: flex !important; }
+
+      /* Avoid breaking panels across pages */
+      .panel, .kpi, .kpi-row { break-inside: avoid; page-break-inside: avoid; }
+    }
+
+    /* ── EDIT MODE ── */
+    .btn-edit {
+      background: #1a1a1a; color: #aaa; border: 1px solid #333;
+      padding: 7px 14px; border-radius: 6px;
+      font-family: 'Figtree', Arial, sans-serif; font-size: 12.5px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; gap: 6px; transition: all .15s;
+    }
+    .btn-edit:hover { border-color: #E0E722; color: #E0E722; }
+    .btn-edit.active { background: #E0E722; color: #000; border-color: #E0E722; }
+    .btn-edit svg { width: 13px; height: 13px; }
+
+    .btn-save {
+      display: none; background: #1d9955; color: #fff; border: none;
+      padding: 7px 18px; border-radius: 6px;
+      font-family: 'Figtree', Arial, sans-serif; font-size: 12.5px; font-weight: 700;
+      cursor: pointer; align-items: center; gap: 6px; transition: background .15s;
+    }
+    .btn-save:hover { background: #178044; }
+    .btn-save svg { width: 13px; height: 13px; }
+    .btn-save.visible { display: flex; }
+
+    .edit-banner {
+      display: none; position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+      background: #E0E722; color: #000; font-family: 'Figtree', Arial, sans-serif;
+      font-size: 12px; font-weight: 700; padding: 8px 20px; border-radius: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.25); z-index: 1000; pointer-events: none;
+      letter-spacing: 0.2px;
+    }
+    .edit-banner.visible { display: block; }
+
+    .save-toast {
+      display: none; position: fixed; bottom: 20px; right: 28px;
+      background: #1d9955; color: #fff; font-family: 'Figtree', Arial, sans-serif;
+      font-size: 12px; font-weight: 700; padding: 8px 18px; border-radius: 8px;
+      box-shadow: 0 4px 16px rgba(0,0,0,.25); z-index: 1001;
+    }
+    .save-toast.visible { display: block; }
+
+    [contenteditable="true"] { outline: none; border-radius: 3px; cursor: text; }
+    [contenteditable="true"]:hover { background: rgba(224,231,34,.12); }
+    [contenteditable="true"]:focus { background: rgba(224,231,34,.18); box-shadow: 0 0 0 1px #E0E722; }
+  </style>
+</head>
+<body class="">
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="hdr">
+  <div class="hdr-left">
+    <div class="hdr-logo">T</div>
+    <div>
+      <div class="hdr-name">Teya Product Metrics - April 2026</div>
+      <div class="hdr-sub">Monthly Performance · Internal</div>
+    </div>
+  </div>
+  <div class="hdr-right">
+    <span class="hdr-badge">Released on: 15 May 2026</span>
+
+    <button class="btn-edit active" id="btnEditMode" onclick="toggleEditMode()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+      </svg>
+      Edit Mode
+    </button>
+
+    <button class="btn-save visible" id="btnSave" onclick="saveFile()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+        <polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline>
+      </svg>
+      Save
+    </button>
+
+    <button class="btn-report" id="btnReportMode" onclick="enterReportMode()" style="">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline>
+      </svg>
+      Report Mode
+    </button>
+  </div>
+</header>
+
+<!-- ═══════════════ SPINNER ═══════════════ -->
+<div class="spinner-overlay" id="spinnerOverlay">
+  <div class="spinner"></div>
+  <div class="spinner-label">Preparing report…</div>
+</div>
+
+<!-- ═══════════════ REPORT MODE BAR (centered bottom) ═══════════════ -->
+<div class="btn-back-dash" id="btnBackDash">
+  <button class="rbar-btn rbar-ghost" onclick="exitReportMode()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+    Back to Dashboard
+  </button>
+  <div style="width:1px;height:22px;background:#333;"></div>
+  <button class="rbar-btn rbar-lime" onclick="exportPdf()">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line>
+    </svg>
+    Export PDF
+  </button>
+</div>
+
+<!-- ═══════════════ APP BODY ═══════════════ -->
+<div class="app-body">
+
+<!-- ═══════════════ SIDEBAR ═══════════════ -->
+<nav class="tabs-sidebar">
+  <div class="sidebar-label">April 2026</div>
+
+  <span class="tab active" onclick="switchTab(event,'overview')">Overview</span>
+  <span class="tab" onclick="switchTab(event,'acq')">1. Member Acquisition</span>
+  <span class="tab" onclick="switchTab(event,'base')">2. Active Base</span>
+
+  <!-- 3. Product Metrics folder -->
+  <div class="tab-group-hdr open" onclick="toggleGroup('grp-product',this)">
+    3. Product Metrics
+    <span class="grp-arrow">▾</span>
+  </div>
+  <div class="tab-children open" id="grp-product">
+    <span class="tab tab-child" onclick="switchTab(event,'rev')">Net Revenue</span>
+    <span class="tab tab-child" onclick="switchTab(event,'pay')">Payments Products</span>
+    <span class="tab tab-child" onclick="switchTab(event,'bank')">Banking &amp; Credit</span>
+    <span class="tab tab-child" onclick="switchTab(event,'app')">App &amp; Portal</span>
+  </div>
+
+  <!-- 4. Operational Excellence folder -->
+  <div class="tab-group-hdr open" onclick="toggleGroup('grp-ops',this)">
+    4. Operational Excellence
+    <span class="grp-arrow">▾</span>
+  </div>
+  <div class="tab-children open" id="grp-ops">
+    <span class="tab tab-child" onclick="switchTab(event,'cx')">Member Experience</span>
+    <span class="tab tab-child" onclick="switchTab(event,'fraud')">Fraud Losses</span>
+  </div>
+
+</nav>
+
+<!-- ═══════════════ CONTENT ═══════════════ -->
+<main class="page">
+
+  <!-- ══════════ OVERVIEW ══════════ -->
+  <div id="sec-overview" class="sec active" data-title="Overview">
+    <div class="page-hdr" style="display: none;">
+      <div class="page-hdr-left">
+        <div class="page-hdr-logo">T</div>
+        <span class="page-hdr-title">Teya Product Metrics — April 2026</span>
+      </div>
+      <span class="page-hdr-meta">Overview</span>
+    </div>
+
+    <div class="sec-hdr">
+      <div class="lime-rule"></div>
+      <h2>April 2026 — Overview</h2>
+      <p>Reporting period: April 2026 · Released on: 15 May 2026</p>
+    </div>
+
+    <!-- Initial Remarks -->
+    <div class="insight">
+      <h3>Initial Remarks</h3>
+      <p>Budget comparisons this month should be read with caution: the 2026 budget was only finalised in mid-April, meaning the reference figures reflect a partial planning cycle. Sales performance was broadly positive across markets, driven mainly by the mix shift towards higher-TPV segments: Core Segments (Small + Medium) reached 48.4% of the total base, and the 2026 onboarding cohorts are already generating higher TPV per CID than the 2025 cohort average at equivalent maturity stages — a positive structural signal for revenue quality. Activation rates also improved, with D30 activation for the Mar-26 cohort reaching 64% — ahead of the D60 rate for the Feb-26 cohort — and the Apr-26 cohort's D15 rate already standing at 61%.</p>
+      <p style="margin-top:10px;">On the other hand, Take Rate closed 1bps below budget, though April showed early MoM recovery (+2bps). CR Tickets per CID fell from 0.49 to 0.41, driven in part by a reduction in blocked-funds contacts, the leading driver of inbound volume. Fraud Losses spiked to €487k (3.4bps of TPV); however, €100k remains under dispute and €135k has been flagged as a miscategorisation, placing the underlying net exposure materially below the headline figure.</p>
+    </div>
+
+    <!-- KPI Row: 5 topline metrics -->
+    <div class="kpi-row" style="grid-template-columns: repeat(5, 1fr);">
+      <div class="kpi dark">
+        <div class="kpi-lbl">TPV</div>
+        <div class="kpi-val">€1,414m</div>
+        <div class="kpi-chg up">↑ +3% vs Budget</div>
+        <div class="kpi-note">+6.5% MoM · Highest on record</div>
+      </div>
+      <div class="kpi blue">
+        <div class="kpi-lbl">Net Revenue</div>
+        <div class="kpi-val">€9,912k</div>
+        <div class="kpi-chg up">↑ +1% vs Budget</div>
+        <div class="kpi-note">+10.2% MoM</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">Take Rate</div>
+        <div class="kpi-val">0.70%</div>
+        <div class="kpi-chg dn">↓ −1.4bps vs Budget</div>
+        <div class="kpi-note">+2bps MoM</div>
+      </div>
+      <div class="kpi blue">
+        <div class="kpi-lbl">Active CIDs</div>
+        <div class="kpi-val">73.3k</div>
+        <div class="kpi-chg neu">On Budget</div>
+        <div class="kpi-note">+5.8% MoM</div>
+      </div>
+      <div class="kpi">
+        <div class="kpi-lbl">TPV / CID</div>
+        <div class="kpi-val">€19.3k</div>
+        <div class="kpi-chg neu"><span style="color: rgb(29, 153, 85);">↑ +3% vs Budget</span></div>
+        <div class="kpi-note">+0.5% MoM</div>
+      </div>
+    </div>
+
+    <!-- Dimension highlight cards — Segment, Product, Country -->
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:14px;">
+      <div class="ov-card">
+        <h3>Segment</h3>
+        <ul>
+          <li><strong>Core Segments</strong> (Small + Medium) hit 48.4% of the active base (+3.5pp MoM) — on budget.</li>
+          <li><strong>Nano</strong> net adds turned negative (−2,982), reflecting the deliberate segment mix intervention in effect.</li>
+          <li><strong>Small</strong> added 3,858 net CIDs — the strongest individual contributor to the mix shift.</li>
+          <li><strong>Large &amp; Enterprise:</strong> 4 Large merchants stopped transacting in April - one churned merchant (Iceland) who notified us in Q2-25 but still had remaining trx volume in March; one bankruptcy (UK); one seasonal merchant (Hungary), and one administrative migration to a new Company ID (Iceland).</li>
+        </ul>
+      </div>
+      <div class="ov-card">
+        <h3>Product</h3>
+        <ul>
+          <li><strong>Payments:</strong> TPV reached €1,414m — the highest month on record — +3% above budget and +6.5% MoM. DCC closed 2% below budget, although it started to recover with the increasing number of non-domestic transactions.</li>
+          <li><strong>Business Accounts:</strong> 12.7k active (+11.3% MoM); Card Spend €19.6m (+70% vs budget); Total Banking Revenue €289k (+45% vs budget).</li>
+          <li><strong>3P Credit:</strong> 3P Loans Issue reached 7.7m generating €424k in Commission Revenue; 3P Credit launched in HU and HR, with first 13 deals totalling €166k.</li>
+          <li><strong>Customer Support Platform:</strong>&nbsp;Together with the CR Ticket per CID drop to 0.41, AI automation rate reached 8.44% (highest level recorded) with CSAT on automated tickets at 87.2%.</li>
+        </ul>
+      </div>
+      <div class="ov-card">
+        <h3>Country</h3>
+        <ul>
+          <li><strong>UK:</strong> largest market at 31.6k CIDs (+5.1% MoM); Gross Adds +4% against budget.</li>
+          <li><strong>Croatia:</strong>&nbsp;peak season has begun, with re-onboards and reactivation resulting in 19.3% MoM increase in Active CIDs; card spend surged over 5x MoM as onboardings accelerated.</li>
+          <li><b>Portugal </b>has improved activation rates reaching +60% in D15, the best performance seen in record.</li>
+          <li><br></li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Trends to Watch — full width -->
+    <div class="ov-card mb18">
+      <h3>Trends to Watch — May 2026</h3>
+      <ul>
+        <li><strong>Activation Rate &amp; Registration Flow rollout</strong> — Early cohort data is encouraging (Mar-26 D30: 64%; Apr-26 D15: 61%). The full rollout of the new Registration flow in the UK in May will be a key leading indicator of structural activation improvement across the onboarding base.</li>
+        <li><strong>Sales performance &amp; Summer Season</strong> — The approaching summer peak presents an opportunity to accelerate volume; the evolution of segment mix will be closely monitored as onboarding activity grows.</li>
+        <li><strong>Business Account Deposits</strong> — BA adoption is expected to increase in the EUR countries, with higher Deposit Balance per active account.</li>
+        <li><strong>Fraud Loss control</strong> — The April spike to €487k (3.4bps) is partly explained by disputed and miscategorised items. Disputes are running and might lead to recovery this month. With volumes growing into the summer season, maintaining fraud losses within budget tolerance is a priority.</li>
+      </ul>
+    </div>
+
+    <div class="page-ftr" style="display: none;">
+      <span>Teya Product Metrics — April 2026 · Confidential</span>
+      <span>Overview</span>
+    </div>
+  </div>
+
+  <!-- ══════════ 1. MEMBER ACQUISITION ══════════ -->
+  <div id="sec-acq" class="sec" data-title="2. Member Acquisition">
+    <div class="page-hdr" style="display: none;">
+      <div class="page-hdr-left">
+        <div class="page-hdr-logo">T</div>
+        <span class="page-hdr-title">Teya Product Metrics — April 2026</span>
+      </div>
+      <span class="page-hdr-meta">2. Member Acquisition</span>
+    </div>
+
+    <div class="sec-hdr">
+      <div class="lime-rule"></div>
+      <h2>1. Member Acquisition</h2>
+      <p>Gross Adds by country, Onboarding SLA and Activation rates</p>
+    </div>
+
+    <div class="kpi-row" style="grid-template-columns: repeat(5, 1fr);">
+      <div class="kpi"><div class="kpi-lbl">Gross Adds EoP</div><div class="kpi-val">4,485</div><div class="kpi-chg up">↑ +10% vs Budget</div><div class="kpi-note">Highest month on record</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">Activation Rate D15</div><div class="kpi-val">61%</div><div class="kpi-chg neu"></div><div class="kpi-note">Apr-26 cohort</div></div>
+      <div class="kpi"><div class="kpi-lbl">Activation Rate D30</div><div class="kpi-val">73%</div><div class="kpi-chg neu"></div><div class="kpi-note">Apr-26 cohort</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">Activation Rate D60</div><div class="kpi-val">66%</div><div class="kpi-chg neu"></div><div class="kpi-note">Mar-26 cohort</div></div>
+      <div class="kpi"><div class="kpi-lbl">Onboarding Automation Rate</div><div class="kpi-val">7.8%</div><div class="kpi-chg up">↑ +1.2pp MoM</div><div class="kpi-note">Apr-26</div></div>
+    </div>
+
+    <div class="insight" style="margin-bottom:14px;">
+      <h3>Commentary</h3>
+      <p>April delivered 4,485 Gross Adds, a 7.5% increase on March. A improvement was the First Pass Rate, which jumped to 72.4% (+13.4pp MoM) due to changes in the proof of business, reducing document re-request cycles in the CDD process. The Onboarding Automation Rate reached 7.8%, below the target of 16%.</p>
+      <p>Activation Rate is a highlight in April: although early 2026 cohorts (Jan and Feb-26) did not show significant improvements in Activation D60 (only +2pp and +3pp respectively compared to Dec-25), D30 activation for the April-26 cohort is already at 73%, higher than the 66% D60 activation rate of the Mar-2026 cohort.</p>
+    </div>
+
+    <div class="g2 mb18" style="align-items:start;">
+      <!-- LEFT COLUMN -->
+      <div style="display:flex;flex-direction:column;gap:18px;">
+      <div class="panel">
+        <div class="ptitle">Gross Adds by Country</div>
+        <table class="dt">
+          <thead><tr><th>Country</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th><th class="num">vs Budget</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td class="b">Total</td><td class="num">4,018</td><td class="num">4,172</td><td class="num b">4,485</td><td class="num up">+10%</td></tr>
+            <tr><td>United Kingdom</td><td class="num">2,229</td><td class="num">2,009</td><td class="num">2,187</td><td class="num up">+4%</td></tr>
+            <tr><td>Hungary</td><td class="num">647</td><td class="num">805</td><td class="num">738</td><td class="num up">+16%</td></tr>
+            <tr><td>Iceland</td><td class="num">95</td><td class="num">108</td><td class="num">177</td><td class="num up">+169%</td></tr>
+            <tr><td>Czechia &amp; Slovakia</td><td class="num">351</td><td class="num">381</td><td class="num">411</td><td class="num up">+7%</td></tr>
+            <tr><td>Croatia</td><td class="num">265</td><td class="num">337</td><td class="num">477</td><td class="num up">+21%</td></tr>
+            <tr><td>Portugal</td><td class="num">268</td><td class="num">284</td><td class="num">253</td><td class="num up">+15%</td></tr>
+            <tr><td>Italy</td><td class="num">106</td><td class="num">148</td><td class="num">153</td><td class="num dn">(7%)</td></tr>
+            <tr><td>Spain</td><td class="num">57</td><td class="num">100</td><td class="num">89</td><td class="num dn">(26%)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="ptitle">Activation Rates by Onboarding Month (as of 11 May 2026)</div>
+        <div class="tbl-wrap">
+          <table class="dt" style="font-size:11.5px;">
+            <thead><tr><th>Onboarding Month</th><th class="num">D5</th><th class="num">D15</th><th class="num">D30</th><th class="num">D60</th><th class="num">D90</th><th class="num">Ever</th></tr></thead>
+            <tbody>
+              <tr><td>Jan-25</td><td class="num">34%</td><td class="num">60%</td><td class="num">70%</td><td class="num">76%</td><td class="num">77%</td><td class="num">81%</td></tr>
+              <tr><td>Feb-25</td><td class="num">35%</td><td class="num">59%</td><td class="num">69%</td><td class="num">76%</td><td class="num">78%</td><td class="num">81%</td></tr>
+              <tr><td>Mar-25</td><td class="num">33%</td><td class="num">59%</td><td class="num">70%</td><td class="num">77%</td><td class="num">79%</td><td class="num">82%</td></tr>
+              <tr><td>Apr-25</td><td class="num">27%</td><td class="num">55%</td><td class="num">68%</td><td class="num">76%</td><td class="num">78%</td><td class="num">81%</td></tr>
+              <tr><td>May-25</td><td class="num">27%</td><td class="num">57%</td><td class="num">69%</td><td class="num">76%</td><td class="num">78%</td><td class="num">81%</td></tr>
+              <tr><td>Jun-25</td><td class="num">29%</td><td class="num">59%</td><td class="num">70%</td><td class="num">76%</td><td class="num">78%</td><td class="num">81%</td></tr>
+              <tr><td>Jul-25</td><td class="num">25%</td><td class="num">54%</td><td class="num">66%</td><td class="num">72%</td><td class="num">74%</td><td class="num">77%</td></tr>
+              <tr><td>Aug-25</td><td class="num">21%</td><td class="num">47%</td><td class="num">59%</td><td class="num">66%</td><td class="num">68%</td><td class="num">70%</td></tr>
+              <tr><td>Sep-25</td><td class="num">21%</td><td class="num">44%</td><td class="num">53%</td><td class="num">59%</td><td class="num">61%</td><td class="num">63%</td></tr>
+              <tr><td>Oct-25</td><td class="num">20%</td><td class="num">42%</td><td class="num">52%</td><td class="num">59%</td><td class="num">60%</td><td class="num">63%</td></tr>
+              <tr><td>Nov-25</td><td class="num">24%</td><td class="num">48%</td><td class="num">58%</td><td class="num">64%</td><td class="num">66%</td><td class="num">69%</td></tr>
+              <tr><td>Dec-25</td><td class="num">25%</td><td class="num">43%</td><td class="num">53%</td><td class="num">60%</td><td class="num">62%</td><td class="num">64%</td></tr>
+              <tr><td>Jan-26</td><td class="num">23%</td><td class="num">46%</td><td class="num">56%</td><td class="num">62%</td><td class="num">64%</td><td class="num">65%</td></tr>
+              <tr><td>Feb-26</td><td class="num">22%</td><td class="num">45%</td><td class="num">56%</td><td class="num">63%</td><td class="num">—</td><td class="num">65%</td></tr>
+              <tr><td>Mar-26</td><td class="num">27%</td><td class="num">53%</td><td class="num">64%</td><td class="num">—</td><td class="num">—</td><td class="num">70%</td></tr>
+              <tr class="hl"><td class="b">Apr-26</td><td class="num">32%</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">67%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      </div>
+      <!-- RIGHT COLUMN -->
+      <div style="display:flex;flex-direction:column;gap:18px;">
+      <div class="panel">
+        <div class="ptitle blue-dot">Weekly Cohort Activation (as of 11 May 2026)</div>
+        <div class="tbl-wrap">
+          <table class="dt" style="font-size:11.5px;">
+            <thead><tr><th>Cohort Week</th><th class="num">D5</th><th class="num">D10</th><th class="num">D15</th><th class="num">D20</th></tr></thead>
+            <tbody>
+              <tr><td>30-Mar</td><td class="num">24%</td><td class="num">48%</td><td class="num">61%</td><td class="num">65%</td></tr>
+              <tr><td>06-Apr</td><td class="num">35%</td><td class="num">53%</td><td class="num">62%</td><td class="num">66%</td></tr>
+              <tr><td>13-Apr</td><td class="num">33%</td><td class="num">51%</td><td class="num">61%</td><td class="num">67%</td></tr>
+              <tr><td>20-Apr</td><td class="num">31%</td><td class="num">51%</td><td class="num">—</td><td class="num">—</td></tr>
+              <tr><td>27-Apr</td><td class="num">33%</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="ptitle blue-dot">Onboarding Within SLA</div>
+        <div class="ch"><canvas id="slaChart" style="width: 100%; height: 100%; object-fit: contain; display: block;"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="ptitle">Rejection by Onboarding Cohort</div>
+        <div style="position:relative;height:220px;"><canvas id="rejectionChart" style="width: 100%; height: 100%; object-fit: contain; display: block;"></canvas></div>
+      </div>
+      </div>
+    </div>
+
+    <div class="page-ftr" style="display: none;">
+      <span>Teya Product Metrics — April 2026 · Confidential</span>
+      <span>1. Member Acquisition</span>
+    </div>
+  </div>
+
+  <!-- ══════════ 2. ACTIVE BASE ══════════ -->
+  <div id="sec-base" class="sec" data-title="1. Active Base">
+    <div class="page-hdr" style="display: none;">
+      <div class="page-hdr-left">
+        <div class="page-hdr-logo">T</div>
+        <span class="page-hdr-title">Teya Product Metrics — April 2026</span>
+      </div>
+      <span class="page-hdr-meta">1. Active Base</span>
+    </div>
+
+    <div class="sec-hdr">
+      <div class="lime-rule"></div>
+      <h2>2. Active Base</h2>
+      <p>Active CIDs by country and segment, Net Adds waterfall</p>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-lbl">Total Active CIDs</div><div class="kpi-val">73.3k</div><div class="kpi-chg up">↑ +5.8% MoM</div><div class="kpi-note">In line with Budget</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">Net Adds</div><div class="kpi-val">4,044</div><div class="kpi-chg up">↑ Broadly stable MoM</div><div class="kpi-note">Apr-26</div></div>
+      <div class="kpi"><div class="kpi-lbl">Core Segments %</div><div class="kpi-val">48.4%</div><div class="kpi-chg up">↑ +3.5pp MoM</div><div class="kpi-note">At target ✓</div></div>
+    </div>
+
+    <div class="insight">
+      <h3>Commentary</h3>
+      <p>The active base grew to 73.3k CIDs in April driven by a Gross Adds performance +10% above budget. Core Segments (Small + Medium) reached 48.4% of the total base, up 3.5pp MoM and at the target level for the month. Croatia was the fastest-growing market at +19.3% MoM. The Nano segment recorded net adds of −2,982, reflecting a deliberate strategic consequence of the segment mix intervention.</p>
+      <p>Gross Churn rose slightly to 5.1% (from 4.9% in March), driven primarily by Iceland and the Nano segment (7.7%). Medium, by contrast, saw Gross Churn improve to 3.4% from 5.1% in March. Four Large merchants churned or became inactive in April:</p>
+      <ul style="margin:10px 0 10px 20px;font-size:12.5px;line-height:1.7;color:#444;">
+        <li><strong>Stonecrest Marble (UK)</strong> went bankrupt and was terminated at the end of the month.</li>
+        <li><strong>Trade Fairs (Hungary)</strong> is a seasonal merchant who uses Teya in events and hosted a big one in March. They have not been terminated and another event is expected to take place in Q2-26.</li>
+        <li><strong>Fjallakofinn (Iceland)</strong> is a safety equipment seller who churned to another acquirer. Customer Operations is maintaining close communication with the merchant.</li>
+        <li>A <strong>second Icelandic merchant</strong> does not constitute an actual churn, as it has recently changed its SSN, leading to the creation of a new Company ID in Teya's systems.</li>
+      </ul>
+    </div>
+
+    <div class="panel mb18">
+      <div class="ptitle">Teya Net Adds Breakdown</div>
+      <div class="ch-tall"><canvas id="netAddsChart" style="width: 100%; height: 100%; object-fit: contain; display: block;"></canvas></div>
+    </div>
+
+    <div class="g2 mb18">
+      <div class="panel">
+        <div class="ptitle">Active CIDs by Country (#k)</div>
+        <table class="dt">
+          <thead><tr><th>Active Companies</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th><th class="num">vs Budget</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td class="b">Total CIDs (#k)</td><td class="num">65.2</td><td class="num">69.2</td><td class="num b">73.3</td><td class="num dn">(0%)</td></tr>
+            <tr><td>United Kingdom</td><td class="num">28.5</td><td class="num">30.0</td><td class="num">31.6</td><td class="num dn">(2%)</td></tr>
+            <tr><td>Hungary</td><td class="num">16.0</td><td class="num">16.9</td><td class="num">17.6</td><td class="num up">+1%</td></tr>
+            <tr><td>Iceland</td><td class="num">5.1</td><td class="num">5.2</td><td class="num">5.2</td><td class="num dn">(5%)</td></tr>
+            <tr><td>Czechia</td><td class="num">5.8</td><td class="num">6.2</td><td class="num">6.6</td><td class="num up">+5%</td></tr>
+            <tr><td>Slovakia</td><td class="num">1.4</td><td class="num">1.4</td><td class="num">1.5</td><td class="num up">+11%</td></tr>
+            <tr><td>Croatia</td><td class="num">4.7</td><td class="num">5.2</td><td class="num">6.2</td><td class="num up">+3%</td></tr>
+            <tr><td>Portugal</td><td class="num">3.3</td><td class="num">3.5</td><td class="num">3.7</td><td class="num up">+1%</td></tr>
+            <tr><td>Italy</td><td class="num">0.3</td><td class="num">0.5</td><td class="num">0.6</td><td class="num dn">(3%)</td></tr>
+            <tr><td>Spain</td><td class="num">0.2</td><td class="num">0.3</td><td class="num">0.3</td><td class="num dn">(5%)</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="ptitle blue-dot">Active CIDs by Segment (#k)</div>
+        <table class="dt">
+          <thead><tr><th>Active Companies</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th><th class="num">vs Budget</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td class="b">Total Active CIDs (#k)</td><td class="num">65.2</td><td class="num">69.2</td><td class="num b">73.3</td><td class="num dn">(0%)</td></tr>
+            <tr><td class="dt-sub-label">Before Jan-25</td><td class="num">28.5</td><td class="num">31.2</td><td class="num">31.2</td><td class="num neu">-</td></tr>
+            <tr><td class="dt-sub-label">2025 Cohort</td><td class="num">30.9</td><td class="num">28.8</td><td class="num">29.0</td><td class="num neu">-</td></tr>
+            <tr><td class="dt-sub-label">From Jan-26</td><td class="num">5.8</td><td class="num">9.3</td><td class="num">13.0</td><td class="num neu">-</td></tr>
+            <tr class="group-sep"><td>Nano (€0–2.5k)</td><td class="num">21.8</td><td class="num">21.1</td><td class="num dn">18</td><td class="num up">+3%</td></tr>
+            <tr><td>Micro (€2.5–7.5k)</td><td class="num">16.4</td><td class="num">16.9</td><td class="num">20</td><td class="num dn">(5%)</td></tr>
+            <tr><td>Small (€7.5–50k)</td><td class="num">22.9</td><td class="num">25.9</td><td class="num">30</td><td class="num up">+1%</td></tr>
+            <tr><td>Medium (€50–500k)</td><td class="num">4.0</td><td class="num">5.1</td><td class="num">6</td><td class="num dn">(1%)</td></tr>
+            <tr><td>Large (€500k–€3.5m)</td><td class="num">0.1</td><td class="num">0.1</td><td class="num">0</td><td class="num up">+11%</td></tr>
+            <tr><td>Enterprise (&gt;€3.5m)</td><td class="num">0.0</td><td class="num">0.0</td><td class="num">0</td><td class="num up">+20%</td></tr>
+            <tr class="hl group-sep"><td class="b">% in Core Segments *</td><td class="num b">41.3%</td><td class="num b">44.9%</td><td class="num b up">48.4%</td><td class="num neu">+0p.p.</td></tr>
+          </tbody>
+        </table>
+        <p class="tbl-note">* Core Segments = Small + Medium Companies</p>
+      </div>
+    </div>
+
+    <div class="g2 mb18">
+      <div class="panel">
+        <div class="ptitle">CID Gross Churn (%)</div>
+        <table class="dt">
+          <thead><tr><th>CID Gross Churn</th><th class="num">Jan-26</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td class="b">Teya Gross Churn (%)</td><td class="num">9.8%</td><td class="num">5.9%</td><td class="num">4.9%</td><td class="num b">5.1%</td></tr>
+            <tr><td class="dt-sub-label">United Kingdom</td><td class="num">10.4%</td><td class="num">6.8%</td><td class="num">5.9%</td><td class="num">5.7%</td></tr>
+            <tr><td class="dt-sub-label">Hungary</td><td class="num">7.8%</td><td class="num">3.6%</td><td class="num">3.4%</td><td class="num">3.5%</td></tr>
+            <tr><td class="dt-sub-label">Iceland</td><td class="num">12.1%</td><td class="num">5.7%</td><td class="num">6.0%</td><td class="num">7.5%</td></tr>
+            <tr><td class="dt-sub-label">Czechia</td><td class="num">8.9%</td><td class="num">4.1%</td><td class="num">3.3%</td><td class="num">4.1%</td></tr>
+            <tr><td class="dt-sub-label">Slovakia</td><td class="num">9.2%</td><td class="num">4.8%</td><td class="num">4.7%</td><td class="num">3.2%</td></tr>
+            <tr><td class="dt-sub-label">Croatia</td><td class="num">10.6%</td><td class="num">7.7%</td><td class="num">3.7%</td><td class="num">4.1%</td></tr>
+            <tr><td class="dt-sub-label">Portugal</td><td class="num">9.6%</td><td class="num">9.1%</td><td class="num">6.5%</td><td class="num">7.3%</td></tr>
+            <tr><td class="dt-sub-label">Italy</td><td class="num">20.4%</td><td class="num">17.0%</td><td class="num">7.3%</td><td class="num">9.6%</td></tr>
+            <tr><td class="dt-sub-label">Spain</td><td class="num">5.8%</td><td class="num">9.9%</td><td class="num">9.2%</td><td class="num">7.0%</td></tr>
+            <tr><td class="dt-sub-label">Nano (€0–2.5k)</td><td class="num">12.7%</td><td class="num">6.9%</td><td class="num">6.6%</td><td class="num">7.7%</td></tr>
+            <tr><td class="dt-sub-label">Micro (€2.5–7.5k)</td><td class="num">9.6%</td><td class="num">5.8%</td><td class="num">4.8%</td><td class="num">5.1%</td></tr>
+            <tr><td class="dt-sub-label">Small (€7.5–50k)</td><td class="num">6.6%</td><td class="num">5.1%</td><td class="num">3.7%</td><td class="num">3.4%</td></tr>
+            <tr><td class="dt-sub-label">Medium (€50–500k)</td><td class="num">4.0%</td><td class="num">4.7%</td><td class="num">2.7%</td><td class="num">2.8%</td></tr>
+            <tr class="hl group-sep"><td class="b">Teya Gross Churn (CIDs)</td><td class="num"></td><td class="num"></td><td class="num"></td><td class="num"></td></tr>
+            <tr><td class="dt-sub-label">Large (€500k – €3.5m)</td><td class="num">3</td><td class="num">5</td><td class="num">1</td><td class="num b">4</td></tr>
+            <tr><td class="dt-sub-label">Enterprise (&gt;€3.5m)</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num b">0</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="ptitle blue-dot">Churn &amp; Reactivation</div>
+        <table class="dt">
+          <thead><tr><th>Churn &amp; Reactivation</th><th class="num">Jan-26</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td class="b">Gross Churn (#k)</td><td class="num">5,976</td><td class="num">3,958</td><td class="num">3,206</td><td class="num b">3,532</td></tr>
+            <tr><td class="dt-sub-label">% of Cancellations</td><td class="num">15%</td><td class="num">22%</td><td class="num">17%</td><td class="num">12%</td></tr>
+            <tr><td class="dt-sub-label">% of Terminations</td><td class="num">3%</td><td class="num">4%</td><td class="num">4%</td><td class="num">6%</td></tr>
+            <tr><td class="dt-sub-label">% of Inactivation</td><td class="num">82%</td><td class="num">73%</td><td class="num">78%</td><td class="num">82%</td></tr>
+            <tr class="group-sep hl"><td class="b">Reactivations (#)</td><td class="num">1,230</td><td class="num">2,608</td><td class="num">3,102</td><td class="num b">3,091</td></tr>
+            <tr><td class="dt-sub-label">% Recurrent Reactivation</td><td class="num">48%</td><td class="num">44%</td><td class="num">41%</td><td class="num">55%</td></tr>
+            <tr><td class="dt-sub-label">% First Time Reactivation</td><td class="num">52%</td><td class="num">56%</td><td class="num">59%</td><td class="num">45%</td></tr>
+            <tr><td class="dt-sub-label" style="padding-left:32px;">Nano (€0–2.5k)</td><td class="num">22%</td><td class="num">23%</td><td class="num">19%</td><td class="num">16%</td></tr>
+            <tr><td class="dt-sub-label" style="padding-left:32px;">Micro (€2.5–7.5k)</td><td class="num">15%</td><td class="num">15%</td><td class="num">14%</td><td class="num">13%</td></tr>
+            <tr><td class="dt-sub-label" style="padding-left:32px;">Small (€7.5–50k)</td><td class="num">13%</td><td class="num">16%</td><td class="num">15%</td><td class="num">14%</td></tr>
+            <tr><td class="dt-sub-label" style="padding-left:32px;">Medium (€50–500k)</td><td class="num">2%</td><td class="num">2%</td><td class="num">2%</td><td class="num">2%</td></tr>
+            <tr><td class="dt-sub-label" style="padding-left:32px;">Large (€500k – €3.5m)</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td><td class="num">0%</td></tr>
+            <tr class="hl group-sep"><td class="b">Net Churn (%)</td><td class="num dn">7.8%</td><td class="num">1.6%</td><td class="num up">0.2%</td><td class="num b">0.6%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page-ftr" style="display: none;">
+      <span>Teya Product Metrics — April 2026 · Confidential</span>
+      <span>2. Active Base</span>
+    </div>
+  </div>
+
+  <!-- ══════════ 3. CUSTOMER RETENTION ══════════ -->
+  <div id="sec-ret" class="sec" data-title="3. Customer Retention">
+    <div class="page-hdr" style="display: none;">
+      <div class="page-hdr-left">
+        <div class="page-hdr-logo">T</div>
+        <span class="page-hdr-title">Teya Product Metrics — April 2026</span>
+      </div>
+      <span class="page-hdr-meta">3. Customer Retention</span>
+    </div>
+
+    <div class="sec-hdr">
+      <div class="lime-rule"></div>
+      <h2>3. Customer Retention</h2>
+      <p>Gross churn, net churn and reactivation performance</p>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-lbl">Net Churn</div><div class="kpi-val">0.2%</div><div class="kpi-chg up">↓ from 1.6% Feb-26</div><div class="kpi-note">Mar-26</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">Gross Churn</div><div class="kpi-val">4.9%</div><div class="kpi-chg up">↓ from 9.8% Jan-26</div><div class="kpi-note">Mar-26</div></div>
+    </div>
+
+    <div class="insight">
+      <h3>Commentary</h3>
+      <p>March delivered a broad-based improvement in retention, with gross churn declining across most countries and all segments. Main drops came from Southern Europe (from 9.7% to 6.7%) and the Medium segment (from 5.1% to 3.7%), both of which had been areas of concern in prior months. The combination of lower churn and stronger reactivations brought Net Churn to 0.2%. We still have a limited view of the underlying churn behaviour and require a deep dive into the physical causes of good and bad performance across cohorts.</p>
+    </div>
+
+    <!-- Row 1: churn by country | churn by segment -->
+    <div class="g2 mb18">
+      <div class="panel">
+        <div class="ptitle">Gross Churn Rate by Country (%)</div>
+        <table class="dt">
+          <thead><tr><th>Country</th><th class="num">Dec-25</th><th class="num">Jan-26</th><th class="num">Feb-26</th><th class="num">Mar-26</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td class="b">Teya Total</td><td class="num">8.4%</td><td class="num">9.8%</td><td class="num">5.9%</td><td class="num b">4.9%</td></tr>
+            <tr><td>UK</td><td class="num">8.8%</td><td class="num">10.6%</td><td class="num">6.8%</td><td class="num">5.9%</td></tr>
+            <tr><td>Iceland</td><td class="num">9.3%</td><td class="num">12.1%</td><td class="num">5.7%</td><td class="num">6.0%</td></tr>
+            <tr><td>Central Europe</td><td class="num">7.7%</td><td class="num">8.6%</td><td class="num">4.5%</td><td class="num">3.5%</td></tr>
+            <tr><td>Southern Europe</td><td class="num">10.1%</td><td class="num">10.2%</td><td class="num">9.7%</td><td class="num">6.7%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="ptitle blue-dot">Gross Churn Rate by Segment (%)</div>
+        <table class="dt">
+          <thead><tr><th>Segment</th><th class="num">Dec-25</th><th class="num">Jan-26</th><th class="num">Feb-26</th><th class="num">Mar-26</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td class="b">Teya Total</td><td class="num">8.4%</td><td class="num">9.8%</td><td class="num">5.9%</td><td class="num b">4.9%</td></tr>
+            <tr><td>Nano (€0–2.5k)</td><td class="num">8.4%</td><td class="num">9.4%</td><td class="num">5.9%</td><td class="num">4.9%</td></tr>
+            <tr><td>Micro (€2.5–7.5k)</td><td class="num">8.5%</td><td class="num">12.7%</td><td class="num">6.9%</td><td class="num">5.8%</td></tr>
+            <tr><td>Small (€7.5–50k)</td><td class="num">7.1%</td><td class="num">9.6%</td><td class="num">5.8%</td><td class="num">4.8%</td></tr>
+            <tr><td>Medium (€50–500k)</td><td class="num">5.3%</td><td class="num">6.3%</td><td class="num">5.1%</td><td class="num">3.7%</td></tr>
+            <tr><td>Large (€500k–€3.5m)</td><td class="num">4.2%</td><td class="num">4.0%</td><td class="num">4.7%</td><td class="num">2.7%</td></tr>
+            <tr><td>Enterprise (&gt;€3.5m)</td><td class="num">3.8%</td><td class="num">2.4%</td><td class="num">5.5%</td><td class="num">1.2%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Row 2: reactivation summary table | churn chart -->
+    <div class="g2 mb18">
+      <div class="panel">
+        <div class="ptitle">Churn &amp; Reactivation Summary</div>
+        <table class="dt">
+          <thead><tr><th>Metric</th><th class="num">Dec-25</th><th class="num">Jan-26</th><th class="num">Feb-26</th><th class="num">Mar-26</th></tr></thead>
+          <tbody>
+            <tr><td class="b">Gross Churn #</td><td class="num">4,920</td><td class="num">5,976</td><td class="num">3,958</td><td class="num b">3,206</td></tr>
+            <tr><td>% Cancellations</td><td class="num">24%</td><td class="num">15%</td><td class="num">22%</td><td class="num">17%</td></tr>
+            <tr><td>% Terminations</td><td class="num">5%</td><td class="num">3%</td><td class="num">4%</td><td class="num">4%</td></tr>
+            <tr><td>% Inactivation</td><td class="num">71%</td><td class="num">82%</td><td class="num">73%</td><td class="num">78%</td></tr>
+            <tr class="group-sep"><td class="b">Reactivations #</td><td class="num">1,348</td><td class="num">1,235</td><td class="num">2,651</td><td class="num b">3,102</td></tr>
+            <tr><td>% First Time Reactivation</td><td class="num">50%</td><td class="num">51%</td><td class="num">53%</td><td class="num">52%</td></tr>
+            <tr><td>% Recurrent Reactivation</td><td class="num">50%</td><td class="num">49%</td><td class="num">47%</td><td class="num">48%</td></tr>
+            <tr class="hl"><td class="b">Net Churn (%)</td><td class="num">6.3%</td><td class="num">7.8%</td><td class="num">1.6%</td><td class="num b up">0.2%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="ptitle blue-dot">Gross &amp; Net Churn (%)</div>
+        <div class="ch"><canvas id="churnChart" style="width: 100%; height: 100%; object-fit: contain; display: block;"></canvas></div>
+      </div>
+    </div>
+
+    <div class="page-ftr" style="display: none;">
+      <span>Teya Product Metrics — April 2026 · Confidential</span>
+      <span>3. Customer Retention</span>
+    </div>
+  </div>
+
+  <!-- ══════════ 4. PAYMENTS PRODUCTS ══════════ -->
+  <div id="sec-pay" class="sec" data-title="Payments Products">
+    <div class="page-hdr" style="display: none;">
+      <div class="page-hdr-left">
+        <div class="page-hdr-logo">T</div>
+        <span class="page-hdr-title">Teya Product Metrics — April 2026</span>
+      </div>
+      <span class="page-hdr-meta">Payments Products</span>
+    </div>
+
+    <div class="sec-hdr">
+      <div class="lime-rule"></div>
+      <h2>Payments Products</h2>
+      <p>TPV, E-POS, DCC and other payment product metrics</p>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-lbl">TPV (€m)</div><div class="kpi-val">€1,414m</div><div class="kpi-chg up">↑ +3% vs Budget</div><div class="kpi-note">+6.5% MoM</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">TPV per CID (€k)</div><div class="kpi-val">€19.3k</div><div class="kpi-chg up">↑ +3% vs Budget</div><div class="kpi-note">+0.5% MoM</div></div>
+      <div class="kpi"><div class="kpi-lbl">Transactional Take Rate</div><div class="kpi-val">0.53%</div><div class="kpi-chg dn">↓ (0.01p.p.) vs Budget</div><div class="kpi-note">+3bps MoM</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">E-POS TPV (€m)</div><div class="kpi-val">€270m</div><div class="kpi-chg up">↑ +11.1% MoM</div><div class="kpi-note">Apr-26</div></div>
+    </div>
+
+    <div class="insight" style="margin-bottom:14px;">
+      <h3>Commentary</h3>
+      <p>TPV reached €1,414m in April, +3% above budget and up 6.5% MoM. A highlight of the early 2026 months is the average TPV per CID of 2026 onboarding cohorts: all Q1 2026 cohorts are already performing above the 2025 cohort average in TPV per CID. This trend is expected to improve further, especially for the February and March cohorts, as many merchants are still in their ramp-up period.</p>
+      <p>Alternative Settlement Methods continue to gain traction with Everyday Settlement adoption reaching 16.3% of TPV. New cohorts from 2026 are showing higher adoption of the Instant Settlement method, reaching 6.5% for April's cohort as of 13th of May.</p>
+      <p>We saw a decline in E-commerce TPV (−12.8% MoM). This was mainly due to a single large merchant in Iceland (Icelandair, €9.6m TPV drop MoM) and a seasonality effect observed in prior years. Icelandair had a spike in E-commerce transactions in February and March and returned to regular volumes in April.</p>
+    </div>
+
+    <div class="g2 mb18" style="align-items:start;">
+      <!-- LEFT: TPV table + Other Products (without settlement rows) -->
+      <div style="display:flex;flex-direction:column;gap:18px;">
+        <div class="panel">
+          <div class="ptitle">TPV</div>
+          <table class="dt" style="margin-bottom:18px;">
+            <thead>
+              <tr><th>TPV</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th><th class="num">vs Budget</th></tr>
+            </thead>
+            <tbody>
+              <tr class="hl"><td class="b">TPV (€m)</td><td class="num">1,116</td><td class="num">1,328</td><td class="num b">1,414</td><td class="num up">+3%</td></tr>
+              <tr><td class="b">TPV per CID (€k)</td><td class="num">17.1</td><td class="num">19.2</td><td class="num b">19.3</td><td class="num up">+3%</td></tr>
+              <tr><td class="dt-sub-label">Pre 2025 (€k)</td><td class="num">22.2</td><td class="num">24.9</td><td class="num">24.7</td><td class="num neu">-</td></tr>
+              <tr><td class="dt-sub-label">2025 (€k)</td><td class="num">13.8</td><td class="num">15.6</td><td class="num">16.1</td><td class="num neu">-</td></tr>
+              <tr><td class="dt-sub-label">Jan 2026 (€k)</td><td class="num">12.5</td><td class="num">15.5</td><td class="num">16.6</td><td class="num neu">-</td></tr>
+              <tr><td class="dt-sub-label">Feb 2026 (€k)</td><td class="num">6.2</td><td class="num">15.6</td><td class="num">17.9</td><td class="num neu">-</td></tr>
+              <tr><td class="dt-sub-label">Mar 2026 (€k)</td><td class="num">—</td><td class="num">7.4</td><td class="num">16.2</td><td class="num neu">-</td></tr>
+              <tr><td class="dt-sub-label">Apr 2026 (€k)</td><td class="num">—</td><td class="num">—</td><td class="num">6.5</td><td class="num neu">-</td></tr>
+              <tr class="group-sep"><td>DCC Rev./Non-dom. TPV</td><td class="num">0.32%</td><td class="num">0.31%</td><td class="num">0.33%</td><td class="num neu">-</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="ptitle blue-dot">Other Products</div>
+          <table class="dt">
+            <thead>
+              <tr><th>Metric</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th></tr>
+            </thead>
+            <tbody>
+              <tr class="hl"><td class="b">E-POS CIDs (#k)</td><td class="num">8.9</td><td class="num">9.5</td><td class="num b">10.2</td></tr>
+              <tr><td>E-POS TPV (€M)</td><td class="num">200</td><td class="num">243</td><td class="num b">270</td></tr>
+              <tr><td>E-POS TPV per CID (€k)</td><td class="num">23.2</td><td class="num">26.3</td><td class="num">26.3</td></tr>
+              <tr><td>E-POS Penetration in CIDs (%)</td><td class="num">13.7%</td><td class="num">13.8%</td><td class="num">14.0%</td></tr>
+              <tr class="group-sep"><td class="b">Tap Companies (#)</td><td class="num">4,970</td><td class="num">5,631</td><td class="num b">5,810</td></tr>
+              <tr><td>% Tap-only over Total CIDs</td><td class="num">2.2%</td><td class="num">2.1%</td><td class="num">1.8%</td></tr>
+              <tr><td>% Tap Complementary over Total CIDs</td><td class="num">5.6%</td><td class="num">6.2%</td><td class="num">6.2%</td></tr>
+              <tr class="group-sep"><td class="b">E-comm Merchants (#k)</td><td class="num">8.9</td><td class="num">9.5</td><td class="num b">9.6</td></tr>
+              <tr><td>E-comm TPV (€M)</td><td class="num">131</td><td class="num">144</td><td class="num">126</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- RIGHT: Settlement % panel (top) + Settlement Method Cohort table (bottom) -->
+      <div style="display:flex;flex-direction:column;gap:18px;">
+        <div class="panel">
+          <div class="ptitle">Settlement Method — % of TPV</div>
+          <table class="dt">
+            <thead>
+              <tr><th>Metric</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Everyday Settlements on % of TPV</td><td class="num">15.0%</td><td class="num">15.8%</td><td class="num up">16.3%</td></tr>
+              <tr><td>Instant Settlements on % of TPV</td><td class="num">1.5%</td><td class="num">1.8%</td><td class="num">1.9%</td></tr>
+              <tr><td>Scheduled Settlements on % of TPV</td><td class="num">1.6%</td><td class="num">1.9%</td><td class="num">1.5%</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="panel">
+          <div class="ptitle blue-dot">% Settlement Method TPV by Cohort — April 2026</div>
+          <table class="dt" style="font-size:11px;">
+            <thead>
+              <tr><th>Cohort</th><th class="num">Business Day</th><th class="num">Everyday</th><th class="num">Instant</th><th class="num">Scheduled</th><th class="num">Total</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Pre 2025 Cohorts</td><td class="num">94.7%</td><td class="num">2.6%</td><td class="num">0.2%</td><td class="num">2.6%</td><td class="num b">100%</td></tr>
+              <tr><td>Q1+Q2 2025 Cohorts</td><td class="num">80.3%</td><td class="num">18.2%</td><td class="num">1.1%</td><td class="num">0.3%</td><td class="num b">100%</td></tr>
+              <tr><td>Q3+Q4 2025 Cohorts</td><td class="num">62.2%</td><td class="num">33.9%</td><td class="num">3.8%</td><td class="num">0.0%</td><td class="num b">100%</td></tr>
+              <tr><td>2026-01</td><td class="num">55.8%</td><td class="num">36.1%</td><td class="num">7.2%</td><td class="num">0.9%</td><td class="num b">100%</td></tr>
+              <tr><td>2026-02</td><td class="num">62.1%</td><td class="num">31.8%</td><td class="num">5.5%</td><td class="num">0.6%</td><td class="num b">100%</td></tr>
+              <tr><td>2026-03</td><td class="num">54.8%</td><td class="num">36.7%</td><td class="num">4.9%</td><td class="num">3.5%</td><td class="num b">100%</td></tr>
+              <tr><td>2026-04</td><td class="num">54.3%</td><td class="num">38.0%</td><td class="num">6.5%</td><td class="num">1.2%</td><td class="num b">100%</td></tr>
+              <tr class="hl" style="background:#E0E722;color:#000;"><td class="b">Grand Total</td><td class="num b">80.2%</td><td class="num b">16.3%</td><td class="num b">1.9%</td><td class="num b">1.5%</td><td class="num b">100%</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="page-ftr" style="display: none;">
+      <span>Teya Product Metrics — April 2026 · Confidential</span>
+      <span>Payments Products</span>
+    </div>
+  </div>
+
+  <!-- ══════════ 5. BANKING & CREDIT ══════════ -->
+  <div id="sec-bank" class="sec" data-title="Banking &amp; Credit">
+    <div class="page-hdr" style="display: none;">
+      <div class="page-hdr-left">
+        <div class="page-hdr-logo">T</div>
+        <span class="page-hdr-title">Teya Product Metrics — April 2026</span>
+      </div>
+      <span class="page-hdr-meta">Banking &amp; Credit</span>
+    </div>
+
+    <div class="sec-hdr">
+      <div class="lime-rule"></div>
+      <h2>Banking &amp; Credit</h2>
+      <p>Business Account metrics, card spend, loans and credit performance</p>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-lbl">Active Business Accounts</div><div class="kpi-val">12.7k</div><div class="kpi-chg dn">↓ (4%) vs Budget</div><div class="kpi-note">+11.3% MoM</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">Deposit Balance EoP</div><div class="kpi-val">€41.1m</div><div class="kpi-chg up">↑ +1% vs Budget</div><div class="kpi-note">+13.5% MoM</div></div>
+      <div class="kpi"><div class="kpi-lbl">Total Banking Revenue</div><div class="kpi-val">€289k</div><div class="kpi-chg up">↑ +45% vs Budget</div><div class="kpi-note">Apr-26</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">CIDs with Live Credit</div><div class="kpi-val">1,981</div><div class="kpi-chg up">↑ +12% vs Budget</div><div class="kpi-note">+8.0% MoM</div></div>
+      <div class="kpi"><div class="kpi-lbl">3P Loans Issued</div><div class="kpi-val">€7.7m</div><div class="kpi-chg dn">↓ (1%) vs Budget</div><div class="kpi-note">−7.2% MoM</div></div>
+    </div>
+
+    <div class="insight" style="margin-bottom:14px;">
+      <h3>Commentary</h3>
+      <p>Active Business Accounts grew MoM to 12.7k but remain (4%) below budget, with overall penetration over total Active Base of countries where BA is live at 30%. March and April cohorts achieved &gt;42% penetration, still not at the desired level. On the other hand, existing users are showing good signs of adoption: Deposit Balance reached €41.1m (+13.5% MoM), +1% above budget, driven by an increase in UK merchants in the &gt;€10k deposit bucket (~€3.2m MoM uplift) and higher-balance merchants deepening their use of BA as a primary account; Card Spend also came in above expectations, with Croatia card spend surging over 5x MoM and card users nearly tripling as onboardings outpaced March's total by mid-month. The higher engagement with Teya Card resulted in an Interchange Revenue of €222k, +73% above budget, while the Average Daily Deposit Balance for the month stood at €38.8m, (5%) below budget — the reference base for Deposit Interest Revenue, which came in 6% below plan.</p>
+      <p>3P Loans Issued was €7.7m (−1% vs budget) with 309 deals completed. We launched 3P Credit in HU and HR in April, with 13 deals funded to date totalling €166k (€12k average) - below our expectations. Finmid made fewer offers available than expected in both markets — per Finmid, our merchants' seasonality was not accurately modelled in the original business case. We are working with them to increase offer availability. April was also shortened by bank holidays, which compressed conversion broadly.</p>
+    </div>
+
+    <div class="g2 mb18">
+      <div class="panel">
+        <div class="ptitle">Business Account Metrics</div>
+        <div class="tbl-wrap">
+        <table class="dt" style="font-size:10.5px;">
+          <thead>
+            <tr><th style="min-width:170px;">Business Account Metrics</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th><th class="num">vs Budget</th></tr>
+          </thead>
+          <tbody>
+            <tr class="hl"><td class="b">Active BAs (#k)</td><td class="num">10.5</td><td class="num">11.4</td><td class="num b">12.7</td><td class="num dn">(4%)</td></tr>
+            <tr><td class="dt-sub-label">Penetration over CIDs (%)</td><td class="num">29%</td><td class="num">29%</td><td class="num">30%</td><td class="num dn">(3%)</td></tr>
+            <tr><td class="dt-sub-label">Onboarding Penetration (%)</td><td class="num">53%</td><td class="num">60%</td><td class="num">60%</td><td class="num neu">-</td></tr>
+            <tr class="group-sep"><td>Deposit Balance (€m)</td><td class="num">32.1</td><td class="num">36.2</td><td class="num b">41.1</td><td class="num up">+1%</td></tr>
+            <tr><td>Card Users/Active BAs (%)</td><td class="num">52%</td><td class="num">55%</td><td class="num">55%</td><td class="num up">+6%</td></tr>
+            <tr><td>Card Spend (€m)</td><td class="num">12.4</td><td class="num">16.4</td><td class="num">19.6</td><td class="num up">+70%</td></tr>
+            <tr><td>Card Spend/Active Users (€k)</td><td class="num">2.3</td><td class="num">2.6</td><td class="num">2.8</td><td class="num up">+68%</td></tr>
+            <tr class="hl group-sep"><td class="b">Total Banking Revenue (€k)</td><td class="num">191</td><td class="num">248</td><td class="num b">289</td><td class="num up">+45%</td></tr>
+            <tr><td class="dt-sub-label">Interchange Revenue (€k)</td><td class="num">145</td><td class="num">193</td><td class="num">222</td><td class="num up">+73%</td></tr>
+            <tr><td class="dt-sub-label">Deposit Interest Revenue (€k)</td><td class="num">46</td><td class="num">54</td><td class="num">67</td><td class="num dn">(6%)</td></tr>
+          </tbody>
+        </table>
+        </div>
+
+        <div class="ptitle blue-dot" style="margin-top:14px;">Active BAs by Onboarding Cohort — April 2026</div>
+        <table class="dt" style="font-size:10.5px;">
+          <thead>
+            <tr><th>Onboarding Cohort</th><th class="num">Active BAs</th><th class="num">% of the Cohort</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Pre 2025 Cohorts</td><td class="num">859</td><td class="num">8%</td></tr>
+            <tr><td>Q1+Q2 2025 Cohorts</td><td class="num">2,219</td><td class="num">23%</td></tr>
+            <tr><td>Q3+Q4 2025 Cohorts</td><td class="num">4,586</td><td class="num">36%</td></tr>
+            <tr><td>2026-01</td><td class="num">989</td><td class="num">40%</td></tr>
+            <tr><td>2026-02</td><td class="num">1,056</td><td class="num">39%</td></tr>
+            <tr><td>2026-03</td><td class="num">1,067</td><td class="num">42%</td></tr>
+            <tr><td>2026-04</td><td class="num">861</td><td class="num">43%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="ptitle blue-dot">Credit Metrics</div>
+        <table class="dt">
+          <thead><tr><th>Metric</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th><th class="num">vs Budget</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td class="b">CIDs with Live Credit (#)</td><td class="num">1,665</td><td class="num">1,835</td><td class="num b">1,981</td><td class="num up">+12%</td></tr>
+            <tr><td class="dt-sub-label">Eligibility over Addressable (%)</td><td class="num">74%</td><td class="num">76%</td><td class="num">77%</td><td class="num neu">-</td></tr>
+            <tr><td class="dt-sub-label">Penetration over Eligible CIDs (%)</td><td class="num">5.5%</td><td class="num">5.6%</td><td class="num">5.7%</td><td class="num neu">-</td></tr>
+            <tr class="group-sep"><td>3P Loans Issued (€m)</td><td class="num">7.3</td><td class="num">8.3</td><td class="num b">7.7</td><td class="num dn">(1%)</td></tr>
+            <tr><td>3P Outstanding Loans (€m)</td><td class="num">38.5</td><td class="num">44.2</td><td class="num">47.7</td><td class="num up">+62%</td></tr>
+            <tr><td>3P Commissions Revenue (€k)</td><td class="num">369</td><td class="num">420</td><td class="num">424</td><td class="num dn">(5%)</td></tr>
+            <tr><td>Number of 3P Credit Deals (#)</td><td class="num">295</td><td class="num">348</td><td class="num">309</td><td class="num neu">-</td></tr>
+            <tr><td>Average Funded Amount (€k)</td><td class="num">24.8</td><td class="num">23.8</td><td class="num">24.9</td><td class="num neu">-</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page-ftr" style="display: none;">
+      <span>Teya Product Metrics — April 2026 · Confidential</span>
+      <span>Banking &amp; Credit</span>
+    </div>
+  </div>
+
+  <!-- ══════════ 6. APP & PORTAL ══════════ -->
+  <div id="sec-app" class="sec" data-title="App &amp; Portal">
+    <div class="page-hdr" style="display: none;">
+      <div class="page-hdr-left">
+        <div class="page-hdr-logo">T</div>
+        <span class="page-hdr-title">Teya Product Metrics — April 2026</span>
+      </div>
+      <span class="page-hdr-meta">App &amp; Portal</span>
+    </div>
+
+    <div class="sec-hdr">
+      <div class="lime-rule"></div>
+      <h2>App &amp; Portal</h2>
+      <p>Monthly and daily active users, cohort adoption rates</p>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi blue"><div class="kpi-lbl">App + Portal MAU</div><div class="kpi-val">51%</div><div class="kpi-chg dn">↓ (2p.p.) vs Target</div><div class="kpi-note">Flat MoM</div></div>
+      <div class="kpi"><div class="kpi-lbl">App MAU</div><div class="kpi-val">40%</div><div class="kpi-chg dn">↓ (3p.p.) vs Target</div><div class="kpi-note">−1pp MoM</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">App DAU / MAU</div><div class="kpi-val">40%</div><div class="kpi-chg dn">↓ (1p.p.) vs Target</div><div class="kpi-note">+1pp MoM</div></div>
+      <div class="kpi"><div class="kpi-lbl">Portal MAU</div><div class="kpi-val">22%</div><div class="kpi-chg neu">→ +0p.p. vs Target</div><div class="kpi-note">Flat MoM</div></div>
+    </div>
+
+    <div class="insight" style="margin-bottom:14px;">
+      <h3>Commentary</h3>
+      <p><br></p>
+      <p style="margin-top:10px;">At the country level, Spain and Italy recorded the highest App &amp; Portal MAU rates in April, at 89% and 82% respectively. The UK follows at 64%, while Hungary, Slovakia, and Croatia remain below 40%. Targeted actions planned under IMO#2 are expected to drive App adoption across the backbook, with rollout planned for the end of Q2.</p>
+    </div>
+
+    <div class="g2 mb18">
+      <!-- Left: App & Web MAU cohort heat-map (M0–M9) -->
+      <div class="panel">
+        <div class="ptitle">App &amp; Web MAU by Cohort (%)</div>
+        <div class="tbl-wrap">
+          <table class="dt" style="font-size:11.5px;">
+            <thead>
+              <tr>
+                <th style="min-width:110px;">Cohort</th>
+                <th class="num">M0</th><th class="num">M1</th><th class="num">M2</th><th class="num">M3</th>
+                <th class="num">M4</th><th class="num">M5</th><th class="num">M6</th><th class="num">M7</th>
+                <th class="num">M8</th><th class="num">M9</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Pre 2024 Cohorts</td>
+                <td class="num">6%</td><td class="num">12%</td><td class="num">16%</td><td class="num">18%</td>
+                <td class="num">21%</td><td class="num">24%</td><td class="num">28%</td><td class="num">31%</td>
+                <td class="num">33%</td><td class="num">44%</td>
+              </tr>
+              <tr>
+                <td>2024 Cohorts</td>
+                <td class="num">11%</td><td class="num">35%</td><td class="num">43%</td><td class="num">47%</td>
+                <td class="num">50%</td><td class="num">50%</td><td class="num">52%</td><td class="num">54%</td>
+                <td class="num">56%</td><td class="num">61%</td>
+              </tr>
+              <tr>
+                <td>Q1+Q2 2025 Cohorts</td>
+                <td class="num">71%</td><td class="num">77%</td><td class="num">79%</td><td class="num">80%</td>
+                <td class="num">81%</td><td class="num">82%</td><td class="num">82%</td><td class="num">83%</td>
+                <td class="num">83%</td><td class="num">84%</td>
+              </tr>
+              <tr>
+                <td>Jul-25 Cohort</td>
+                <td class="num">83%</td><td class="num">85%</td><td class="num">85%</td><td class="num">87%</td>
+                <td class="num">88%</td><td class="num">88%</td><td class="num">89%</td><td class="num">89%</td>
+                <td class="num">90%</td><td class="num">90%</td>
+              </tr>
+              <tr>
+                <td>Aug-25 Cohort</td>
+                <td class="num">84%</td><td class="num">86%</td><td class="num">87%</td><td class="num">88%</td>
+                <td class="num">89%</td><td class="num">90%</td><td class="num">90%</td><td class="num">91%</td>
+                <td class="num">91%</td><td class="num">—</td>
+              </tr>
+              <tr>
+                <td>Sep-25 Cohort</td>
+                <td class="num">84%</td><td class="num">86%</td><td class="num">87%</td><td class="num">88%</td>
+                <td class="num">88%</td><td class="num">89%</td><td class="num">89%</td><td class="num">90%</td>
+                <td class="num">90%</td><td class="num">—</td>
+              </tr>
+              <tr>
+                <td>Oct-25 Cohort</td>
+                <td class="num">83%</td><td class="num">86%</td><td class="num">86%</td><td class="num">87%</td>
+                <td class="num">88%</td><td class="num">88%</td><td class="num">89%</td><td class="num">89%</td>
+                <td class="num">—</td><td class="num">—</td>
+              </tr>
+              <tr>
+                <td>Nov-25 Cohort</td>
+                <td class="num">81%</td><td class="num">85%</td><td class="num">86%</td><td class="num">88%</td>
+                <td class="num">89%</td><td class="num">89%</td><td class="num">89%</td><td class="num">—</td>
+                <td class="num">—</td><td class="num">—</td>
+              </tr>
+              <tr>
+                <td>Dec-25 Cohort</td>
+                <td class="num">87%</td><td class="num">89%</td><td class="num">89%</td><td class="num">90%</td>
+                <td class="num">91%</td><td class="num">91%</td><td class="num">—</td><td class="num">—</td>
+                <td class="num">—</td><td class="num">—</td>
+              </tr>
+              <tr>
+                <td>Jan-26 Cohort</td>
+                <td class="num">88%</td><td class="num">88%</td><td class="num">89%</td><td class="num">90%</td>
+                <td class="num">90%</td><td class="num">—</td><td class="num">—</td><td class="num">—</td>
+                <td class="num">—</td><td class="num">—</td>
+              </tr>
+              <tr>
+                <td>Feb-26 Cohort</td>
+                <td class="num">89%</td><td class="num">90%</td><td class="num">91%</td><td class="num">90%</td>
+                <td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td>
+                <td class="num">—</td><td class="num">—</td>
+              </tr>
+              <tr>
+                <td>Mar-26 Cohort</td>
+                <td class="num">84%</td><td class="num">86%</td><td class="num">86%</td><td class="num">—</td>
+                <td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td>
+                <td class="num">—</td><td class="num">—</td>
+              </tr>
+              <tr class="hl">
+                <td class="b">Apr-26 Cohort</td>
+                <td class="num">82%</td><td class="num">82%</td><td class="num">—</td><td class="num">—</td>
+                <td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td>
+                <td class="num">—</td><td class="num">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Right: App & Portal Usage summary -->
+      <div class="panel">
+        <div class="ptitle blue-dot">App &amp; Portal Usage</div>
+        <table class="dt">
+          <thead><tr><th>App &amp; Portal Usage</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th><th class="num">vs Target</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td class="b">App + Portal MAU (%)</td><td class="num b">49%</td><td class="num b">51%</td><td class="num b">51%</td><td class="num dn">(2p.p.)</td></tr>
+            <tr><td class="dt-sub-label">Nano &amp; Micro</td><td class="num">45%</td><td class="num">47%</td><td class="num">47%</td><td class="num"></td></tr>
+            <tr><td class="dt-sub-label">Small</td><td class="num">51%</td><td class="num">52%</td><td class="num">52%</td><td class="num"></td></tr>
+            <tr><td class="dt-sub-label">Medium</td><td class="num">55%</td><td class="num">58%</td><td class="num">57%</td><td class="num"></td></tr>
+            <tr><td class="dt-sub-label">Large &amp; Enterprise</td><td class="num">83%</td><td class="num">86%</td><td class="num">82%</td><td class="num"></td></tr>
+            <tr class="hl group-sep"><td class="b">App MAU (%)</td><td class="num b">40%</td><td class="num b">41%</td><td class="num b">40%</td><td class="num dn">(3p.p.)</td></tr>
+            <tr><td>App DAU/MAU (%)</td><td class="num">39%</td><td class="num">39%</td><td class="num b">40%</td><td class="num dn">(1p.p.)</td></tr>
+            <tr><td>Portal MAU (%)</td><td class="num">20%</td><td class="num">22%</td><td class="num">22%</td><td class="num neu">+0p.p.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+
+    <div class="page-ftr" style="display: none;">
+      <span>Teya Product Metrics — April 2026 · Confidential</span>
+      <span>App &amp; Portal</span>
+    </div>
+  </div>
+
+  <!-- ══════════ 7. NET REVENUE ══════════ -->
+  <div id="sec-rev" class="sec" data-title="Net Revenue">
+    <div class="page-hdr" style="display: none;">
+      <div class="page-hdr-left">
+        <div class="page-hdr-logo">T</div>
+        <span class="page-hdr-title">Teya Product Metrics — April 2026</span>
+      </div>
+      <span class="page-hdr-meta">Net Revenue</span>
+    </div>
+
+    <div class="sec-hdr">
+      <div class="lime-rule"></div>
+      <h2>Net Revenue</h2>
+      <p>Revenue breakdown by type, monthly trend analysis</p>
+    </div>
+
+    <div class="kpi-row" style="grid-template-columns: repeat(5, 1fr);">
+      <div class="kpi dark"><div class="kpi-lbl">Total Net Revenue</div><div class="kpi-val">€9,912k</div><div class="kpi-chg up">↑ +1% vs Budget</div><div class="kpi-note">Apr-26</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">Take Rate</div><div class="kpi-val">0.70%</div><div class="kpi-chg dn">↓ −1.4bps vs Budget</div><div class="kpi-note">Apr-26</div></div>
+      <div class="kpi"><div class="kpi-lbl">Net Transactional Revenue</div><div class="kpi-val">€7,485k</div><div class="kpi-chg up">↑ +1% vs Budget</div><div class="kpi-note">Apr-26</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">Credit Revenue</div><div class="kpi-val">€611k</div><div class="kpi-chg dn">↓ (1%) vs Budget</div><div class="kpi-note">Apr-26</div></div>
+      <div class="kpi"><div class="kpi-lbl">Banking Revenue</div><div class="kpi-val">€289k</div><div class="kpi-chg up">↑ +45% vs Budget</div><div class="kpi-note">Apr-26</div></div>
+    </div>
+
+    <div class="insight" style="margin-bottom:14px;">
+      <h3>Commentary</h3>
+      <p>Total Net Revenue for April reached €9,912k, +1% above budget. At a category level, the outperformance was driven by Net Transactional Revenue (+1% vs budget) and Banking Revenue, which&nbsp;outperformed its €200k budget by +45%, driven by strong EU card spend activity across active business accounts.</p>
+      <p>Net Transactional Revenue of €7,485k came in +1% ahead of the €7,437k budget, supported by a TPV rebound to €1,414m (+3% vs budget). The gap between Net Transactional Revenue and TPV performance signals a persistent pricing headwind: both Take Rate and Transactional Take Rate closed April 1bps below budget.</p>
+      <p><br></p>
+      <p><br></p>
+    </div>
+
+    <div class="panel mb18">
+      <div class="ptitle blue-dot">Revenue Detail by Category (€k)</div>
+      <div class="tbl-wrap">
+        <table class="dt" style="font-size:10.5px;">
+          <thead>
+            <tr><th style="min-width:140px;">KPI</th><th class="num">Apr-25</th><th class="num">May-25</th><th class="num">Jun-25</th><th class="num">Jul-25</th><th class="num">Aug-25</th><th class="num">Sep-25</th><th class="num">Oct-25</th><th class="num">Nov-25</th><th class="num">Dec-25</th><th class="num">Jan-26</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th><th class="num">Budget</th><th class="num">vs Budget</th></tr>
+          </thead>
+          <tbody>
+            <tr class="hl"><td class="b">Net Revenue per type</td><td class="num">6,512</td><td class="num">7,504</td><td class="num">7,709</td><td class="num">9,401</td><td class="num">9,881</td><td class="num">7,900</td><td class="num">8,252</td><td class="num">7,514</td><td class="num">8,908</td><td class="num">7,314</td><td class="num">7,588</td><td class="num">8,996</td><td class="num b">9,912</td><td class="num">9,843</td><td class="num up">+1%</td></tr>
+            <tr><td class="dt-sub-label">Payments Transact</td><td class="num">4,895</td><td class="num">5,669</td><td class="num">5,618</td><td class="num">6,938</td><td class="num">7,396</td><td class="num">5,656</td><td class="num">6,039</td><td class="num">5,545</td><td class="num">6,201</td><td class="num">5,472</td><td class="num">5,524</td><td class="num">6,687</td><td class="num b">7,485</td><td class="num">7,437</td><td class="num up">+1%</td></tr>
+            <tr><td class="dt-sub-label">Rental</td><td class="num">653</td><td class="num">698</td><td class="num">734</td><td class="num">771</td><td class="num">779</td><td class="num">796</td><td class="num">818</td><td class="num">795</td><td class="num">784</td><td class="num">698</td><td class="num">669</td><td class="num">697</td><td class="num b">716</td><td class="num">806</td><td class="num dn">(11%)</td></tr>
+            <tr><td class="dt-sub-label">DCC</td><td class="num">559</td><td class="num">688</td><td class="num">875</td><td class="num">1,102</td><td class="num">1,127</td><td class="num">784</td><td class="num">680</td><td class="num">551</td><td class="num">632</td><td class="num">512</td><td class="num">541</td><td class="num">652</td><td class="num b">811</td><td class="num">826</td><td class="num dn">(2%)</td></tr>
+            <tr><td class="dt-sub-label">Credit</td><td class="num">330</td><td class="num">333</td><td class="num">360</td><td class="num">372</td><td class="num">396</td><td class="num">492</td><td class="num">490</td><td class="num">416</td><td class="num">917</td><td class="num">440</td><td class="num">663</td><td class="num">713</td><td class="num b">611</td><td class="num">618</td><td class="num dn">(1%)</td></tr>
+            <tr><td class="dt-sub-label">Banking</td><td class="num">52</td><td class="num">81</td><td class="num">98</td><td class="num">122</td><td class="num">149</td><td class="num">139</td><td class="num">152</td><td class="num">170</td><td class="num">183</td><td class="num">191</td><td class="num">191</td><td class="num">248</td><td class="num b">289</td><td class="num">200</td><td class="num up">+45%</td></tr>
+            <tr><td class="dt-sub-label">Other</td><td class="num">23</td><td class="num">34</td><td class="num">25</td><td class="num">96</td><td class="num">33</td><td class="num">33</td><td class="num">73</td><td class="num">38</td><td class="num">191</td><td class="num">0</td><td class="num">0</td><td class="num">0</td><td class="num b">0</td><td class="num">130</td><td class="num dn">(100%)</td></tr>
+            <tr class="hl group-sep"><td class="b">Take Rate</td><td class="num">0.73%</td><td class="num">0.72%</td><td class="num">0.69%</td><td class="num">0.74%</td><td class="num">0.74%</td><td class="num">0.69%</td><td class="num">0.71%</td><td class="num">0.67%</td><td class="num">0.70%</td><td class="num">0.70%</td><td class="num">0.68%</td><td class="num">0.68%</td><td class="num b">0.70%</td><td class="num">0.71%</td><td class="num dn">(1.4 bps)</td></tr>
+            <tr><td class="dt-sub-label">Pre 2026 Cohorts</td><td class="num">0.73%</td><td class="num">0.72%</td><td class="num">0.69%</td><td class="num">0.74%</td><td class="num">0.74%</td><td class="num">0.69%</td><td class="num">0.71%</td><td class="num">0.67%</td><td class="num">0.70%</td><td class="num">0.70%</td><td class="num">0.68%</td><td class="num">0.69%</td><td class="num b">0.72%</td><td class="num">0.72%</td><td class="num">0 bps</td></tr>
+            <tr><td class="dt-sub-label">2026 Cohorts</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">0.68%</td><td class="num">0.61%</td><td class="num">0.54%</td><td class="num b">0.57%</td><td class="num">0.63%</td><td class="num">(6bps)</td></tr>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div class="panel">
+      <div class="ptitle">Monthly Net Revenue — Stacked by Category (€k)</div>
+      <div class="ch-tall"><canvas id="revenueChart" style="width: 1105px; height: 320px; object-fit: contain; display: block; box-sizing: border-box;" width="1492" height="431"></canvas></div>
+    </div>
+
+
+    <div class="page-ftr" style="display: none;">
+      <span>Teya Product Metrics — April 2026 · Confidential</span>
+      <span>Net Revenue</span>
+    </div>
+  </div>
+
+  <!-- ══════════ 8. OPERATIONAL EXCELLENCE ══════════ -->
+  <!-- ══════════ CUSTOMER SUPPORT ══════════ -->
+  <!-- ══════════ MEMBER EXPERIENCE ══════════ -->
+  <div id="sec-cx" class="sec" data-title="Member Experience">
+    <div class="page-hdr" style="display: none;">
+      <div class="page-hdr-left">
+        <div class="page-hdr-logo">T</div>
+        <span class="page-hdr-title">Teya Product Metrics — April 2026</span>
+      </div>
+      <span class="page-hdr-meta">4. Operational Excellence · Member Experience</span>
+    </div>
+
+    <div class="sec-hdr">
+      <div class="lime-rule"></div>
+      <h2>Member Experience</h2>
+      <p>CR tickets, contact drivers, automation rate, NPS and platform reliability</p>
+    </div>
+
+    <!-- ── All KPIs ── -->
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-lbl">CR Tickets / CID</div><div class="kpi-val">0.41</div><div class="kpi-chg dn"><span style="color: rgb(29, 153, 85);">↑ -8% vs Budget</span></div><div class="kpi-note">−16.3% MoM</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">Global CSAT</div><div class="kpi-val">92%</div><div class="kpi-chg dn">↓ (3p.p.) vs Target</div><div class="kpi-note">−1pp MoM</div></div>
+      <div class="kpi"><div class="kpi-lbl">AI Automation Rate</div><div class="kpi-val">8.44%</div><div class="kpi-chg up">↑ +1p.p. vs Target</div><div class="kpi-note">+1.3pp MoM</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">First Contact Resolution</div><div class="kpi-val">50%</div><div class="kpi-chg dn">↓ (20p.p.) vs Target</div><div class="kpi-note">+3pp MoM</div></div>
+      <div class="kpi dark"><div class="kpi-lbl">Reliability</div><div class="kpi-val">99.95%</div><div class="kpi-chg up">On target</div><div class="kpi-note">Apr-26</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">NPS (Overall)</div><div class="kpi-val">65</div><div class="kpi-chg neu">Flat MoM</div><div class="kpi-note">Mar-26: 65</div></div>
+    </div>
+
+    <!-- ── Unified Commentary ── -->
+    <div class="insight" style="margin-bottom:14px;">
+      <h3>Commentary</h3>
+      <p>Customer Support volume continued to decline in April, reaching 0.41 CR Tickets per CID, beating target by 8%. On a 30-day rolling basis, Tickets per CID have been consistently dropping week-over-week, reaching 0.39 in the last week of April. Reductions were observed across most geographies, with the exception of Croatia, where an uptick in ticket volume is expected with the start of summer season.</p>
+      <p style="margin-top:10px;">Action items defined under IMO#4 are generating tangible results, reducing ticket volume related to blocked funds — the most pressing contact reason — by 24%. AI CSAT has improved to 87%, highest record.</p>
+      <p style="margin-top:10px;">On the experience side, overall NPS held steady at 65 in April, unchanged from March. Platform reliability recovered fully to 99.95% following the March dip to 99.87%, returning within target tolerance.</p>
+    </div>
+
+    <!-- ── Customer Support tables ── -->
+    <div class="g2 mb18">
+      <div class="panel">
+        <div class="ptitle">Customer Support</div>
+        <table class="dt">
+          <thead><tr><th>Customer Support</th><th class="num">Jan-26</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th><th class="num">vs Target</th><th class="num">MoM</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td class="b">CR Tickets per CID (#)</td><td class="num b">0.49</td><td class="num b">0.44</td><td class="num b">0.49</td><td class="num b">0.41</td><td class="num dn">-8%</td><td class="num dn">-16%</td></tr>
+            <tr><td class="dt-sub-label">United Kingdom</td><td class="num">0.56</td><td class="num">0.52</td><td class="num">0.56</td><td class="num">0.44</td><td class="num dn">-19%</td><td class="num dn">-21%</td></tr>
+            <tr><td class="dt-sub-label">Hungary</td><td class="num">0.29</td><td class="num">0.25</td><td class="num">0.28</td><td class="num">0.25</td><td class="num dn">-15%</td><td class="num dn">-11%</td></tr>
+            <tr><td class="dt-sub-label">Iceland</td><td class="num">0.57</td><td class="num">0.52</td><td class="num">0.62</td><td class="num">0.54</td><td class="num dn">-4%</td><td class="num dn">-13%</td></tr>
+            <tr><td class="dt-sub-label">Czechia + Slovakia</td><td class="num">0.31</td><td class="num">0.22</td><td class="num">0.28</td><td class="num">0.27</td><td class="num up">6%</td><td class="num dn">-4%</td></tr>
+            <tr><td class="dt-sub-label">Croatia</td><td class="num">0.47</td><td class="num">0.35</td><td class="num">0.44</td><td class="num">0.50</td><td class="num up">36%</td><td class="num up">14%</td></tr>
+            <tr><td class="dt-sub-label">Portugal</td><td class="num">0.60</td><td class="num">0.56</td><td class="num">0.44</td><td class="num">0.35</td><td class="num dn">-39%</td><td class="num dn">-20%</td></tr>
+            <tr><td class="dt-sub-label">Italy</td><td class="num">2.13</td><td class="num">1.70</td><td class="num">1.54</td><td class="num">1.19</td><td class="num up">106%</td><td class="num dn">-23%</td></tr>
+            <tr><td class="dt-sub-label">Spain</td><td class="num">2.14</td><td class="num">2.32</td><td class="num">2.42</td><td class="num">2.00</td><td class="num up">246%</td><td class="num dn">-17%</td></tr>
+            <tr class="group-sep"><td class="dt-sub-label">Micro (0–5k TPV)</td><td class="num">0.30</td><td class="num">0.27</td><td class="num">0.30</td><td class="num">0.25</td><td class="num"></td><td class="num dn">-17%</td></tr>
+            <tr><td class="dt-sub-label">Small (5–25k TPV)</td><td class="num">0.31</td><td class="num">0.29</td><td class="num">0.32</td><td class="num">0.26</td><td class="num"></td><td class="num dn">-19%</td></tr>
+            <tr><td class="dt-sub-label">Medium (25–500k TPV)</td><td class="num">0.41</td><td class="num">0.35</td><td class="num">0.41</td><td class="num">0.34</td><td class="num"></td><td class="num dn">-17%</td></tr>
+            <tr><td class="dt-sub-label">Large &amp; Enterprise (&gt;500k TPV)</td><td class="num">1.84</td><td class="num">1.47</td><td class="num">1.97</td><td class="num">1.56</td><td class="num"></td><td class="num dn">-21%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="ptitle blue-dot">Customer Support KPIs</div>
+        <table class="dt" style="margin-bottom:18px;">
+          <thead><tr><th>Customer Support</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th><th class="num">vs Target</th></tr></thead>
+          <tbody>
+            <tr><td>Global CSAT</td><td class="num">92%</td><td class="num">93%</td><td class="num b">92%</td><td class="num dn">(3p.p.)</td></tr>
+            <tr><td>% AI Automation Rate of CR Tickets</td><td class="num">7.25%</td><td class="num">7.13%</td><td class="num b">8.44%</td><td class="num up">+1p.p.</td></tr>
+            <tr><td>First Contact Resolution</td><td class="num">47%</td><td class="num">47%</td><td class="num b">50%</td><td class="num dn">(20p.p.)</td></tr>
+            <tr><td>CSAT AI Tickets</td><td class="num">77%</td><td class="num">82%</td><td class="num b">87%</td><td class="num dn">(8p.p.)</td></tr>
+            <tr><td>Contact Answer Rate (Voice)</td><td class="num">94%</td><td class="num">92%</td><td class="num b">92%</td><td class="num dn">(3p.p.)</td></tr>
+          </tbody>
+        </table>
+        <div class="ptitle blue-dot">Top 10 Drivers of Contact</div>
+        <table class="dt">
+          <thead><tr><th class="num">#</th><th>Top 10 Drivers of Contact</th><th class="num">Mar-26</th><th class="num">Apr-26</th><th class="num">MoM</th><th class="num">% of Scope</th></tr></thead>
+          <tbody>
+            <tr><td class="num">1</td><td>Chase review / funds</td><td class="num">2,525</td><td class="num b">1,925</td><td class="num dn">-24%</td><td class="num">9%</td></tr>
+            <tr><td class="num">2</td><td>Terminal Activation</td><td class="num">1,579</td><td class="num b">1,613</td><td class="num up">2%</td><td class="num">8%</td></tr>
+            <tr><td class="num">3</td><td>Reconciliation of Settlement</td><td class="num">1,240</td><td class="num b">1,228</td><td class="num dn">-1%</td><td class="num">6%</td></tr>
+            <tr><td class="num">4</td><td>BA - Pending / Delayed Transfer</td><td class="num">1,573</td><td class="num b">1,094</td><td class="num dn">-30%</td><td class="num">5%</td></tr>
+            <tr><td class="num">5</td><td>Change Bank Account</td><td class="num">1,282</td><td class="num b">1,070</td><td class="num dn">-17%</td><td class="num">5%</td></tr>
+            <tr><td class="num">6</td><td>Chase KYC</td><td class="num">1,522</td><td class="num b">1,048</td><td class="num dn">-31%</td><td class="num">5%</td></tr>
+            <tr><td class="num">7</td><td>Login issues - app</td><td class="num">760</td><td class="num b">699</td><td class="num dn">-8%</td><td class="num">3%</td></tr>
+            <tr><td class="num">8</td><td>BA - Account info &amp; How to</td><td class="num">770</td><td class="num b">480</td><td class="num dn">-38%</td><td class="num">2%</td></tr>
+            <tr><td class="num">9</td><td>Request additional terminal</td><td class="num">420</td><td class="num b">474</td><td class="num up">13%</td><td class="num">2%</td></tr>
+            <tr><td class="num">10</td><td>Change Email</td><td class="num">444</td><td class="num b">451</td><td class="num up">2%</td><td class="num">2%</td></tr>
+            <tr class="hl group-sep"><td class="num b" colspan="2">TOP 10 Total</td><td class="num b">12,115</td><td class="num b">10,082</td><td class="num dn b">-17%</td><td class="num b">47%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="panel mb18">
+      <div class="ptitle">30-day Rolling CR Ticket Volume</div>
+      <div style="height:360px;position:relative;"><canvas id="ticketsChart" style="width: 100%; height: 100%; object-fit: contain; display: block;"></canvas></div>
+    </div>
+
+    <!-- ── NPS & Operational Excellence tables ── -->
+    <div class="g2 mb18">
+      <div class="panel">
+        <div class="ptitle">Customer Satisfaction</div>
+        <table class="dt">
+          <thead><tr><th>Customer Satisfaction</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th></tr></thead>
+          <tbody>
+            <tr class="hl"><td class="b">Net Promoter Score (%)</td><td class="num b">64</td><td class="num b">65</td><td class="num b">65</td></tr>
+            <tr class="dt-sub-label"><td>United Kingdom</td><td class="num">56</td><td class="num">56</td><td class="num">55</td></tr>
+            <tr class="dt-sub-label"><td>Hungary</td><td class="num">78</td><td class="num">78</td><td class="num">78</td></tr>
+            <tr class="dt-sub-label"><td>Iceland</td><td class="num">57</td><td class="num">62</td><td class="num">61</td></tr>
+            <tr class="dt-sub-label"><td>Czechia</td><td class="num">57</td><td class="num">61</td><td class="num">65</td></tr>
+            <tr class="dt-sub-label"><td>Slovakia</td><td class="num">48</td><td class="num">57</td><td class="num">64</td></tr>
+            <tr class="dt-sub-label"><td>Croatia</td><td class="num">87</td><td class="num">88</td><td class="num">88</td></tr>
+            <tr class="dt-sub-label"><td>Portugal</td><td class="num">67</td><td class="num">69</td><td class="num">71</td></tr>
+            <tr class="dt-sub-label"><td>Italy</td><td class="num">79</td><td class="num">56</td><td class="num">50</td></tr>
+            <tr class="dt-sub-label"><td>Spain</td><td class="num">64</td><td class="num">57</td><td class="num">64</td></tr>
+            <tr class="hl group-sep"><td class="b">NPS Responses (#)</td><td class="num b">1,361</td><td class="num b">1,591</td><td class="num b">1,576</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="ptitle blue-dot">Operational Excellence</div>
+        <table class="dt">
+          <thead><tr><th>Operational Excellence</th><th class="num">Feb-26</th><th class="num">Mar-26</th><th class="num">Apr-26</th><th class="num">Vs Target</th></tr></thead>
+          <tbody>
+            <tr><td>Reliability (%)</td><td class="num">99.94%</td><td class="num">99.87%</td><td class="num b">99.95%</td><td class="num neu">0%</td></tr>
+            <tr><td>Terminal Response Rate P50 (sec)</td><td class="num">1.10</td><td class="num">1.10</td><td class="num b">1.10</td><td class="num neu">0%</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="page-ftr" style="display: none;">
+      <span>Teya Product Metrics — April 2026 · Confidential</span>
+      <span>Operational Excellence · Member Experience</span>
+    </div>
+  </div>
+
+  <!-- ══════════ 9. FRAUD LOSSES ══════════ -->
+  <div id="sec-fraud" class="sec" data-title="Fraud Losses">
+    <div class="page-hdr" style="display: none;">
+      <div class="page-hdr-left">
+        <div class="page-hdr-logo">T</div>
+        <span class="page-hdr-title">Teya Product Metrics — April 2026</span>
+      </div>
+      <span class="page-hdr-meta">Fraud Losses</span>
+    </div>
+
+    <div class="sec-hdr">
+      <div class="lime-rule"></div>
+      <h2>Fraud Losses</h2>
+      <p>Fraud losses in €k — accounting view and onboarding cohort breakdown</p>
+    </div>
+
+    <div class="kpi-row">
+      <div class="kpi"><div class="kpi-lbl">Fraud Loss Apr-26 (€k)</div><div class="kpi-val">487</div><div class="kpi-chg dn">+259 vs Mar-26</div><div class="kpi-note">Accounting view</div></div>
+      <div class="kpi blue"><div class="kpi-lbl">bps TPV Actuals</div><div class="kpi-val">3.4</div><div class="kpi-chg dn">(1.2) vs Budget</div><div class="kpi-note">Budget: 2.2 bps</div></div>
+    </div>
+
+    <div class="insight" style="margin-bottom:14px;">
+      <h3>Initial Remarks</h3>
+      <p>The booked figure of €487k (3.4 bps of TPV) is materially above the April target of €294k. €75k booked against Italy has already been returned (1st May) and €80k relates to an insolvency mis-categorised as fraud (Stonecrest Marble, now reclassified as a credit loss). On a like-for-like basis, the adjusted fraud loss is closer to €335k — with a further €100k still under dispute — and the three-month rolling average remains below budget at €270k versus a target of €328k.</p>
+      <p>The month was driven by a small number of larger cases. The Italy exposure (€107k booked) stems from an issuer-side card compromise involving 61 chargebacks, 49 from a single issuer (Transact Payments Malta Ltd); the full €268k portfolio is under dispute and recovery prospects are considered strong. The Regal Rose / Imperial Clothing case (UK) reflects a pre-blocked-parties onboarding gap rather than active fraud, with £41k in dispute. The long tail — 16 cases below €1k and 24 between €1k–€10k — demonstrates that transaction monitoring controls are containing individual loss exposure. The focus for May is enhanced onboarding-level detection through new screening vendor partnerships.</p>
+    </div>
+
+    <div class="g2 mb18">
+      <div class="panel">
+        <div class="ptitle">Fraud Losses — Accounting View (€k)</div>
+        <div style="height:420px;position:relative;"><canvas id="fraudChart" style="width: 100%; height: 100%; object-fit: contain; display: block;"></canvas></div>
+      </div>
+      <div class="panel">
+        <div class="ptitle blue-dot">Fraud Losses by Onboarding Cohort (€k)</div>
+        <div class="tbl-wrap">
+        <table class="dt" style="font-size:11px;">
+          <thead>
+            <tr>
+              <th>Cohort</th>
+              <th class="num">Nov-25</th>
+              <th class="num">Dec-25</th>
+              <th class="num">Jan-26</th>
+              <th class="num">Feb-26</th>
+              <th class="num">Mar-26</th>
+              <th class="num">Apr-26</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Pre 2025 Cohorts</td><td class="num">20</td><td class="num">25</td><td class="num">18</td><td class="num">5</td><td class="num">8</td><td class="num">10</td></tr>
+            <tr><td>Jan-25</td><td class="num">12</td><td class="num">20</td><td class="num">15</td><td class="num">3</td><td class="num">7</td><td class="num">9</td></tr>
+            <tr><td>Feb-25</td><td class="num">10</td><td class="num">18</td><td class="num">12</td><td class="num">3</td><td class="num">6</td><td class="num">8</td></tr>
+            <tr><td>Mar-25</td><td class="num">8</td><td class="num">15</td><td class="num">10</td><td class="num">2</td><td class="num">5</td><td class="num">7</td></tr>
+            <tr><td>Apr-25</td><td class="num">10</td><td class="num">18</td><td class="num">12</td><td class="num">3</td><td class="num">6</td><td class="num">8</td></tr>
+            <tr><td>May-25</td><td class="num">12</td><td class="num">22</td><td class="num">15</td><td class="num">3</td><td class="num">8</td><td class="num">10</td></tr>
+            <tr><td>Jun-25</td><td class="num">15</td><td class="num">28</td><td class="num">20</td><td class="num">4</td><td class="num">10</td><td class="num">14</td></tr>
+            <tr><td>Jul-25</td><td class="num">18</td><td class="num">35</td><td class="num">25</td><td class="num">5</td><td class="num">12</td><td class="num">18</td></tr>
+            <tr><td>Aug-25</td><td class="num">22</td><td class="num">42</td><td class="num">30</td><td class="num">6</td><td class="num">15</td><td class="num">22</td></tr>
+            <tr><td>Sep-25</td><td class="num">28</td><td class="num">55</td><td class="num">40</td><td class="num">8</td><td class="num">18</td><td class="num">28</td></tr>
+            <tr><td>Oct-25</td><td class="num">38</td><td class="num">80</td><td class="num">60</td><td class="num">10</td><td class="num">25</td><td class="num">38</td></tr>
+            <tr><td>Nov-25</td><td class="num">58</td><td class="num">120</td><td class="num">85</td><td class="num">14</td><td class="num">35</td><td class="num">55</td></tr>
+            <tr><td>Dec-25</td><td class="num">—</td><td class="num">179</td><td class="num">145</td><td class="num">18</td><td class="num">45</td><td class="num">70</td></tr>
+            <tr><td>Jan-26</td><td class="num">—</td><td class="num">—</td><td class="num">134</td><td class="num">6</td><td class="num">18</td><td class="num">50</td></tr>
+            <tr><td>Feb-26</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">5</td><td class="num">60</td></tr>
+            <tr><td>Mar-26</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">10</td><td class="num">80</td></tr>
+            <tr><td>Apr-26</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">—</td></tr>
+            <tr class="hl group-sep">
+              <td class="b">Total</td>
+              <td class="num b">331</td>
+              <td class="num b">787</td>
+              <td class="num b">641</td>
+              <td class="num b">95</td>
+              <td class="num b">228</td>
+              <td class="num b">487</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="page-ftr" style="display: none;">
+      <span>Teya Product Metrics — April 2026 · Confidential</span>
+      <span>Fraud Losses</span>
+    </div>
+  </div>
+
+
+</main>
+
+</div><!-- /.app-body -->
+
+<!-- ═══════════════ SCRIPTS ═══════════════ -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script>
+// Unregister datalabels globally so it only applies to charts that opt-in
+// Guard: if CDN scripts failed to load, degrade gracefully so other UI still works
+if (typeof Chart !== 'undefined' && typeof ChartDataLabels !== 'undefined') {
+  Chart.unregister(ChartDataLabels);
+} else {
+  console.warn('[Dashboard] Chart.js or ChartDataLabels failed to load from CDN. Charts will not render but navigation and Report Mode remain functional.');
+}
+
+/* ── PALETTE ── */
+const LIME   = '#E0E722';
+const BLUE   = '#008BB9';
+const BLACK  = '#111111';
+const GREY   = '#AAAAAA';
+const RED    = '#e53e3e';
+const GREEN  = '#1d9955';
+const LIME_A = 'rgba(224,231,34,0.55)';
+const BLUE_A = 'rgba(0,139,185,0.18)';
+
+Chart.defaults.font.family = "'Figtree', Arial, sans-serif";
+Chart.defaults.font.size   = 11;
+Chart.defaults.color       = '#555';
+Chart.defaults.plugins.legend.labels.boxWidth = 12;
+Chart.defaults.plugins.legend.labels.padding  = 14;
+
+/* ─────────────────────────────────────────
+   TAB LOGIC
+───────────────────────────────────────── */
+function switchTab(e, id) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  e.currentTarget.classList.add('active');
+  document.getElementById('sec-' + id).classList.add('active');
+  lazyRender(id);
+  // If this tab is inside a group, ensure the group is open
+  const children = e.currentTarget.closest('.tab-children');
+  if (children) {
+    children.classList.add('open');
+    const grpHdr = children.previousElementSibling;
+    if (grpHdr) grpHdr.classList.add('open');
+  }
+}
+
+function toggleGroup(groupId, hdrEl) {
+  const children = document.getElementById(groupId);
+  if (!children) return;
+  children.classList.toggle('open');
+  hdrEl.classList.toggle('open');
+}
+
+function switchMonth(val) {
+  console.log('[Dashboard] Month switched to:', val);
+}
+
+/* ─────────────────────────────────────────
+   CHART REGISTRY + LAZY RENDER
+───────────────────────────────────────── */
+const _rendered  = { overview: true };
+const _instances = {}; // stores Chart instances by canvas id
+
+function lazyRender(id) {
+  if (_rendered[id]) return;
+  _rendered[id] = true;
+  _renderFns[id] && _renderFns[id]();
+}
+
+function renderAll() {
+  Object.keys(_renderFns).forEach(id => {
+    if (!_rendered[id]) { _rendered[id] = true; _renderFns[id](); }
+  });
+}
+
+/* ─────────────────────────────────────────
+   CHART DEFINITIONS
+───────────────────────────────────────── */
+const _renderFns = {
+  base() {
+    // Custom plugin: draw Net Adds total above each stacked bar column
+    const netAddsTotalsPlugin = {
+      id: 'netAddsTotals',
+      afterDatasetsDraw(chart) {
+        const { ctx, data, scales: { x, y } } = chart;
+        const labels = data.labels;
+        labels.forEach((lbl, i) => {
+          // Sum all dataset values for this index (treat null as 0)
+          const total = chart.data.datasets.reduce((sum, ds) => {
+            const v = ds.data[i];
+            return sum + (v != null ? v : 0);
+          }, 0);
+          if (total === 0) return;
+
+          // Find the top-most pixel of positive bars
+          let topY = y.getPixelForValue(0);
+          chart.data.datasets.forEach(ds => {
+            const v = ds.data[i];
+            if (v != null && v > 0) {
+              const py = y.getPixelForValue(
+                chart.data.datasets
+                  .filter(d => d.stack === ds.stack)
+                  .reduce((acc, d) => {
+                    const dv = d.data[i];
+                    return acc + (dv != null && dv > 0 ? dv : 0);
+                  }, 0)
+              );
+              if (py < topY) topY = py;
+            }
+          });
+
+          const xPos = x.getPixelForValue(i);
+          ctx.save();
+          ctx.font = 'bold 10px Figtree, Arial, sans-serif';
+          ctx.fillStyle = '#111';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText(total.toLocaleString(), xPos, topY - 3);
+          ctx.restore();
+        });
+      }
+    };
+
+    _instances['netAddsChart'] = new Chart(document.getElementById('netAddsChart'), {
+      type: 'bar',
+      plugins: [ChartDataLabels, netAddsTotalsPlugin],
+      data: {
+        labels: ['Jan-25','Feb-25','Mar-25','Apr-25','May-25','Jun-25','Jul-25','Aug-25','Sep-25','Oct-25','Nov-25','Dec-25','Jan-26','Feb-26','Mar-26','Apr-26'],
+        datasets: [
+          { label: 'Gross Adds',    data: [1974,2392,3236,3932,4561,4493,4367,3548,4030,4536,4520,3893,3717,4018,4172,4485], backgroundColor: LIME, stack:'s' },
+          { label: 'Reactivations', data: [842,1268,1644,1788,1551,1242,1140,1146,1642,1354,1649,1422,1230,2608,3102,3091], backgroundColor: BLUE, stack:'s' },
+          { label: 'Cancellations', data: [-294,-226,-235,-267,-268,-316,-446,-579,-512,-794,-787,-638,-759,-752,-701,-640], backgroundColor: RED, stack:'s' },
+          { label: 'Inactivations', data: [-2595,-1688,-1442,-1752,-1714,-2092,-2374,-2462,-2941,-4315,-4070,-3499,-4922,-2908,-2505,-2892], backgroundColor: '#FF7A5A', stack:'s' },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: 22 } },
+        plugins: {
+          legend: { position: 'bottom' },
+          datalabels: {
+            color: '#fff',
+            font: { size: 9, weight: 'bold', family: 'Figtree, Arial, sans-serif' },
+            formatter(value) {
+              if (value == null || value === 0) return null;
+              return Math.abs(value).toLocaleString();
+            },
+            display(ctx) {
+              // Only show label if the bar segment is tall enough to fit text
+              const meta = ctx.chart.getDatasetMeta(ctx.datasetIndex);
+              const bar = meta.data[ctx.dataIndex];
+              if (!bar) return false;
+              return Math.abs(bar.height) > 14;
+            },
+            anchor: 'center',
+            align: 'center',
+            clamp: true,
+          }
+        },
+        scales: {
+          x: { stacked: true, grid: { display: false } },
+          y: { stacked: true, grid: { color: '#F0F0F0' } }
+        }
+      }
+    });
+  },
+  acq() {
+    _instances['slaChart'] = new Chart(document.getElementById('slaChart'), {
+      type: 'line',
+      plugins: [ChartDataLabels],
+      data: {
+        labels: ['Jul-25','Aug-25','Sep-25','Oct-25','Nov-25','Dec-25','Jan-26','Feb-26','Mar-26','Apr-26'],
+        datasets: [
+          {
+            label: '% Onboards within SLA P2–24h',
+            data: [53,73,86,88,91,89,87,77,79,78],
+            borderColor: LIME,
+            backgroundColor: 'transparent',
+            borderWidth: 2.5,
+            tension: 0.35,
+            fill: false,
+            pointRadius: 4,
+            pointBackgroundColor: LIME,
+            datalabels: {
+              align: 'top',
+              offset: 4,
+              color: '#7a7a00',
+              font: { size: 10, weight: '600' },
+              formatter: v => v + '%',
+            }
+          },
+          {
+            label: '% Onboards within SLA P1–12h',
+            data: [36,51,65,73,78,73,64,61,69,68],
+            borderColor: BLUE,
+            backgroundColor: 'transparent',
+            borderWidth: 2.5,
+            tension: 0.35,
+            fill: false,
+            pointRadius: 4,
+            pointBackgroundColor: BLUE,
+            datalabels: {
+              align: 'bottom',
+              offset: 4,
+              color: BLUE,
+              font: { size: 10, weight: '600' },
+              formatter: v => v + '%',
+            }
+          },
+          {
+            label: 'Automation Rate',
+            data: [0.1,0.1,1.7,2.2,0.6,1.2,3.4,4.4,6.6,7.8],
+            borderColor: '#7a7a2a',
+            backgroundColor: 'transparent',
+            borderWidth: 2,
+            tension: 0.35,
+            fill: false,
+            pointRadius: 4,
+            pointBackgroundColor: '#7a7a2a',
+            datalabels: {
+              align: 'top',
+              offset: 4,
+              color: '#7a7a2a',
+              font: { size: 10, weight: '600' },
+              formatter: v => v + '%',
+            }
+          },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' },
+          datalabels: { display: true },
+          tooltip: {
+            callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + '%' }
+          }
+        },
+        layout: { padding: { top: 20, bottom: 10 } },
+        scales: {
+          x: { grid: { display: false } },
+          y: { min: 0, max: 100, grid: { color: '#F0F0F0' }, ticks: { callback: v => v + '%' } }
+        }
+      }
+    });
+
+    _instances['rejectionChart'] = new Chart(document.getElementById('rejectionChart'), {
+      type: 'bar',
+      plugins: [ChartDataLabels],
+      data: {
+        labels: ['Jan-26','Feb-26','Mar-26','Apr-26'],
+        datasets: [
+          {
+            type: 'bar',
+            label: 'Rejected CIDs',
+            data: [563, 637, 438, 203],
+            backgroundColor: 'rgba(224,231,34,0.65)',
+            borderColor: LIME,
+            borderWidth: 1.5,
+            borderRadius: 3,
+            yAxisID: 'yL',
+            order: 2,
+            datalabels: {
+              anchor: 'center',
+              align: 'center',
+              color: '#555',
+              font: { size: 10, weight: '600' },
+              formatter: v => v.toLocaleString(),
+            }
+          },
+          {
+            type: 'line',
+            label: 'Rejection Rate',
+            data: [10, 11, 8, 9],
+            borderColor: BLUE,
+            backgroundColor: BLUE,
+            pointRadius: 5,
+            pointBackgroundColor: BLUE,
+            pointHoverRadius: 7,
+            fill: false,
+            tension: 0.3,
+            borderWidth: 2,
+            yAxisID: 'yR',
+            order: 1,
+            datalabels: {
+              anchor: 'top',
+              align: 'top',
+              offset: 4,
+              color: BLUE,
+              font: { size: 10, weight: '700' },
+              formatter: v => v + '%',
+            }
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' },
+          datalabels: { display: true }
+        },
+        layout: { padding: { top: 22 } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 } } },
+          yL: {
+            position: 'left',
+            min: 0,
+            grid: { color: '#F0F0F0' },
+            ticks: { callback: v => v, maxTicksLimit: 5 },
+            title: { display: false }
+          },
+          yR: {
+            position: 'right',
+            min: 0,
+            max: 15,
+            grid: { drawOnChartArea: false },
+            ticks: { callback: v => v + '%', maxTicksLimit: 5 }
+          }
+        }
+      }
+    });
+  },
+  ret() {
+    _instances['churnChart'] = new Chart(document.getElementById('churnChart'), {
+      type: 'line',
+      data: {
+        labels: ['Dec-25','Jan-26','Feb-26','Mar-26'],
+        datasets: [
+          { label:'Gross Churn %',  data:[8.4,9.8,5.9,4.9],         borderColor:RED,  backgroundColor:'transparent', pointRadius:5, tension:.3, fill:false, yAxisID:'yPct' },
+          { label:'Net Churn %',    data:[6.3,7.8,1.6,0.2],          borderColor:LIME, backgroundColor:'transparent', pointRadius:5, tension:.3, fill:false, borderWidth:2.5, yAxisID:'yPct' },
+          { label:'Reactivations #',data:[1348,1235,2651,3102],       borderColor:BLUE, backgroundColor:'transparent', pointRadius:5, tension:.3, fill:false, borderWidth:2, borderDash:[4,3], yAxisID:'yAbs' },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend:{ position:'bottom' } },
+        scales: {
+          x:    { grid:{ display:false } },
+          yPct: { position:'left',  grid:{ color:'#F0F0F0' }, ticks:{ callback:v=>v+'%' }, title:{ display:true, text:'Churn (%)', font:{size:10}, color:'#888' } },
+          yAbs: { position:'right', grid:{ display:false },   ticks:{ callback:v=>v.toLocaleString() }, title:{ display:true, text:'Reactivations (#)', font:{size:10}, color:'#888' }, beginAtZero:true }
+        }
+      }
+    });
+  },
+  pay() {
+    _instances['tpvChart'] = new Chart(document.getElementById('tpvChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Jan-26','Feb-26','Mar-26','Apr-26'],
+        datasets: [
+          {
+            type: 'bar',
+            label: 'TPV (€m)',
+            data: [1042, 1116, 1328, 1414],
+            backgroundColor: [BLUE, BLUE, BLUE, LIME],
+            yAxisID: 'yTPV',
+            order: 2,
+          },
+          {
+            type: 'line',
+            label: 'TPV per CID (€k)',
+            data: [16.8, 17.1, 19.2, 19.3],
+            borderColor: '#111',
+            backgroundColor: 'transparent',
+            pointRadius: 5,
+            pointBackgroundColor: '#111',
+            tension: 0.3,
+            borderWidth: 2.5,
+            yAxisID: 'yCID',
+            order: 1,
+          },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { position: 'bottom' } },
+        scales: {
+          x:    { grid: { display: false } },
+          yTPV: { position: 'left',  grid: { color: '#F0F0F0' }, title: { display: true, text: 'TPV (€m)', font: { size: 10 }, color: '#888' }, ticks: { callback: v => '€' + v.toLocaleString() + 'm' } },
+          yCID: { position: 'right', grid: { display: false }, title: { display: true, text: 'TPV/CID (€k)', font: { size: 10 }, color: '#888' }, ticks: { callback: v => '€' + v + 'k' }, beginAtZero: false },
+        }
+      }
+    });
+  },
+  app() {
+    _instances['appCohortChart'] = new Chart(document.getElementById('appCohortChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Q1+Q2-25','Aug-25','Sep-25','Oct-25','Nov-25','Jan-26','Mar-26'],
+        datasets: [
+          { label:'App MAU %',    data:[54,84,65,62,62,59,84], backgroundColor:LIME },
+          { label:'Portal MAU %', data:[null,null,null,null,null,50,51], backgroundColor:BLUE },
+        ]
+      },
+      options: { responsive:true, maintainAspectRatio:false, plugins:{legend:{position:'bottom'}},
+        scales:{ x:{grid:{display:false}}, y:{max:100,grid:{color:'#F0F0F0'},ticks:{callback:v=>v+'%'}} } }
+    });
+  },
+  rev() {
+    const labels = ['Apr-25','May-25','Jun-25','Jul-25','Aug-25','Sep-25','Oct-25','Nov-25','Dec-25','Jan-26','Feb-26','Mar-26','Apr-26'];
+    const totals = [6512,7504,7709,9401,9881,7900,8252,7514,8908,7314,7588,8996,9912];
+    const revTotalsPlugin = {
+      id: 'revTotals',
+      afterDatasetsDraw(chart) {
+        const { ctx, scales: { x, y } } = chart;
+        totals.forEach((total, i) => {
+          const xPos = x.getPixelForValue(i);
+          const yPos = y.getPixelForValue(total);
+          ctx.save();
+          ctx.font = '600 10px Figtree, Arial, sans-serif';
+          ctx.fillStyle = '#333';
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'bottom';
+          ctx.fillText('€' + (total/1000).toFixed(1) + 'm', xPos, yPos - 3);
+          ctx.restore();
+        });
+      }
+    };
+    _instances['revenueChart'] = new Chart(document.getElementById('revenueChart'), {
+      type: 'bar',
+      plugins: [revTotalsPlugin],
+      data: {
+        labels,
+        datasets: [
+          { label:'Net Trans. Revenue', data:[4895,5669,5618,6938,7396,5656,6039,5545,6201,5472,5524,6687,7485], backgroundColor:LIME,                  stack:'s' },
+          { label:'Rental Revenue',     data:[653,698,734,771,779,796,818,795,784,698,669,697,716],                backgroundColor:'rgba(224,231,34,.4)', stack:'s' },
+          { label:'DCC Revenue',        data:[559,688,875,1102,1127,784,680,551,632,512,541,652,811],               backgroundColor:BLUE,                  stack:'s' },
+          { label:'Credit Revenue',     data:[330,333,360,372,396,492,490,416,917,440,663,713,611],                backgroundColor:'#7B61FF',             stack:'s' },
+          { label:'Banking Revenue',    data:[52,81,98,122,149,139,152,170,183,191,191,248,289],                       backgroundColor:GREY,                  stack:'s' },
+          { label:'Other Revenue',      data:[23,34,25,96,33,33,73,38,191,0,0,0,0],                                   backgroundColor:'#F5A623',             stack:'s' },
+        ]
+      },
+      options: {
+        responsive: true, maintainAspectRatio: false,
+        layout: { padding: { top: 24 } },
+        plugins: {
+          legend: { position: 'bottom' },
+          tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': €' + ctx.parsed.y.toLocaleString() + 'k' } }
+        },
+        scales: {
+          x: { stacked: true, grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 } },
+          y: { stacked: true, grid: { color: '#F0F0F0' }, ticks: { callback: v => '€' + (v/1000).toFixed(1) + 'm' } }
+        }
+      }
+    });
+  },
+  cx() {
+    const CS_LABELS = ['05-Jan','12-Jan','19-Jan','26-Jan','02-Feb','09-Feb','16-Feb','23-Feb','02-Mar','09-Mar','16-Mar','23-Mar','30-Mar','06-Apr','13-Apr','20-Apr','27-Apr'];
+    const CS_VOL    = [23.0, 22.7, 26.2, 29.9, 31.1, 30.8, 29.9, 29.6, 29.7, 29.9, 30.6, 31.3, 30.2, 29.1, 29.2, 28.2, 28.6];
+    const CS_RATE   = [0.37, 0.37, 0.43, 0.48, 0.50, 0.48, 0.46, 0.45, 0.45, 0.44, 0.45, 0.45, 0.43, 0.41, 0.41, 0.39, 0.39];
+    _instances['ticketsChart'] = new Chart(document.getElementById('ticketsChart'), {
+      type: 'bar',
+      plugins: [ChartDataLabels],
+      data: {
+        labels: CS_LABELS,
+        datasets: [
+          {
+            type: 'bar',
+            label: 'CR Tickets Volume',
+            data: CS_VOL,
+            backgroundColor: BLUE,
+            borderColor: BLUE,
+            borderWidth: 0,
+            borderRadius: 3,
+            yAxisID: 'yVol',
+            order: 2,
+            datalabels: {
+              anchor: 'center',
+              align: 'center',
+              color: '#fff',
+              font: { size: 9.5, weight: '700' },
+              formatter: v => v.toFixed(1),
+            }
+          },
+          {
+            type: 'line',
+            label: 'Tickets/CID',
+            data: CS_RATE,
+            borderColor: LIME,
+            backgroundColor: LIME,
+            pointRadius: 3,
+            pointHoverRadius: 5,
+            fill: false,
+            tension: 0.3,
+            borderWidth: 2.5,
+            yAxisID: 'yCID',
+            order: 1,
+            datalabels: {
+              anchor: 'top',
+              align: 'top',
+              offset: 4,
+              color: '#7a7a00',
+              font: { size: 9.5, weight: '700' },
+              formatter: v => v.toFixed(2),
+            }
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { position: 'bottom' },
+          datalabels: { display: true }
+        },
+        layout: { padding: { top: 28 } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10 }, maxRotation: 45, minRotation: 45 } },
+          yVol: {
+            position: 'left',
+            min: 0,
+            max: 55,
+            title: { display: true, text: 'Tickets (#k)', font: { size: 10 } },
+            grid: { color: '#F0F0F0' },
+            ticks: { callback: v => v + 'k', font: { size: 10 } }
+          },
+          yCID: {
+            position: 'right',
+            min: 0,
+            max: 0.55,
+            title: { display: true, text: 'Tickets / CID', font: { size: 10 } },
+            grid: { drawOnChartArea: false },
+            ticks: { callback: v => v.toFixed(2), font: { size: 10 } }
+          }
+        }
+      }
+    });
+  },
+  fraud() {
+    _instances['fraudChart'] = new Chart(document.getElementById('fraudChart'), {
+      type: 'bar',
+      plugins: [ChartDataLabels],
+      data: {
+        labels: ['Oct-25','Nov-25','Dec-25','Jan-26','Feb-26','Mar-26','Apr-26'],
+        datasets: [
+          {
+            label: 'Fraud Loss (€k)',
+            data: [392,331,787,641,95,228,487],
+            backgroundColor: 'rgba(224,231,34,0.65)',
+            borderColor: LIME,
+            borderWidth: 1.5,
+            borderRadius: 3,
+            yAxisID: 'yL',
+            order: 2,
+            datalabels: {
+              anchor: 'center',
+              align: 'center',
+              color: '#333',
+              font: { size: 11, weight: '600' },
+              formatter: v => v,
+            }
+          },
+          {
+            label: 'bps TPV Actuals',
+            data: [3.4,2.9,6.2,6.2,0.9,1.7,3.4],
+            type: 'line',
+            borderColor: BLUE,
+            backgroundColor: BLUE,
+            borderWidth: 2,
+            pointRadius: 4,
+            pointHoverRadius: 5,
+            fill: false,
+            tension: 0.3,
+            yAxisID: 'yR',
+            order: 1,
+            datalabels: {
+              anchor: 'top',
+              align: 'top',
+              color: BLUE,
+              font: { size: 11, weight: '700' },
+              formatter: v => v.toFixed(1),
+            }
+          },
+          {
+            label: 'bps TPV Budget',
+            data: [1.6,1.7,1.6,3.4,3.2,2.8,2.2],
+            type: 'line',
+            borderColor: '#b0b800',
+            backgroundColor: '#b0b800',
+            borderWidth: 2,
+            borderDash: [5,4],
+            pointRadius: 4,
+            pointHoverRadius: 5,
+            fill: false,
+            tension: 0.3,
+            yAxisID: 'yR',
+            order: 1,
+            datalabels: {
+              anchor: 'top',
+              align: 'top',
+              color: '#888',
+              font: { size: 11, weight: '600' },
+              formatter: v => v.toFixed(1),
+            }
+          },
+        ]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: { padding: { top: 28, bottom: 8 } },
+        plugins: {
+          legend: { position: 'bottom' },
+          datalabels: { display: true },
+        },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 11 } } },
+          yL: {
+            position: 'left',
+            min: 0,
+            grid: { color: '#F0F0F0' },
+            ticks: {
+              callback: v => '€' + (v >= 1000 ? (v/1000).toFixed(0)+'m' : v+'k'),
+              maxTicksLimit: 6,
+            }
+          },
+          yR: {
+            position: 'right',
+            min: 0,
+            grid: { drawOnChartArea: false },
+            ticks: {
+              callback: v => v.toFixed(1) + ' bps',
+              maxTicksLimit: 6,
+            }
+          },
+        }
+      }
+    });
+  }
+};
+
+/* ─────────────────────────────────────────
+   REPORT MODE — ENTER
+───────────────────────────────────────── */
+async function enterReportMode() {
+  const spinner   = document.getElementById('spinnerOverlay');
+  const backBtn   = document.getElementById('btnBackDash');
+  const reportBtn = document.getElementById('btnReportMode');
+
+  spinner.classList.add('visible');
+
+  try {
+    // 1. Destroy every existing Chart instance and reset the render-tracking flags.
+    //    Charts already painted in the dashboard were sized for the full-width
+    //    layout. If we capture them as-is they appear oversized / mis-styled in
+    //    the report. Destroying them here forces renderAll() to recreate every
+    //    chart fresh at the correct report-mode container dimensions.
+    Object.values(_instances).forEach(c => { try { c.destroy(); } catch(e){} });
+    Object.keys(_instances).forEach(k => delete _instances[k]);
+    Object.keys(_rendered).forEach(k => delete _rendered[k]); // clear ALL, incl. overview
+
+    // 2. Disable Chart.js animations so canvases are pixel-ready synchronously
+    //    after renderAll() — no waiting for easing sequences to complete.
+    if (typeof Chart !== 'undefined') {
+      Chart.defaults.animation   = false;
+      Chart.defaults.animations  = { colors: false, x: false };
+      try { Chart.defaults.transitions.active.animation.duration = 0; } catch(e){}
+    }
+
+    // 3. Apply report layout so every section and its canvas containers are
+    //    visible with real pixel dimensions before Chart.js draws anything.
+    document.body.classList.add('report-mode');
+    document.querySelectorAll('.sec').forEach(s => s.classList.add('active'));
+
+    // 4. Wait two animation frames — ensures CSS layout is fully computed
+    //    and all flex/grid containers have settled to their final sizes.
+    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+    // 4b. Strip any stale inline styles that exitReportMode() may have written
+    //     back onto canvas elements. These linger as width/height/object-fit CSS
+    //     on the canvas node itself, which confuses Chart.js's size-detection and
+    //     causes the canvas to be painted at 0×0 (blank) on the next render.
+    document.querySelectorAll('canvas').forEach(c => c.removeAttribute('style'));
+
+    // 5. Render all charts at report-mode dimensions
+    try { renderAll(); } catch(e) { console.warn('[Report] renderAll error:', e); }
+
+    // 6. Extra settle time for any chart that defers its own paint
+    await new Promise(r => setTimeout(r, 800));
+
+    // 7. Snapshot every canvas → <img> so it survives subsequent CSS changes
+    //    and is captured correctly by html2canvas during PDF export.
+    document.querySelectorAll('canvas').forEach(canvas => {
+      try {
+        const img = document.createElement('img');
+        img.src   = canvas.toDataURL('image/png', 1.0);
+        img.style.cssText = 'width:100%;height:100%;object-fit:contain;display:block;';
+        img.dataset.replacedCanvas = canvas.id;
+        canvas.parentNode.replaceChild(img, canvas);
+      } catch(e) { console.warn('[Report] canvas→img failed for', canvas.id, e); }
+    });
+
+    // 8. Show report toolbar, hide the Report Mode button
+    backBtn.classList.add('visible');
+    reportBtn.style.display = 'none';
+
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  } catch(e) {
+    console.error('[Report] enterReportMode failed:', e);
+    document.body.classList.remove('report-mode');
+    document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+    backBtn.classList.remove('visible');
+    reportBtn.style.display = '';
+  } finally {
+    // Spinner ALWAYS hides, even on error
+    spinner.classList.remove('visible');
+  }
+}
+
+/* ─────────────────────────────────────────
+   REPORT MODE — EXIT
+───────────────────────────────────────── */
+function exitReportMode() {
+  // 1. Restore canvas elements
+  document.querySelectorAll('img[data-replaced-canvas]').forEach(img => {
+    const canvas    = document.createElement('canvas');
+    canvas.id       = img.dataset.replacedCanvas;
+    canvas.style.cssText = img.style.cssText;
+    img.parentNode.replaceChild(canvas, img);
+  });
+
+  // 2. Destroy Chart instances and reset state
+  Object.values(_instances).forEach(c => { try { c.destroy(); } catch(e){} });
+  Object.keys(_instances).forEach(k => delete _instances[k]);
+  Object.keys(_rendered).forEach(k => { if (k !== 'overview') delete _rendered[k]; });
+
+  // 3. Restore dashboard layout
+  document.body.classList.remove('report-mode');
+  document.querySelectorAll('.sec').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-overview').classList.add('active');
+
+  // Restore tab highlight to Overview
+  document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === 0));
+
+  // 4. Hide toolbar, show report-mode button
+  document.getElementById('btnBackDash').classList.remove('visible');
+  document.getElementById('btnReportMode').style.display = '';
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ─────────────────────────────────────────
+   PDF EXPORT
+───────────────────────────────────────── */
+async function exportPdf() {
+  // Guard: ensure report mode is active (canvases already converted to <img>)
+  if (!document.body.classList.contains('report-mode')) {
+    await enterReportMode();
+    // Allow layout to fully settle before capturing
+    await new Promise(r => setTimeout(r, 500));
+  }
+
+  const spinner = document.getElementById('spinnerOverlay');
+  spinner.classList.add('visible');
+
+  // Give the browser one more paint cycle before html2canvas kicks in
+  await new Promise(r => requestAnimationFrame(() => setTimeout(r, 120)));
+
+  const { jsPDF } = window.jspdf;
+  const A4_W = 210;  // mm
+  const A4_H = 297;  // mm
+
+  const pdf = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
+    compress: true,
+  });
+
+  const sections = Array.from(document.querySelectorAll('.sec'));
+  let firstPage = true;
+
+  for (const sec of sections) {
+    const canvas = await html2canvas(sec, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: false,
+      backgroundColor: '#ffffff',
+      logging: false,
+      scrollX: 0,
+      scrollY: -window.scrollY,
+    });
+
+    const imgData = canvas.toDataURL('image/png', 1.0);
+
+    const capturedAspect = canvas.width / canvas.height;
+    const a4Aspect      = A4_W / A4_H;
+
+    let imgW, imgH;
+    if (capturedAspect >= a4Aspect) {
+      imgW = A4_W;
+      imgH = A4_W / capturedAspect;
+    } else {
+      imgH = A4_H;
+      imgW = A4_H * capturedAspect;
+    }
+
+    const xOff = (A4_W - imgW) / 2;
+    const yOff = (A4_H - imgH) / 2;
+
+    if (!firstPage) pdf.addPage('a4', 'portrait');
+    firstPage = false;
+
+    pdf.addImage(imgData, 'PNG', xOff, yOff, imgW, imgH, undefined, 'FAST');
+  }
+
+  spinner.classList.remove('visible');
+  pdf.save('Teya_Product_Metrics_April_2026.pdf');
+}
+
+/* ── INIT ── */
+window.addEventListener('DOMContentLoaded', () => {
+  // page-hdr and page-ftr are hidden in dashboard mode via CSS
+  // (they only appear when body.report-mode is active)
+  document.querySelectorAll('.page-hdr, .page-ftr').forEach(el => {
+    el.style.display = 'none';
+  });
+  // They are un-hidden by the report-mode CSS rule below:
+  // body.report-mode .sec .page-hdr { display: flex }
+  // We handle this in CSS using the body.report-mode selector.
+});
+</script>
+
+<!-- Ensure page-hdr/ftr only show in report mode -->
+<style>
+  /* Hidden in dashboard mode — shown only when body.report-mode is active */
+  .page-hdr, .page-ftr { display: none; }
+  body.report-mode .sec .page-hdr { display: flex !important; }
+  body.report-mode .sec .page-ftr { display: flex !important; }
+</style>
+
+<!-- ═══════════════ EDIT MODE UI ═══════════════ -->
+<div class="edit-banner visible" id="editBanner">✏️ Edit Mode — click any text or number to edit</div>
+<div class="save-toast" id="saveToast">✓ Saved</div>
+
+<script>
+/* ─────────────────────────────────────────────
+   EDIT MODE
+─────────────────────────────────────────────── */
+let _editMode = false;
+let _fileHandle = null;
+
+// Elements that should be editable in edit mode
+const EDITABLE_SELECTORS = [
+  '.insight p',       // commentary paragraphs
+  '.dt td',           // all table data cells
+  '.kpi-val',         // KPI values
+  '.kpi-chg',         // KPI primary delta line
+  '.kpi-note',        // KPI secondary note line
+  '.ov-card p',       // overview card paragraphs
+  '.ov-card li',      // overview card list items
+];
+
+function toggleEditMode() {
+  _editMode = !_editMode;
+
+  const btn     = document.getElementById('btnEditMode');
+  const saveBtn = document.getElementById('btnSave');
+  const banner  = document.getElementById('editBanner');
+
+  // Apply / remove contenteditable on all target elements
+  EDITABLE_SELECTORS.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => {
+      el.contentEditable = _editMode ? 'true' : 'false';
+    });
+  });
+
+  if (_editMode) {
+    btn.classList.add('active');
+    saveBtn.classList.add('visible');
+    banner.classList.add('visible');
+  } else {
+    btn.classList.remove('active');
+    saveBtn.classList.remove('visible');
+    banner.classList.remove('visible');
+  }
+}
+
+async function saveFile() {
+  // Temporarily strip contenteditable attributes so the saved file opens cleanly
+  EDITABLE_SELECTORS.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => {
+      el.removeAttribute('contenteditable');
+    });
+  });
+
+  const html = '<!DOCTYPE html>\n' + document.documentElement.outerHTML;
+  const blob = new Blob([html], { type: 'text/html' });
+
+  // Restore contenteditable (we're still in edit mode)
+  EDITABLE_SELECTORS.forEach(sel => {
+    document.querySelectorAll(sel).forEach(el => {
+      el.contentEditable = 'true';
+    });
+  });
+
+  if ('showSaveFilePicker' in window) {
+    try {
+      if (!_fileHandle) {
+        _fileHandle = await window.showSaveFilePicker({
+          suggestedName: 'teya_product_metrics_apr2026.html',
+          types: [{ description: 'HTML Document', accept: { 'text/html': ['.html'] } }]
+        });
+      }
+      const writable = await _fileHandle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      showSaveToast();
+    } catch (e) {
+      if (e.name !== 'AbortError') _fallbackDownload(blob);
+    }
+  } else {
+    _fallbackDownload(blob);
+  }
+}
+
+function _fallbackDownload(blob) {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'teya_product_metrics_apr2026.html';
+  a.click();
+  showSaveToast();
+}
+
+function showSaveToast() {
+  const toast = document.getElementById('saveToast');
+  toast.classList.add('visible');
+  setTimeout(() => toast.classList.remove('visible'), 2000);
+}
+</script>
+
+
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</body></html>
