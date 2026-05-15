@@ -11,8 +11,8 @@
       body { font-family: 'Figtree', system-ui, sans-serif; }
       .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
     </style>
-    <script type="module" crossorigin src="/outcomes-factory/assets/index-BoUzXz8O.js"></script>
-    <link rel="stylesheet" crossorigin href="/outcomes-factory/assets/index-Dtf1JJtD.css">
+    <script type="module" crossorigin src="/outcomes-factory/assets/index-DjQ4bYdj.js"></script>
+    <link rel="stylesheet" crossorigin href="/outcomes-factory/assets/index-C1Oo6Qb5.css">
   </head>
   <body class="bg-zinc-50 text-zinc-900 antialiased">
     <div id="app" x-data="appView()" x-init="init()" x-cloak>
@@ -211,10 +211,10 @@
                       </div>
                       <div>
                         <label class="text-[10.5px] uppercase tracking-wider font-semibold text-zinc-500 block mb-1">Product group</label>
-                        <select x-model="roadmapFilters.productGroup" class="w-full text-[12px] px-2 py-1.5 rounded-md border border-zinc-200 bg-white">
+                        <select x-model="roadmapFilters.productGroupId" class="w-full text-[12px] px-2 py-1.5 rounded-md border border-zinc-200 bg-white">
                           <option value="all">All groups</option>
-                          <template x-for="g in INITIATIVE_PRODUCT_GROUPS" :key="g.key">
-                            <option :value="g.key" x-text="g.label"></option>
+                          <template x-for="g in groupsList" :key="g.id">
+                            <option :value="g.id" x-text="g.name"></option>
                           </template>
                         </select>
                       </div>
@@ -527,11 +527,11 @@
                                   </div>
                                   <div x-show="isFieldVisible('productGroup')" class="w-[150px] flex-none">
                                     <span class="inline-flex items-center gap-1.5 text-[11.5px] text-zinc-700">
-                                      <span class="w-1.5 h-1.5 rounded-full flex-none" :style="`background:${initiativeGroupMeta(row.initiative.productGroup).color}`"></span>
-                                      <span class="truncate" x-text="initiativeGroupMeta(row.initiative.productGroup).label"></span>
+                                      <span class="w-1.5 h-1.5 rounded-full flex-none" :style="`background:${initiativeGroupMeta(row.initiative.productGroupId).color}`"></span>
+                                      <span class="truncate" x-text="initiativeGroupMeta(row.initiative.productGroupId).name"></span>
                                     </span>
                                   </div>
-                                  <div x-show="isFieldVisible('subGroup')" class="w-[140px] flex-none text-[12px] text-zinc-600 truncate" x-text="row.initiative.subGroup"></div>
+                                  <div x-show="isFieldVisible('subGroup')" class="w-[140px] flex-none text-[12px] text-zinc-600 truncate" x-text="initiativeSubGroupMeta(row.initiative.subGroupId).name"></div>
                                   <div x-show="isFieldVisible('productDri')" class="w-[130px] flex-none">
                                     <template x-if="personById(row.initiative.productDri)">
                                       <div class="flex items-center gap-1.5 min-w-0">
@@ -616,11 +616,11 @@
                                 <div class="text-[12.5px] font-semibold leading-snug mb-2" x-text="ini.name"></div>
                                 <div class="flex flex-wrap gap-1 mb-2">
                                   <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded font-medium"
-                                        :style="`background:${initiativeGroupMeta(ini.productGroup).color}1A;color:${initiativeGroupMeta(ini.productGroup).color}`">
-                                    <span class="w-1 h-1 rounded-full flex-none" :style="`background:${initiativeGroupMeta(ini.productGroup).color}`"></span>
-                                    <span x-text="initiativeGroupMeta(ini.productGroup).label"></span>
+                                        :style="`background:${initiativeGroupMeta(ini.productGroupId).color}1A;color:${initiativeGroupMeta(ini.productGroupId).color}`">
+                                    <span class="w-1 h-1 rounded-full flex-none" :style="`background:${initiativeGroupMeta(ini.productGroupId).color}`"></span>
+                                    <span x-text="initiativeGroupMeta(ini.productGroupId).name"></span>
                                   </span>
-                                  <span class="text-[10px] bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded" x-text="ini.subGroup"></span>
+                                  <span class="text-[10px] bg-zinc-100 text-zinc-600 px-1.5 py-0.5 rounded" x-text="initiativeSubGroupMeta(ini.subGroupId).name"></span>
                                 </div>
                                 <div class="flex flex-wrap gap-0.5 mb-2">
                                   <template x-for="c in ini.countries" :key="c">
@@ -707,8 +707,8 @@
                                                 x-text="initiativePriorityMeta(row.initiative.priority).label"></span>
                                         </template>
                                         <span class="inline-flex items-center gap-1 text-[10px] text-zinc-500">
-                                          <span class="w-1.5 h-1.5 rounded-full" :style="`background:${initiativeGroupMeta(row.initiative.productGroup).color}`"></span>
-                                          <span class="truncate" x-text="initiativeGroupMeta(row.initiative.productGroup).label"></span>
+                                          <span class="w-1.5 h-1.5 rounded-full" :style="`background:${initiativeGroupMeta(row.initiative.productGroupId).color}`"></span>
+                                          <span class="truncate" x-text="initiativeGroupMeta(row.initiative.productGroupId).name"></span>
                                         </span>
                                       </div>
                                     </div>
@@ -767,55 +767,67 @@
                             </template>
                           </div>
 
-                          <template x-for="g in INITIATIVE_PRODUCT_GROUPS" :key="g.key">
+                          <template x-for="g in groupsList" :key="g.id">
                             <div x-show="!currentLaneSettings().hideEmptySubGroups || productGroupHasVisibleInitiatives(g)">
                               <div class="flex border-b border-zinc-200" :style="`background:${g.color}14`">
                                 <div class="w-[200px] flex-none sticky left-0 z-10 px-3 py-2 text-[12px] font-semibold text-zinc-800 flex items-center gap-2 border-r border-zinc-200"
                                      :style="`background:${g.color}14`">
                                   <span class="w-1.5 h-1.5 rounded-full flex-none" :style="`background:${g.color}`"></span>
-                                  <span x-text="g.label"></span>
+                                  <span x-text="g.name"></span>
                                   <span x-show="currentLaneSettings().showRowHcs"
                                         class="ml-auto inline-flex items-center gap-0.5 text-[10.5px] text-zinc-600 font-mono"
-                                        :title="`${hcsForGroup(g.key)} people allocated to this product group`">
+                                        :title="`${g.manualHc} headcount — click to edit`">
                                     <i data-lucide="users" class="w-3 h-3"></i>
-                                    <span x-text="hcsForGroup(g.key)"></span>
+                                    <input type="number" min="0" step="1"
+                                           :value="g.manualHc"
+                                           @change="saveManualHc(g.id, $event.target.value)"
+                                           @click.stop @mousedown.stop
+                                           class="w-10 bg-transparent text-[10.5px] font-mono text-zinc-600 text-right rounded
+                                                  border border-transparent hover:border-zinc-300 focus:border-lime-400
+                                                  focus:outline-none focus:ring-1 focus:ring-lime-300 px-1 py-0 transition" />
                                   </span>
                                 </div>
                                 <div class="flex-1" :style="`background:${g.color}14`"></div>
                               </div>
 
-                              <template x-for="sg in g.subGroups" :key="`${g.key}-${sg}`">
+                              <template x-for="sg in (subGroupsByGroupId[g.id] || [])" :key="sg.id">
                                 <div class="flex border-b border-zinc-100 transition"
-                                     x-show="!currentLaneSettings().hideEmptySubGroups || laneCardSegments(g.key, sg).length > 0"
-                                     @dragover.prevent="overDragSubGroup(g.key, sg)"
-                                     @drop.prevent="dropSubGroup(g.key, sg)"
+                                     x-show="!currentLaneSettings().hideEmptySubGroups || laneCardSegments(g.id, sg.id).length > 0"
+                                     @dragover.prevent="overDragSubGroup(g.id, sg.id)"
+                                     @drop.prevent="dropSubGroup(g.id, sg.id)"
                                      :class="{
-                                       'opacity-40': isSubGroupBeingDragged(g.key, sg),
-                                       'bg-lime-50/60': isSubGroupHoverTarget(g.key, sg),
+                                       'opacity-40': isSubGroupBeingDragged(g.id, sg.id),
+                                       'bg-lime-50/60': isSubGroupHoverTarget(g.id, sg.id),
                                      }">
                                   <div class="w-[200px] flex-none sticky left-0 z-10 bg-white px-3 py-2 text-[11.5px] text-zinc-600 border-r border-zinc-200 cursor-grab active:cursor-grabbing select-none flex items-center gap-1.5 group/drag"
                                        draggable="true"
-                                       @dragstart="startDragSubGroup(g.key, sg, $event)"
+                                       @dragstart="startDragSubGroup(g.id, sg.id, $event)"
                                        @dragend="endDragSubGroup()"
                                        :title="'Drag to reorder'"
-                                       :class="{ 'bg-lime-50/60': isSubGroupHoverTarget(g.key, sg) }">
+                                       :class="{ 'bg-lime-50/60': isSubGroupHoverTarget(g.id, sg.id) }">
                                     <i data-lucide="grip-vertical" class="w-3 h-3 text-zinc-300 opacity-0 group-hover/drag:opacity-100 transition flex-none"></i>
-                                    <span class="truncate flex-1" x-text="sg"></span>
+                                    <span class="truncate flex-1" x-text="sg.name"></span>
                                     <span x-show="currentLaneSettings().showRowHcs"
                                           class="inline-flex items-center gap-0.5 text-[10.5px] text-zinc-500 font-mono flex-none"
-                                          :title="`${hcsForSubGroup(g.key, sg)} people allocated to this sub-group`">
+                                          :title="`${sg.manualHc} headcount — click to edit`">
                                       <i data-lucide="users" class="w-3 h-3"></i>
-                                      <span x-text="hcsForSubGroup(g.key, sg)"></span>
+                                      <input type="number" min="0" step="1"
+                                             :value="sg.manualHc"
+                                             @change="saveManualHc(sg.id, $event.target.value)"
+                                             @click.stop @mousedown.stop
+                                             class="w-10 bg-transparent text-[10.5px] font-mono text-zinc-500 text-right rounded
+                                                    border border-transparent hover:border-zinc-300 focus:border-lime-400
+                                                    focus:outline-none focus:ring-1 focus:ring-lime-300 px-1 py-0 transition" />
                                     </span>
                                   </div>
                                   <div class="flex flex-1 relative bg-[#f7f7f8]"
-                                       :style="`min-height:${laneRowHeight(g.key, sg)}px;`">
-                                    <template x-for="c in laneTimeColumns()" :key="`${g.key}-${sg}-${c.key}`">
+                                       :style="`min-height:${laneRowHeight(g.id, sg.id)}px;`">
+                                    <template x-for="c in laneTimeColumns()" :key="`${g.id}-${sg.id}-${c.key}`">
                                       <div class="flex-none border-l border-zinc-200"
                                            :style="`width:${c.width}px`"></div>
                                     </template>
                                     <div class="flex-1"></div>
-                                    <template x-for="seg in laneCardSegments(g.key, sg)" :key="seg.ini.id">
+                                    <template x-for="seg in laneCardSegments(g.id, sg.id)" :key="seg.ini.id">
                                       <button @click="openInitiative(seg.ini)"
                                               x-init="observeLaneCard($el, seg.ini.id)"
                                               class="absolute z-[1] text-left rounded-md border bg-white hover:shadow-sm transition p-1.5 space-y-1 group"
@@ -993,7 +1005,7 @@
                             <template x-for="ini in initiativesForPerson(p).slice(0, 9)" :key="ini.id">
                               <span @click.stop="openInitiative(ini)"
                                     class="inline-flex items-center gap-1 text-[11px] px-1.5 py-0.5 rounded border border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50 transition max-w-[170px] cursor-pointer">
-                                <span class="w-1.5 h-1.5 rounded-full flex-none" :style="`background:${initiativeGroupMeta(ini.productGroup).color}`"></span>
+                                <span class="w-1.5 h-1.5 rounded-full flex-none" :style="`background:${initiativeGroupMeta(ini.productGroupId).color}`"></span>
                                 <span class="truncate text-zinc-700" x-text="ini.name"></span>
                               </span>
                             </template>
@@ -1110,9 +1122,9 @@
                         </template>
                         <span :class="`pill-${drawerInitiative.developmentStage}`" class="text-[10px] font-medium px-1.5 py-0.5 rounded" x-text="initiativeDevelopmentStageMeta(drawerInitiative.developmentStage).label"></span>
                         <span class="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 rounded font-medium"
-                              :style="`background:${initiativeGroupMeta(drawerInitiative.productGroup).color}1A;color:${initiativeGroupMeta(drawerInitiative.productGroup).color}`">
-                          <span class="w-1 h-1 rounded-full" :style="`background:${initiativeGroupMeta(drawerInitiative.productGroup).color}`"></span>
-                          <span x-text="initiativeGroupMeta(drawerInitiative.productGroup).label"></span>
+                              :style="`background:${initiativeGroupMeta(drawerInitiative.productGroupId).color}1A;color:${initiativeGroupMeta(drawerInitiative.productGroupId).color}`">
+                          <span class="w-1 h-1 rounded-full" :style="`background:${initiativeGroupMeta(drawerInitiative.productGroupId).color}`"></span>
+                          <span x-text="initiativeGroupMeta(drawerInitiative.productGroupId).name"></span>
                         </span>
                         <span class="text-[10px] font-mono text-zinc-400" x-text="drawerInitiative.id.slice(0, 8)"></span>
                       </div>
@@ -1127,9 +1139,9 @@
                            class="w-full text-[20px] font-semibold leading-tight bg-transparent border border-transparent hover:border-zinc-200 focus:border-zinc-300 focus:outline-none focus:ring-0 rounded-md -mx-1.5 px-1.5 py-0.5 placeholder-zinc-300 transition-colors" />
                     <div class="text-[12px] text-zinc-500 mt-1.5 flex items-center gap-1.5">
                       <i data-lucide="folder" class="w-3.5 h-3.5"></i>
-                      <span x-text="initiativeGroupMeta(drawerInitiative.productGroup).label"></span>
+                      <span x-text="initiativeGroupMeta(drawerInitiative.productGroupId).name"></span>
                       <span class="w-1 h-1 rounded-full bg-zinc-300"></span>
-                      <span x-text="drawerInitiative.subGroup"></span>
+                      <span x-text="initiativeSubGroupMeta(drawerInitiative.subGroupId).name"></span>
                     </div>
                   </div>
 
@@ -1281,23 +1293,25 @@
                       <div class="grid grid-cols-2 gap-3">
                         <div>
                           <label class="block text-[10px] uppercase tracking-wider text-zinc-400 font-semibold mb-1">Product group</label>
-                          <select x-model="drawerInitiative.productGroup"
-                                  x-effect="$nextTick(() => { $el.value = drawerInitiative?.productGroup ?? '' })"
+                          <select x-model="drawerInitiative.productGroupId"
+                                  x-effect="$nextTick(() => { $el.value = drawerInitiative?.productGroupId ?? '' })"
                                   @change="onProductGroupChange(drawerInitiative)"
                                   class="w-full px-2.5 py-1.5 text-[12.5px] rounded-md border border-zinc-200 bg-white focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-300">
-                            <template x-for="g in INITIATIVE_PRODUCT_GROUPS" :key="g.key">
-                              <option :value="g.key" x-text="g.label"></option>
+                            <option value="">—</option>
+                            <template x-for="g in groupsList" :key="g.id">
+                              <option :value="g.id" x-text="g.name"></option>
                             </template>
                           </select>
                         </div>
                         <div>
                           <label class="block text-[10px] uppercase tracking-wider text-zinc-400 font-semibold mb-1">Sub-group</label>
-                          <select x-model="drawerInitiative.subGroup"
-                                  x-effect="$nextTick(() => { $el.value = drawerInitiative?.subGroup ?? '' })"
+                          <select x-model="drawerInitiative.subGroupId"
+                                  x-effect="$nextTick(() => { $el.value = drawerInitiative?.subGroupId ?? '' })"
                                   @change="saveInitiative(drawerInitiative)"
                                   class="w-full px-2.5 py-1.5 text-[12.5px] rounded-md border border-zinc-200 bg-white focus:border-lime-400 focus:outline-none focus:ring-2 focus:ring-lime-300">
-                            <template x-for="sg in subGroupsFor(drawerInitiative.productGroup)" :key="sg">
-                              <option :value="sg" x-text="sg"></option>
+                            <option value="">—</option>
+                            <template x-for="sg in subGroupsFor(drawerInitiative.productGroupId)" :key="sg.id">
+                              <option :value="sg.id" x-text="sg.name"></option>
                             </template>
                           </select>
                         </div>
@@ -1558,7 +1572,7 @@
                         <template x-for="ini in initiativesForPerson(personDrawerPerson)" :key="ini.id">
                           <button @click="closePersonDrawer(); openInitiative(ini)"
                                   class="w-full flex items-center gap-2 px-2.5 py-2 rounded-md border border-zinc-200 bg-white hover:border-zinc-300 hover:bg-zinc-50 transition text-left group">
-                            <span class="w-1.5 h-1.5 rounded-full flex-none" :style="`background:${initiativeGroupMeta(ini.productGroup).color}`"></span>
+                            <span class="w-1.5 h-1.5 rounded-full flex-none" :style="`background:${initiativeGroupMeta(ini.productGroupId).color}`"></span>
                             <span class="flex-1 min-w-0 truncate text-[12.5px] text-zinc-900 group-hover:text-lime-700" x-text="ini.name"></span>
                             <template x-if="initiativeDeliveryStatusMeta(ini.deliveryStatus)">
                               <span class="inline-flex items-center gap-1 text-[10px] font-medium px-1.5 py-0.5 rounded flex-none"
