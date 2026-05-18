@@ -26,9 +26,42 @@
     <style>
       body { font-family: 'Figtree', system-ui, sans-serif; }
       .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
+
+      /* Figma-style pins on the reports viewer overlay. Pins re-enable pointer
+         events on top of the pointer-events:none overlay so clicks reach them. */
+      .comment-pin {
+        position: absolute;
+        width: 24px; height: 24px;
+        border-radius: 999px;
+        display: inline-flex; align-items: center; justify-content: center;
+        font-size: 11px; font-weight: 700;
+        border: 2px solid #fff;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+        transform: translate(-50%, -100%);
+        cursor: pointer;
+        pointer-events: auto;
+        transition: box-shadow 120ms ease, opacity 120ms ease;
+        z-index: 10;
+      }
+      .comment-pin.open      { background: #84cc16; color: #18181b; }
+      .comment-pin.pending   { background: #fbbf24; color: #18181b; }
+      .comment-pin.resolved  { background: #d4d4d8; color: #71717a; opacity: 0.7; }
+      .comment-pin.active    { box-shadow: 0 0 0 3px #18181b, 0 1px 3px rgba(0,0,0,0.25); z-index: 20; }
+
+      .comment-popover {
+        position: absolute;
+        width: 240px;
+        padding: 10px;
+        background: #fff;
+        border: 1px solid rgba(0,0,0,0.06);
+        border-radius: 10px;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12), 0 2px 4px rgba(0,0,0,0.06);
+        pointer-events: auto;
+        z-index: 30;
+      }
     </style>
-    <script type="module" crossorigin src="/outcomes-factory/assets/index-B9DHy-bC.js"></script>
-    <link rel="stylesheet" crossorigin href="/outcomes-factory/assets/index-AddP0Hji.css">
+    <script type="module" crossorigin src="/outcomes-factory/assets/index-Bjmkum5c.js"></script>
+    <link rel="stylesheet" crossorigin href="/outcomes-factory/assets/index-_ffKgFvM.css">
   </head>
   <body class="bg-zinc-50 text-zinc-900 antialiased">
     <div id="app" x-data="appView()" x-init="init()" x-cloak>
@@ -864,7 +897,10 @@
                                       <button @click="openInitiative(seg.ini)"
                                               x-init="observeLaneCard($el, seg.ini.id)"
                                               class="absolute z-[1] text-left rounded-md border bg-white hover:shadow-sm transition p-1.5 space-y-1 group"
-                                              :class="seg.ini.deliveryStatus === 'delayed' ? 'border-red-400 hover:border-red-500' : 'border-zinc-200 hover:border-zinc-300'"
+                                              :class="[
+                                                seg.ini.deliveryStatus === 'delayed' ? 'border-red-400 hover:border-red-500' : 'border-zinc-200 hover:border-zinc-300',
+                                                seg.ini.deliveryStatus === 'done' ? 'opacity-50 hover:opacity-100' : ''
+                                              ]"
                                               :style="`left:${seg.left + 8}px;width:${seg.width - 16}px;top:${seg.top}px;`">
                                         <div class="flex items-start justify-between gap-1.5">
                                           <div class="flex items-start gap-1.5 min-w-0 flex-1">
@@ -889,7 +925,7 @@
                                             <span class="inline-flex items-center gap-1 flex-none px-1 py-px rounded"
                                                   :style="`background:${initiativeDeliveryStatusMeta(seg.ini.deliveryStatus).bg};color:${initiativeDeliveryStatusMeta(seg.ini.deliveryStatus).fg}`">
                                               <span class="w-1 h-1 rounded-full" :style="`background:${initiativeDeliveryStatusMeta(seg.ini.deliveryStatus).color}`"></span>
-                                              <span class="truncate" x-text="initiativeDeliveryStatusMeta(seg.ini.deliveryStatus).label"></span>
+                                              <span class="truncate" x-text="deliveryStatusLabel(seg.ini)"></span>
                                             </span>
                                           </template>
                                           <span x-show="isFieldVisible('developmentStage')" class="inline-flex items-center gap-1 flex-none">
@@ -921,9 +957,16 @@
                                             <i data-lucide="users" class="w-2.5 h-2.5"></i>
                                             <span x-text="hcsFor(seg.ini)"></span>
                                           </span>
-                                          <span x-show="isFieldVisible('countries')" class="inline-flex items-center gap-0.5 truncate">
-                                            <template x-for="c in seg.ini.countries" :key="c">
-                                              <span :title="initiativeCountryMeta(c)?.label || c" x-text="initiativeCountryMeta(c)?.flag"></span>
+                                          <span x-show="isFieldVisible('countries') && seg.ini.countries.length > 0" class="inline-flex items-center gap-0.5 truncate">
+                                            <template x-if="initiativeHasAllCountries(seg.ini)">
+                                              <span class="italic" :title="`All ${INITIATIVE_COUNTRIES.length} countries`">all countries</span>
+                                            </template>
+                                            <template x-if="!initiativeHasAllCountries(seg.ini)">
+                                              <span class="inline-flex items-center gap-0.5">
+                                                <template x-for="c in seg.ini.countries" :key="c">
+                                                  <span :title="initiativeCountryMeta(c)?.label || c" x-text="initiativeCountryMeta(c)?.flag"></span>
+                                                </template>
+                                              </span>
                                             </template>
                                           </span>
                                           <span x-show="isFieldVisible('endDate')" class="inline-flex items-center gap-0.5 font-mono flex-none ml-auto">
@@ -1397,8 +1440,8 @@
                 </div>
               </section>
 
-              <!-- ============================================ REPORTS (sub-page under Metrics) ============================================ -->
-              <section x-show="currentModule === 'reports'" class="h-full flex flex-col">
+              <!-- ============================================ REPORTS — LIST (sub-page under Metrics) ============================================ -->
+              <section x-show="currentModule === 'reports' && !selectedReportId" class="h-full flex flex-col">
                 <div class="flex-none border-b border-zinc-200 bg-white px-5 pt-3.5 pb-3.5 flex items-center justify-between">
                   <div>
                     <h1 class="text-[18px] font-semibold tracking-tight">
@@ -1526,6 +1569,285 @@
                       </div>
                     </div>
                   </div>
+                </div>
+              </section>
+
+              <!-- ============================================ REPORTS — VIEWER (single report + Figma-style comments) ============================================ -->
+              <!-- Section-level click closes any open thread. Pins, popovers, and sidebar items
+                   use @click.stop so opening one doesn't immediately close it via this bubble. -->
+              <section x-show="currentModule === 'reports' && selectedReportId"
+                       @click="activeCommentId && activeCommentId !== '__pending__' && closeActiveComment()"
+                       class="h-full flex flex-col bg-zinc-50 relative">
+                <!-- Header -->
+                <div class="flex-none border-b border-zinc-200 bg-white px-5 pt-3 pb-3 flex items-center gap-3">
+                  <button @click="exitReportViewer()"
+                          class="p-1.5 rounded hover:bg-zinc-100 text-zinc-600 hover:text-zinc-900 flex-none"
+                          title="Back to reports list">
+                    <i data-lucide="arrow-left" class="w-4 h-4"></i>
+                  </button>
+                  <div class="min-w-0 flex-1">
+                    <div class="text-[10.5px] font-medium uppercase tracking-wider text-zinc-400 flex items-center gap-1">
+                      <span>Metrics</span>
+                      <span class="text-zinc-300">›</span>
+                      <button @click="exitReportViewer()" class="hover:text-zinc-600">Reports</button>
+                    </div>
+                    <h1 class="text-[16px] font-semibold tracking-tight truncate" x-text="viewerReport()?.filename || ''"></h1>
+                  </div>
+                  <button @click="toggleCommentMode()"
+                          :disabled="!viewerReport() || !isHtmlReport(viewerReport())"
+                          :title="isHtmlReport(viewerReport()) ? '' : 'Comments are only available for HTML reports in this version'"
+                          :class="[
+                            commentMode ? 'bg-lime-400 hover:bg-lime-500 text-zinc-900' : 'bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200',
+                            (!viewerReport() || !isHtmlReport(viewerReport())) ? 'opacity-40 cursor-not-allowed' : ''
+                          ]"
+                          class="text-[12px] font-semibold px-3 py-1.5 rounded-md flex items-center gap-1.5 transition">
+                    <i data-lucide="message-square-plus" class="w-3.5 h-3.5"></i>
+                    <span x-text="commentMode ? 'Cancel' : 'Comment'"></span>
+                  </button>
+                  <button @click="viewerReport() && downloadReportSignedUrl(viewerReport())"
+                          class="text-[12px] font-semibold px-3 py-1.5 rounded-md flex items-center gap-1.5 bg-white hover:bg-zinc-50 text-zinc-700 border border-zinc-200">
+                    <i data-lucide="download" class="w-3.5 h-3.5"></i>
+                    Download
+                  </button>
+                  <button @click="toggleCommentsSidebar()"
+                          :class="commentsSidebarOpen ? 'bg-zinc-100 text-zinc-900' : 'bg-white text-zinc-600 hover:bg-zinc-50 hover:text-zinc-900'"
+                          class="ml-1 p-1.5 rounded-md border border-zinc-200 flex items-center"
+                          :title="commentsSidebarOpen ? 'Hide comments panel' : 'Show comments panel'">
+                    <i :data-lucide="commentsSidebarOpen ? 'panel-right-close' : 'panel-right-open'" class="w-4 h-4"></i>
+                  </button>
+                </div>
+
+                <!-- First-visit nudge: discrete tooltip pointing to the Comment button.
+                     Auto-dismisses on first toggleCommentMode or manual close. -->
+                <div x-show="viewerHintVisible && viewerReport() && isHtmlReport(viewerReport())"
+                     class="absolute z-30 top-[58px] right-[260px] bg-zinc-900 text-white text-[12px] rounded-lg px-3 py-2.5 shadow-lg flex items-start gap-2 max-w-[260px]"
+                     x-transition.opacity>
+                  <i data-lucide="lightbulb" class="w-4 h-4 mt-0.5 text-amber-300 flex-none"></i>
+                  <div class="flex-1">
+                    <div class="font-semibold mb-0.5">Drop a comment anywhere</div>
+                    <div class="text-zinc-300 leading-snug">Press <kbd class="bg-zinc-700 text-white rounded px-1 font-mono text-[10.5px]">C</kbd> or click <span class="font-semibold text-white">Comment</span>, then click on the report.</div>
+                  </div>
+                  <button @click="dismissViewerHint()" class="text-zinc-400 hover:text-white p-0.5 flex-none">
+                    <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                  </button>
+                  <span class="absolute -top-1.5 right-[42px] w-3 h-3 bg-zinc-900 rotate-45"></span>
+                </div>
+
+                <!-- Body: iframe + comment overlay + sidebar -->
+                <div class="flex-1 flex min-h-0">
+                  <div class="flex-1 relative min-w-0">
+                    <!-- Loading state -->
+                    <div x-show="viewerLoading" class="absolute inset-0 flex items-center justify-center text-[12px] text-zinc-500">
+                      <i data-lucide="loader-2" class="w-4 h-4 mr-2 animate-spin"></i>
+                      Loading report…
+                    </div>
+                    <!-- Error state -->
+                    <div x-show="viewerError" class="absolute inset-0 flex items-center justify-center px-8">
+                      <div class="text-center max-w-md">
+                        <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-red-50 flex items-center justify-center text-red-600">
+                          <i data-lucide="alert-triangle" class="w-6 h-6"></i>
+                        </div>
+                        <div class="text-[13px] font-medium text-zinc-800 mb-1">Couldn't open this report</div>
+                        <p class="text-[12px] text-red-600" x-text="viewerError"></p>
+                      </div>
+                    </div>
+                    <!-- Iframe: HTML reports (with bridge) -->
+                    <template x-if="!viewerLoading && !viewerError && viewerHtmlSrcdoc">
+                      <iframe id="report-viewer-iframe"
+                              :srcdoc="viewerHtmlSrcdoc"
+                              sandbox="allow-scripts"
+                              class="absolute inset-0 w-full h-full border-0 bg-white"></iframe>
+                    </template>
+                    <!-- Iframe: non-HTML inline (PDF/image/text) — signed URL, no bridge -->
+                    <template x-if="!viewerLoading && !viewerError && !viewerHtmlSrcdoc && viewerSignedUrl && isInlinePreviewableReport(viewerReport())">
+                      <iframe :src="viewerSignedUrl"
+                              class="absolute inset-0 w-full h-full border-0 bg-white"></iframe>
+                    </template>
+                    <!-- Unrenderable file: download fallback -->
+                    <template x-if="!viewerLoading && !viewerError && viewerSignedUrl && viewerReport() && !isInlinePreviewableReport(viewerReport())">
+                      <div class="absolute inset-0 flex items-center justify-center px-8">
+                        <div class="text-center max-w-md">
+                          <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-400">
+                            <i data-lucide="file-x-2" class="w-6 h-6"></i>
+                          </div>
+                          <div class="text-[14px] font-semibold text-zinc-700 mb-1">Cannot preview this file type</div>
+                          <p class="text-[12px] text-zinc-500 mb-4">Inline preview is not supported for <span x-text="viewerReport()?.mimeType || 'this file'"></span>. You can still download the report.</p>
+                          <button @click="downloadReportSignedUrl(viewerReport())"
+                                  class="text-[12.5px] font-semibold px-3.5 py-2 rounded-md bg-lime-400 hover:bg-lime-500 text-zinc-900 inline-flex items-center gap-1.5">
+                            <i data-lucide="download" class="w-4 h-4"></i>
+                            Download report
+                          </button>
+                        </div>
+                      </div>
+                    </template>
+
+                    <!-- Comment overlay: only on top of the iframe area for HTML reports.
+                         pointer-events-none lets clicks pass through to the iframe normally;
+                         pins themselves opt back in via .comment-pin. When commentMode is on,
+                         the *iframe* handles clicks via the bridge script — the overlay stays
+                         non-interactive so we don't intercept events twice. -->
+                    <div x-show="viewerHtmlSrcdoc"
+                         class="absolute inset-0 pointer-events-none"
+                         style="overflow: hidden;">
+                      <!-- Existing pins -->
+                      <template x-for="c in viewerThreads()" :key="c.id">
+                        <button class="comment-pin"
+                                :class="(c.resolved ? 'resolved' : 'open') + (activeCommentId === c.id ? ' active' : '')"
+                                :style="`left: ${c.xPct}%; top: ${pinScreenY(c)}px`"
+                                x-show="pinVisible(c)"
+                                @click.stop="openCommentThread(c.id)"
+                                x-text="threadIndex(c)"></button>
+                      </template>
+                      <!-- Pending pin (draft, not yet committed) -->
+                      <template x-if="pendingCommentDraft">
+                        <button class="comment-pin pending active"
+                                :style="`left: ${pendingCommentDraft.xPct}%; top: ${pendingCommentDraft.yPx - viewerScrollY}px`"
+                                @click.stop>+</button>
+                      </template>
+
+                      <!-- Popover: active comment thread OR pending draft -->
+                      <template x-if="activeCommentId === '__pending__' && pendingCommentDraft">
+                        <div class="comment-popover"
+                             :style="`left: ${pendingCommentDraft.xPct}%; top: ${pendingCommentDraft.yPx - viewerScrollY}px; transform: ${popoverTransform({ xPct: pendingCommentDraft.xPct, yPx: pendingCommentDraft.yPx, parentCommentId: null, id: '', reportId: '', body: '', authorEmail: '', resolved: false, createdAt: '', updatedAt: '' })};`"
+                             @click.stop>
+                          <div class="flex items-center gap-1.5 mb-2">
+                            <div :style="`background: ${commentAuthorAvatar(session?.user?.email || '').bg}; color: ${commentAuthorAvatar(session?.user?.email || '').fg}`"
+                                 class="w-5 h-5 rounded-full text-[8.5px] flex items-center justify-center font-semibold flex-none"
+                                 x-text="commentAuthorInitials(session?.user?.email || '')"></div>
+                            <div class="text-[11px] font-semibold text-zinc-900" x-text="commentAuthorName(session?.user?.email || '') || 'You'"></div>
+                          </div>
+                          <textarea x-model="commentInput"
+                                    @keydown.enter.exact.prevent="commitComment()"
+                                    @keydown.escape.prevent="cancelPendingComment()"
+                                    x-init="$nextTick(() => $el.focus())"
+                                    rows="2" placeholder="Add a comment…"
+                                    class="w-full text-[12px] text-zinc-900 bg-zinc-50 border border-zinc-200 rounded px-2 py-1.5 outline-none focus:border-lime-400 resize-none"></textarea>
+                          <div class="flex items-center justify-end gap-1 mt-1.5">
+                            <button @click="cancelPendingComment()" class="text-[11px] px-2 py-1 rounded text-zinc-600 hover:bg-zinc-100">Cancel</button>
+                            <button @click="commitComment()" :disabled="!commentInput.trim()"
+                                    class="text-[11px] px-2 py-1 rounded bg-lime-400 hover:bg-lime-500 disabled:opacity-50 text-zinc-900 font-semibold">Comment</button>
+                          </div>
+                        </div>
+                      </template>
+
+                      <template x-for="c in viewerThreads().filter(x => x.id === activeCommentId)" :key="'pop-' + c.id">
+                        <div class="comment-popover"
+                             :style="`left: ${c.xPct}%; top: ${pinScreenY(c)}px; transform: ${popoverTransform(c)};`"
+                             @click.stop>
+                          <!-- Root comment -->
+                          <div class="flex items-start gap-1.5 mb-1.5">
+                            <div :style="`background: ${commentAuthorAvatar(c.authorEmail).bg}; color: ${commentAuthorAvatar(c.authorEmail).fg}`"
+                                 class="w-5 h-5 rounded-full text-[8.5px] flex items-center justify-center font-semibold flex-none mt-0.5"
+                                 x-text="commentAuthorInitials(c.authorEmail)"></div>
+                            <div class="flex-1 min-w-0">
+                              <div class="flex items-center gap-1.5">
+                                <span class="text-[11px] font-semibold text-zinc-900 truncate" x-text="commentAuthorName(c.authorEmail)"></span>
+                                <span class="text-[9.5px] text-zinc-400" x-text="formatCommentTime(c.createdAt)"></span>
+                              </div>
+                              <div class="text-[11.5px] text-zinc-700 mt-0.5 leading-snug whitespace-pre-wrap" x-text="c.body"></div>
+                            </div>
+                          </div>
+                          <!-- Replies -->
+                          <template x-for="r in viewerReplies(c.id)" :key="r.id">
+                            <div class="flex items-start gap-1.5 mt-1.5 pl-1.5 border-l-2 border-zinc-100">
+                              <div :style="`background: ${commentAuthorAvatar(r.authorEmail).bg}; color: ${commentAuthorAvatar(r.authorEmail).fg}`"
+                                   class="w-4 h-4 rounded-full text-[8px] flex items-center justify-center font-semibold flex-none mt-0.5"
+                                   x-text="commentAuthorInitials(r.authorEmail)"></div>
+                              <div class="flex-1 min-w-0">
+                                <div class="flex items-center gap-1.5">
+                                  <span class="text-[10.5px] font-semibold text-zinc-900 truncate" x-text="commentAuthorName(r.authorEmail)"></span>
+                                  <span class="text-[9px] text-zinc-400" x-text="formatCommentTime(r.createdAt)"></span>
+                                </div>
+                                <div class="text-[11px] text-zinc-700 leading-snug whitespace-pre-wrap" x-text="r.body"></div>
+                              </div>
+                              <button x-show="canDeleteComment(r)" @click.stop="deleteComment(r)"
+                                      class="text-[10px] text-zinc-400 hover:text-rose-600 p-0.5 rounded opacity-0 group-hover:opacity-100"
+                                      title="Delete reply">
+                                <i data-lucide="x" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </template>
+                          <!-- Reply form -->
+                          <form @submit.prevent="addReply(c.id)" class="mt-2 flex items-center gap-1">
+                            <input type="text" :value="replyInputs[c.id] || ''"
+                                   @input="replyInputs[c.id] = $event.target.value"
+                                   placeholder="Reply…"
+                                   class="flex-1 text-[11px] text-zinc-900 bg-zinc-50 border border-zinc-200 rounded px-2 py-1 outline-none focus:border-lime-400" />
+                            <button type="submit" :disabled="!(replyInputs[c.id] || '').trim()"
+                                    class="text-[10.5px] px-2 py-1 rounded bg-zinc-900 hover:bg-zinc-800 disabled:opacity-30 text-white">Send</button>
+                          </form>
+                          <!-- Footer -->
+                          <div class="flex items-center justify-between mt-2 pt-2 border-t border-zinc-100">
+                            <button @click.stop="toggleResolveComment(c)"
+                                    class="text-[10.5px] text-zinc-600 hover:text-zinc-900 flex items-center gap-1">
+                              <i :data-lucide="c.resolved ? 'rotate-ccw' : 'check'" class="w-3 h-3"></i>
+                              <span x-text="c.resolved ? 'Reopen' : 'Resolve'"></span>
+                            </button>
+                            <div class="flex items-center gap-1">
+                              <button x-show="canDeleteComment(c)" @click.stop="deleteComment(c)"
+                                      class="text-[10.5px] text-zinc-500 hover:text-rose-600 p-1 rounded"
+                                      title="Delete thread">
+                                <i data-lucide="trash-2" class="w-3 h-3"></i>
+                              </button>
+                              <button @click.stop="closeActiveComment()"
+                                      class="text-[10.5px] text-zinc-500 hover:text-zinc-900 p-1 rounded">
+                                <i data-lucide="x" class="w-3 h-3"></i>
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                      </template>
+                    </div>
+                  </div>
+
+                  <!-- Right sidebar: thread list. Retractable like the main sidebar; default closed. -->
+                  <aside x-show="viewerHtmlSrcdoc && commentsSidebarOpen"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 translate-x-2"
+                         x-transition:enter-end="opacity-100 translate-x-0"
+                         x-transition:leave="transition ease-in duration-100"
+                         x-transition:leave-start="opacity-100 translate-x-0"
+                         x-transition:leave-end="opacity-0 translate-x-2"
+                         class="flex-none w-[280px] border-l border-zinc-200 bg-white flex flex-col">
+                    <div class="flex-none px-3 py-2.5 border-b border-zinc-200 flex items-center justify-between">
+                      <div class="text-[11.5px] font-semibold tracking-tight text-zinc-700">
+                        Comments
+                        <span class="text-zinc-400 font-normal" x-text="`(${viewerComments.filter(c => c.parentCommentId === null).length})`"></span>
+                      </div>
+                      <div class="flex items-center gap-1.5">
+                        <label class="text-[10.5px] text-zinc-500 flex items-center gap-1.5 cursor-pointer">
+                          <input type="checkbox" x-model="showResolvedComments" class="w-3 h-3" />
+                          Show resolved
+                        </label>
+                        <button @click="toggleCommentsSidebar()" class="p-1 rounded hover:bg-zinc-100 text-zinc-400 hover:text-zinc-700" title="Hide panel">
+                          <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                        </button>
+                      </div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-2">
+                      <template x-for="c in viewerComments.filter(x => x.parentCommentId === null && (showResolvedComments || !x.resolved))" :key="'side-' + c.id">
+                        <button @click.stop="openCommentThread(c.id)"
+                                :class="activeCommentId === c.id ? 'bg-lime-50 border-lime-300' : 'bg-white border-zinc-200 hover:bg-zinc-50'"
+                                class="w-full text-left mb-1.5 px-2 py-2 rounded border text-[11.5px] flex items-start gap-2">
+                          <div class="w-5 h-5 rounded-full flex items-center justify-center font-semibold text-[10px] flex-none mt-0.5"
+                               :class="c.resolved ? 'bg-zinc-200 text-zinc-500' : 'bg-lime-400 text-zinc-900'"
+                               x-text="threadIndex(c)"></div>
+                          <div class="flex-1 min-w-0">
+                            <div class="font-medium text-zinc-900 truncate" x-text="commentAuthorName(c.authorEmail)"></div>
+                            <div class="text-zinc-600 text-[11px] leading-snug line-clamp-2 mt-0.5" x-text="c.body"></div>
+                            <div class="text-[9.5px] text-zinc-400 mt-0.5 flex items-center gap-2">
+                              <span x-text="formatCommentTime(c.createdAt)"></span>
+                              <span x-show="viewerReplies(c.id).length > 0" x-text="`· ${viewerReplies(c.id).length} ${viewerReplies(c.id).length === 1 ? 'reply' : 'replies'}`"></span>
+                              <span x-show="c.resolved" class="text-zinc-400">· resolved</span>
+                            </div>
+                          </div>
+                        </button>
+                      </template>
+                      <div x-show="viewerComments.filter(c => c.parentCommentId === null).length === 0" class="text-center text-[11.5px] text-zinc-400 py-8 px-4">
+                        No comments yet. Click <span class="font-semibold text-zinc-600">Comment</span> in the header and drop a pin on the report.
+                      </div>
+                    </div>
+                  </aside>
                 </div>
               </section>
 
