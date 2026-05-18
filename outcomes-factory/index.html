@@ -60,8 +60,8 @@
         z-index: 30;
       }
     </style>
-    <script type="module" crossorigin src="/outcomes-factory/assets/index-Bjmkum5c.js"></script>
-    <link rel="stylesheet" crossorigin href="/outcomes-factory/assets/index-_ffKgFvM.css">
+    <script type="module" crossorigin src="/outcomes-factory/assets/index-BGxr8pNH.js"></script>
+    <link rel="stylesheet" crossorigin href="/outcomes-factory/assets/index-DYxQ9g3b.css">
   </head>
   <body class="bg-zinc-50 text-zinc-900 antialiased">
     <div id="app" x-data="appView()" x-init="init()" x-cloak>
@@ -2610,6 +2610,109 @@
                    x-text="lanesCoverHover.name"></div>
             </div>
           </template>
+
+          <!-- ============================================ FEEDBACK FAB + DRAWER (global) ============================================ -->
+          <button x-show="!feedbackDrawerOpen"
+                  x-transition.opacity
+                  @click="openFeedback(); refreshIcons()"
+                  title="Feedback (press F)"
+                  class="fixed bottom-6 right-6 z-30 w-14 h-14 rounded-full bg-lime-400 hover:bg-lime-500 shadow-lg shadow-lime-500/30 flex items-center justify-center text-zinc-900 transition">
+            <i data-lucide="message-circle-plus" class="w-6 h-6"></i>
+          </button>
+
+          <!-- backdrop -->
+          <div x-show="feedbackDrawerOpen"
+               x-transition.opacity
+               class="fixed inset-0 z-40 bg-black/20"
+               @click="closeFeedback()"></div>
+
+          <!-- drawer -->
+          <aside x-show="feedbackDrawerOpen"
+                 x-transition:enter="transition ease-out duration-150"
+                 x-transition:enter-start="opacity-0 translate-x-4"
+                 x-transition:enter-end="opacity-100 translate-x-0"
+                 x-transition:leave="transition ease-in duration-100"
+                 x-transition:leave-start="opacity-100 translate-x-0"
+                 x-transition:leave-end="opacity-0 translate-x-4"
+                 @keydown.escape.window="if (feedbackDrawerOpen) closeFeedback()"
+                 class="fixed top-0 right-0 bottom-0 w-[360px] z-50 bg-white border-l border-zinc-200 flex flex-col shadow-xl">
+
+            <!-- header -->
+            <div class="flex-none border-b border-zinc-200 px-5 py-4 flex items-center gap-2">
+              <h2 class="text-[15px] font-semibold tracking-tight">Feedback</h2>
+              <span class="text-[11px] text-zinc-500"
+                    x-text="feedbackRequests.length + ' requests'"></span>
+              <button @click="closeFeedback()" class="ml-auto text-zinc-400 hover:text-zinc-900">
+                <i data-lucide="x" class="w-4 h-4"></i>
+              </button>
+            </div>
+
+            <!-- compose toggle / form -->
+            <div class="flex-none border-b border-zinc-200 px-5 py-3">
+              <button x-show="!feedbackComposing"
+                      @click="startFeedbackCompose(); refreshIcons()"
+                      class="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-md bg-zinc-900 hover:bg-zinc-800 text-white text-[12.5px] font-medium">
+                <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+                New request
+                <span class="ml-2 text-[10.5px] text-zinc-400 font-normal">press F</span>
+              </button>
+
+              <div x-show="feedbackComposing" class="space-y-2">
+                <input x-model="feedbackComposeTitle"
+                       x-effect="if (feedbackComposing) $nextTick(() => $el.focus())"
+                       @keydown.escape.stop="cancelFeedbackCompose()"
+                       @keydown.meta.enter.prevent="submitFeedback()"
+                       placeholder="What's the request?"
+                       class="w-full text-[13px] border border-zinc-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400" />
+                <textarea x-model="feedbackComposeBody"
+                          placeholder="(optional context)"
+                          rows="3"
+                          class="w-full text-[12.5px] border border-zinc-200 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-lime-400 resize-none"></textarea>
+                <div class="flex gap-2 justify-end items-center">
+                  <span class="text-[10.5px] text-zinc-400 mr-auto">⌘ + Enter to submit</span>
+                  <button @click="cancelFeedbackCompose()"
+                          class="text-[12px] text-zinc-500 hover:text-zinc-900 px-3 py-1.5">Cancel</button>
+                  <button @click="submitFeedback()"
+                          :disabled="!feedbackComposeTitle.trim()"
+                          :class="feedbackComposeTitle.trim() ? 'bg-lime-400 hover:bg-lime-500 text-zinc-900' : 'bg-zinc-100 text-zinc-400 cursor-not-allowed'"
+                          class="text-[12px] font-semibold px-3 py-1.5 rounded-md">Submit</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- requests list (sorted by upvotes desc) -->
+            <div class="flex-1 overflow-y-auto px-4 py-3 space-y-2">
+              <template x-for="req in sortedFeedbackRequests()" :key="req.id">
+                <div class="rounded-lg border border-zinc-200 p-3 flex gap-3 hover:border-zinc-300 transition">
+                  <!-- upvote pill -->
+                  <button @click.stop="toggleFeedbackUpvote(req.id)"
+                          :class="req.upvotedByMe ? 'border-lime-400 bg-lime-50 text-lime-800' : 'border-zinc-200 text-zinc-600 hover:border-zinc-300'"
+                          class="flex-none w-10 flex flex-col items-center justify-center py-1.5 rounded border text-[11px] font-semibold transition">
+                    <i data-lucide="chevron-up" class="w-3.5 h-3.5"></i>
+                    <span x-text="req.upvotes"></span>
+                  </button>
+                  <!-- body -->
+                  <div class="flex-1 min-w-0">
+                    <div class="flex items-center gap-2 mb-1">
+                      <span class="text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded"
+                            :class="feedbackStatusMeta(req.status).bg + ' ' + feedbackStatusMeta(req.status).fg"
+                            x-text="feedbackStatusMeta(req.status).label"></span>
+                      <span class="text-[10.5px] text-zinc-400" x-text="req.authorName"></span>
+                    </div>
+                    <p class="text-[13px] font-medium text-zinc-900 leading-snug" x-text="req.title"></p>
+                    <p x-show="req.body"
+                       class="text-[12px] text-zinc-600 leading-snug mt-0.5 line-clamp-2"
+                       x-text="req.body"></p>
+                  </div>
+                </div>
+              </template>
+
+              <div x-show="feedbackRequests.length === 0"
+                   class="text-center text-[12px] text-zinc-500 py-8">
+                No feedback yet. Be the first to add a request.
+              </div>
+            </div>
+          </aside>
         </div>
       </template>
     </div>
