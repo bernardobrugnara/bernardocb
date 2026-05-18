@@ -4,6 +4,22 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Outcomes Factory · MVP</title>
+    <script>
+      // Restore deep-link path encoded by 404.html (?/segs → /segs) via history.replaceState
+      // BEFORE the Alpine app boots, so init() reads the corrected pathname.
+      (function (l) {
+        if (l.search[1] === '/') {
+          var decoded = l.search.slice(1).split('&').map(function (s) {
+            return s.replace(/~and~/g, '&');
+          }).join('?');
+          window.history.replaceState(
+            null,
+            '',
+            l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      })(window.location);
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -11,8 +27,8 @@
       body { font-family: 'Figtree', system-ui, sans-serif; }
       .font-mono { font-family: 'JetBrains Mono', ui-monospace, monospace; }
     </style>
-    <script type="module" crossorigin src="/outcomes-factory/assets/index-CzmEseEm.js"></script>
-    <link rel="stylesheet" crossorigin href="/outcomes-factory/assets/index-BOVwm_1X.css">
+    <script type="module" crossorigin src="/outcomes-factory/assets/index-B9DHy-bC.js"></script>
+    <link rel="stylesheet" crossorigin href="/outcomes-factory/assets/index-AddP0Hji.css">
   </head>
   <body class="bg-zinc-50 text-zinc-900 antialiased">
     <div id="app" x-data="appView()" x-init="init()" x-cloak>
@@ -1509,6 +1525,174 @@
                         <p class="text-[12px] text-zinc-500 mt-1">Click <span class="font-medium text-zinc-700">Add a report</span> to upload your first file.</p>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </section>
+
+              <!-- ============================================ PROTOTYPES ============================================ -->
+              <section x-show="currentModule === 'prototyping'" class="h-full flex flex-col">
+                <div class="flex-none border-b border-zinc-200 bg-white px-5 pt-3.5 pb-3.5 flex items-center justify-between">
+                  <div>
+                    <h1 class="text-[18px] font-semibold tracking-tight">Prototypes</h1>
+                    <p class="text-[12px] text-zinc-500">All prototypes in flight. Upload an HTML file to start iterating.</p>
+                  </div>
+                  <div class="flex items-center gap-2">
+                    <div class="inline-flex items-center bg-zinc-100 rounded-md p-0.5">
+                      <button @click="prototypingListMode = 'list'; refreshIcons()"
+                              :class="prototypingListMode === 'list' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-900'"
+                              class="text-[11.5px] font-medium px-2.5 py-1 rounded flex items-center gap-1.5 transition">
+                        <i data-lucide="list" class="w-3 h-3"></i>
+                        List
+                      </button>
+                      <button @click="prototypingListMode = 'kanban'; refreshIcons()"
+                              :class="prototypingListMode === 'kanban' ? 'bg-white text-zinc-900 shadow-sm' : 'text-zinc-500 hover:text-zinc-900'"
+                              class="text-[11.5px] font-medium px-2.5 py-1 rounded flex items-center gap-1.5 transition">
+                        <i data-lucide="kanban-square" class="w-3 h-3"></i>
+                        Kanban
+                      </button>
+                    </div>
+                    <label :class="prototypeUploading ? 'opacity-60 pointer-events-none' : 'cursor-pointer'"
+                           class="text-[12px] font-semibold bg-lime-400 hover:bg-lime-500 text-zinc-900 px-3 py-1.5 rounded-md flex items-center gap-1.5">
+                      <i :data-lucide="prototypeUploading ? 'loader-2' : 'upload'" :class="prototypeUploading ? 'animate-spin' : ''" class="w-3.5 h-3.5"></i>
+                      <span x-text="prototypeUploading ? 'Uploading…' : 'Upload HTML'"></span>
+                      <input type="file" class="sr-only" accept=".html,.htm,text/html" @change="uploadPrototype($event)" :disabled="prototypeUploading" />
+                    </label>
+                  </div>
+                </div>
+
+                <!-- toolbar (list mode only) -->
+                <div x-show="prototypingListMode === 'list'" class="flex-none bg-white border-b border-zinc-200 px-5 py-2.5 flex items-center gap-2 flex-wrap">
+                  <div class="relative">
+                    <i data-lucide="search" class="w-3.5 h-3.5 text-zinc-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
+                    <input type="text" x-model="prototypeSearch" placeholder="Search by name, author, filename"
+                           class="pl-7 pr-3 py-1.5 w-72 text-[12px] rounded-md bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-lime-300 focus:border-lime-300 placeholder:text-zinc-400" />
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <label class="text-[11px] text-zinc-500 flex items-center gap-1.5">
+                      <i data-lucide="arrow-up-down" class="w-3.5 h-3.5"></i>
+                      Sort
+                    </label>
+                    <select x-model="prototypeSort" class="text-[12px] px-2 py-1.5 rounded-md border border-zinc-200 bg-white">
+                      <option value="updated-desc">Recently updated</option>
+                      <option value="updated-asc">Oldest first</option>
+                      <option value="label-asc">Name · A → Z</option>
+                      <option value="label-desc">Name · Z → A</option>
+                      <option value="author-asc">Author · A → Z</option>
+                    </select>
+                  </div>
+                  <div class="ml-auto text-[11.5px] text-zinc-500" x-text="`${filteredPrototypes().length} prototypes`"></div>
+                </div>
+
+                <!-- error -->
+                <p x-show="error && currentModule === 'prototyping'" x-text="error" class="flex-none px-5 py-2 text-[12px] text-red-600 bg-red-50 border-b border-red-100"></p>
+
+                <!-- LIST MODE -->
+                <div x-show="prototypingListMode === 'list'" class="flex-1 overflow-auto p-5">
+                  <div class="bg-white border border-zinc-200 rounded-lg overflow-x-auto">
+                    <div class="min-w-max">
+                      <div class="flex items-start gap-3 text-[10.5px] uppercase tracking-wider font-semibold text-zinc-400 px-4 py-2.5 border-b border-zinc-200 bg-zinc-50">
+                        <div class="w-[420px] flex-none">Name</div>
+                        <div class="w-[240px] flex-none">Author</div>
+                        <div class="w-[140px] flex-none">Last edited</div>
+                        <div class="w-[180px] flex-none">Status</div>
+                        <div class="w-[80px]  flex-none text-right">Actions</div>
+                      </div>
+
+                      <template x-for="p in filteredPrototypes()" :key="p.id">
+                        <button type="button" @click="openPrototype(p)"
+                                class="w-full text-left flex items-start gap-3 px-4 py-2.5 border-b border-zinc-100 hover:bg-zinc-50 transition group cursor-pointer">
+                          <div class="w-[420px] flex-none min-w-0 flex items-center gap-2.5">
+                            <div class="w-8 h-10 flex-none rounded bg-gradient-to-br from-zinc-100 to-zinc-200 ring-1 ring-zinc-200 flex items-center justify-center">
+                              <i data-lucide="smartphone" class="w-3.5 h-3.5 text-zinc-400"></i>
+                            </div>
+                            <div class="min-w-0 flex-1">
+                              <div class="text-[13px] font-medium text-zinc-900 truncate group-hover:text-lime-700" x-text="`v${p.version} · ${p.label}`"></div>
+                              <div class="text-[10.5px] font-mono text-zinc-400 mt-0.5 truncate" x-text="p.sourceFilename || (p.blobUrl ? 'uploaded' : 'seed · no file')"></div>
+                            </div>
+                          </div>
+                          <div class="w-[240px] flex-none text-[12px] text-zinc-700 truncate self-center" x-text="p.author"></div>
+                          <div class="w-[140px] flex-none text-[12px] text-zinc-500 self-center" x-text="formatPrototypeDate(p.updatedAt)"></div>
+                          <div class="w-[180px] flex-none self-center">
+                            <span class="inline-flex items-center gap-1.5 text-[10.5px] px-2 py-0.5 rounded"
+                                  :class="prototypeStatusMeta(p.status).pill">
+                              <span class="w-1.5 h-1.5 rounded-full" :class="prototypeStatusMeta(p.status).dot"></span>
+                              <span x-text="prototypeStatusMeta(p.status).label"></span>
+                            </span>
+                          </div>
+                          <div class="w-[80px] flex-none flex items-center justify-end gap-1 self-center">
+                            <span x-show="p.blobUrl" @click.stop="openPrototype(p)"
+                                  class="p-1.5 rounded hover:bg-zinc-100 text-zinc-500 hover:text-zinc-900 cursor-pointer"
+                                  title="Open in new tab">
+                              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                            </span>
+                            <span @click.stop="removePrototype(p)"
+                                  class="p-1.5 rounded hover:bg-red-50 text-zinc-400 hover:text-red-600 cursor-pointer"
+                                  title="Delete">
+                              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </span>
+                          </div>
+                        </button>
+                      </template>
+
+                      <div x-show="filteredPrototypes().length === 0 && prototypes.length > 0" class="text-[12px] text-zinc-400 text-center py-10">
+                        No prototypes match the current search.
+                      </div>
+                      <div x-show="prototypes.length === 0" class="text-center py-14">
+                        <div class="w-12 h-12 mx-auto mb-3 rounded-xl bg-zinc-100 flex items-center justify-center text-zinc-400">
+                          <i data-lucide="layers" class="w-6 h-6"></i>
+                        </div>
+                        <h2 class="text-[14px] font-semibold text-zinc-700">No prototypes yet</h2>
+                        <p class="text-[12px] text-zinc-500 mt-1">Click <span class="font-medium text-zinc-700">Upload HTML</span> to add your first one.</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- KANBAN MODE -->
+                <div x-show="prototypingListMode === 'kanban'" class="flex-1 overflow-x-auto overflow-y-hidden bg-zinc-50">
+                  <div class="h-full flex gap-3 px-5 py-5 min-w-max">
+                    <template x-for="col in prototypeStatuses" :key="col.key">
+                      <div class="w-[280px] flex-none flex flex-col bg-white border border-zinc-200 rounded-lg overflow-hidden"
+                           @dragover.prevent="kanbanHoverCol = col.key"
+                           @dragleave="if (kanbanHoverCol === col.key) kanbanHoverCol = null"
+                           @drop.prevent="onPrototypeDrop(col.key)"
+                           :class="kanbanHoverCol === col.key ? 'ring-2 ring-lime-400 ring-offset-1' : ''">
+                        <div class="flex-none px-3 py-2.5 border-b border-zinc-200 bg-zinc-50 flex items-center justify-between">
+                          <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-1.5 h-1.5 rounded-full flex-none" :class="col.dot"></span>
+                            <span class="text-[11.5px] font-semibold text-zinc-700 truncate" x-text="col.label"></span>
+                          </div>
+                          <span class="text-[10.5px] font-mono text-zinc-400" x-text="prototypesByStatus(col.key).length"></span>
+                        </div>
+                        <div class="flex-1 overflow-y-auto p-2 space-y-2 min-h-[60px]">
+                          <template x-for="p in prototypesByStatus(col.key)" :key="p.id">
+                            <div draggable="true"
+                                 @dragstart="onPrototypeDragStart(p, $event)"
+                                 @dragend="onPrototypeDragEnd()"
+                                 @click="openPrototype(p)"
+                                 class="cursor-pointer rounded-md border border-zinc-200 bg-white hover:border-zinc-300 hover:shadow-sm transition p-2.5 flex flex-col gap-1.5"
+                                 :class="kanbanDragId === p.id ? 'opacity-40' : ''">
+                              <div class="flex items-start gap-2">
+                                <div class="w-7 h-9 flex-none rounded bg-gradient-to-br from-zinc-100 to-zinc-200 ring-1 ring-zinc-200 flex items-center justify-center">
+                                  <i data-lucide="smartphone" class="w-3 h-3 text-zinc-400"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                  <div class="text-[12px] font-medium text-zinc-900 leading-snug truncate" x-text="`v${p.version} · ${p.label}`"></div>
+                                  <div class="text-[10px] font-mono text-zinc-400 truncate mt-0.5" x-text="p.sourceFilename || ''"></div>
+                                </div>
+                              </div>
+                              <div class="flex items-center justify-between text-[10.5px] text-zinc-500">
+                                <span class="truncate" x-text="p.author"></span>
+                                <span class="flex-none text-zinc-400" x-text="formatPrototypeDate(p.updatedAt)"></span>
+                              </div>
+                            </div>
+                          </template>
+                          <div x-show="prototypesByStatus(col.key).length === 0" class="text-[10.5px] text-zinc-300 text-center py-4 italic">
+                            Drop a prototype here
+                          </div>
+                        </div>
+                      </div>
+                    </template>
                   </div>
                 </div>
               </section>

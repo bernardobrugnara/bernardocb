@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Outcomes Factory</title>
+    <script>
+      // SPA fallback for GitHub Pages: rewrite the requested path into a query string
+      // and bounce to the app root. The bootloader in index.html restores the real path
+      // via history.replaceState so the user sees /outcomes-factory/metrics/reports
+      // (and similar deep links) without a flash.
+      //
+      // pathSegmentsToKeep = 1 because the deploy lives under /outcomes-factory/.
+      // Adapted from https://github.com/rafgraph/spa-github-pages.
+      (function () {
+        var pathSegmentsToKeep = 1;
+        var l = window.location;
+        l.replace(
+          l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
+          l.pathname.split('/').slice(0, 1 + pathSegmentsToKeep).join('/') + '/?/' +
+          l.pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~') +
+          (l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '') +
+          l.hash
+        );
+      })();
+    </script>
+  </head>
+  <body></body>
+</html>
