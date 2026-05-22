@@ -5,14 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Page not found · bernardocb.com</title>
     <script>
-      // SPA fallback for the Outcomes Factory app (single-page app under /outcomes-factory/).
       // GitHub Pages serves THIS root 404.html for any unknown path on bernardocb.com.
-      // If the missing path is under /outcomes-factory/, encode it into a query string
-      // and bounce to that app's index.html; the boot snippet there restores the real
-      // URL via history.replaceState. Other projects fall through to the body's 404 UI.
+      // Two things happen here before falling through to the 404 UI:
+      //   1. Legacy paths from before the /old-projects/ archive are redirected to their new home.
+      //   2. Unknown paths under /outcomes-factory/ are bounced into that app's SPA boot.
       (function () {
         var l = window.location;
         var segs = l.pathname.split('/');
+
+        // 1. Legacy redirects: old project URLs now live under /old-projects/.
+        var legacy = {
+          'bolao-oscar-2026': '/old-projects/bolao-oscar-2026/',
+          'workshop':         '/old-projects/workshop/',
+          'workshop-backlog': '/old-projects/workshop/workshop-backlog/',
+          'workshop-logs':    '/old-projects/workshop/workshop-logs/',
+          'workshop-resumo':  '/old-projects/workshop/workshop-resumo/'
+        };
+        if (legacy[segs[1]]) {
+          var tail = segs.slice(2).join('/');
+          l.replace(legacy[segs[1]] + tail + l.search + l.hash);
+          return;
+        }
+
+        // 2. Outcomes Factory SPA fallback — encode the missing path into a query string
+        //    so the app's boot snippet can restore it via history.replaceState.
         if (segs[1] === 'outcomes-factory') {
           var pathSegmentsToKeep = 1;
           l.replace(
