@@ -60,8 +60,8 @@
         z-index: 30;
       }
     </style>
-    <script type="module" crossorigin src="/outcomes-factory/assets/index-CdWWOIgl.js"></script>
-    <link rel="stylesheet" crossorigin href="/outcomes-factory/assets/index-NkpUZiUg.css">
+    <script type="module" crossorigin src="/outcomes-factory/assets/index-mR3sEZnK.js"></script>
+    <link rel="stylesheet" crossorigin href="/outcomes-factory/assets/index-Dm4U3NI7.css">
   </head>
   <body class="bg-zinc-50 text-zinc-900 antialiased">
     <div id="app" x-data="appView()" x-init="init()" x-cloak>
@@ -269,8 +269,8 @@
                 <div class="flex-none bg-white border-b border-zinc-200 px-5 py-2.5 flex items-center gap-2 flex-wrap">
                   <div class="flex items-center border border-zinc-200 rounded-md overflow-hidden">
                     <template x-for="v in [
-                      { key: 'lanes',    icon: 'rows-3',               label: 'Lanes'     },
                       { key: 'endMonth', icon: 'calendar-check',       label: 'End month' },
+                      { key: 'lanes',    icon: 'rows-3',               label: 'Lanes'     },
                       { key: 'gantt',    icon: 'bar-chart-horizontal', label: 'Gantt'     },
                       { key: 'kanban',   icon: 'kanban-square',        label: 'Kanban'    },
                       { key: 'list',     icon: 'list',                 label: 'List'      },
@@ -2602,7 +2602,13 @@
                       <div>
                         <div class="text-[10px] uppercase tracking-wider text-zinc-400 font-semibold mb-1.5 flex items-center justify-between">
                           <span>Available countries</span>
-                          <span class="text-[10.5px] font-mono text-zinc-400 normal-case tracking-normal" x-text="`${drawerInitiative.countries.length}/${INITIATIVE_COUNTRIES.length}`"></span>
+                          <div class="flex items-center gap-2">
+                            <button type="button"
+                                    @click="toggleAllInitiativeCountries(drawerInitiative)"
+                                    class="text-[10.5px] font-semibold normal-case tracking-normal text-lime-700 hover:text-lime-800"
+                                    x-text="initiativeHasAllCountries(drawerInitiative) ? 'Clear all' : 'All countries'"></button>
+                            <span class="text-[10.5px] font-mono text-zinc-400 normal-case tracking-normal" x-text="`${drawerInitiative.countries.length}/${INITIATIVE_COUNTRIES.length}`"></span>
+                          </div>
                         </div>
                         <div class="flex flex-wrap gap-1.5">
                           <template x-for="c in INITIATIVE_COUNTRIES" :key="c.code">
