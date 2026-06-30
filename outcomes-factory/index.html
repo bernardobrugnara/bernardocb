@@ -60,8 +60,8 @@
         z-index: 30;
       }
     </style>
-    <script type="module" crossorigin src="/outcomes-factory/assets/index-aFj6M_qu.js"></script>
-    <link rel="stylesheet" crossorigin href="/outcomes-factory/assets/index-C1vFL8ZO.css">
+    <script type="module" crossorigin src="/outcomes-factory/assets/index-DQk2RAXr.js"></script>
+    <link rel="stylesheet" crossorigin href="/outcomes-factory/assets/index-B0sbMdve.css">
   </head>
   <body class="bg-zinc-50 text-zinc-900 antialiased">
     <div id="app" x-data="appView()" x-init="init()" x-cloak>
@@ -267,28 +267,89 @@
 
                 <!-- toolbar -->
                 <div class="flex-none bg-white border-b border-zinc-200 px-5 py-2.5 flex items-center gap-2 flex-wrap">
-                  <div class="flex items-center border border-zinc-200 rounded-md overflow-hidden">
-                    <template x-for="v in [
-                      { key: 'lanes',    icon: 'rows-3',               label: 'Lanes'     },
-                      { key: 'endMonth', icon: 'calendar-check',       label: 'End month' },
-                      { key: 'gantt',    icon: 'bar-chart-horizontal', label: 'Gantt'     },
-                      { key: 'kanban',   icon: 'kanban-square',        label: 'Kanban'    },
-                      { key: 'list',     icon: 'list',                 label: 'List'      },
-                    ]" :key="v.key">
-                      <button @click="roadmapView = v.key; refreshIcons()"
-                              :class="roadmapView === v.key ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-500 hover:bg-zinc-50'"
-                              class="px-2.5 py-1.5 text-[12px] font-medium flex items-center gap-1.5 border-r border-zinc-200 last:border-r-0">
-                        <i :data-lucide="v.icon" class="w-3.5 h-3.5"></i>
-                        <span x-text="v.label"></span>
-                      </button>
-                    </template>
+                  <!-- view selector (standard views + saved views) -->
+                  <div class="relative">
+                    <button @click="viewMenuOpen = !viewMenuOpen; roadmapFiltersOpen = false; roadmapHideFieldsOpen = false; roadmapGroupByOpen = false; roadmapSettingsOpen = false; refreshIcons()"
+                            :class="viewMenuOpen ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-600 hover:bg-zinc-50'"
+                            class="px-2.5 py-1.5 rounded-md border border-zinc-200 text-[12px] font-medium flex items-center gap-1.5">
+                      <i :data-lucide="currentViewIcon()" class="w-3.5 h-3.5"></i>
+                      <span x-text="activeViewLabel()"></span>
+                      <i data-lucide="chevron-down" class="w-3.5 h-3.5 text-zinc-400"></i>
+                    </button>
+                    <div x-show="viewMenuOpen" @click.outside="viewMenuOpen = false"
+                         x-transition.opacity
+                         class="absolute z-30 mt-1 left-0 w-64 bg-white border border-zinc-200 rounded-lg shadow-xl p-1.5">
+                      <!-- standard views -->
+                      <div class="px-2 py-1 text-[10px] uppercase tracking-wider font-semibold text-zinc-400">Views</div>
+                      <template x-for="v in roadmapStandardViews" :key="v.key">
+                        <button @click="selectStandardView(v.key); viewMenuOpen = false; refreshIcons()"
+                                class="w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[12px] text-zinc-700 hover:bg-zinc-50">
+                          <i :data-lucide="v.icon" class="w-3.5 h-3.5 text-zinc-500"></i>
+                          <span class="flex-1 text-left" x-text="v.label"></span>
+                          <i x-show="roadmapView === v.key && !activeSavedViewId" data-lucide="check" class="w-3.5 h-3.5 text-zinc-900"></i>
+                        </button>
+                      </template>
+
+                      <!-- saved views -->
+                      <div class="mt-1 pt-1 border-t border-zinc-100">
+                        <div class="px-2 py-1 text-[10px] uppercase tracking-wider font-semibold text-zinc-400">My views</div>
+                        <template x-if="savedViews.length === 0">
+                          <div class="px-2 py-1.5 text-[11px] text-zinc-400">No saved views yet</div>
+                        </template>
+                        <template x-for="sv in savedViews" :key="sv.id">
+                          <div class="group w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-[12px] text-zinc-700 hover:bg-zinc-50">
+                            <button @click="selectSavedView(sv.id); viewMenuOpen = false; refreshIcons()"
+                                    class="flex-1 flex items-center gap-2 text-left min-w-0">
+                              <i data-lucide="bookmark" class="w-3.5 h-3.5 text-zinc-500 flex-none"></i>
+                              <span class="truncate" x-text="sv.name"></span>
+                            </button>
+                            <i x-show="activeSavedViewId === sv.id" data-lucide="check" class="w-3.5 h-3.5 text-zinc-900 flex-none"></i>
+                            <button @click="removeSavedView(sv.id); refreshIcons()"
+                                    class="opacity-0 group-hover:opacity-100 text-zinc-400 hover:text-red-600 flex-none">
+                              <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                            </button>
+                          </div>
+                        </template>
+                      </div>
+
+                      <!-- save / update footer -->
+                      <div class="mt-1 pt-1 border-t border-zinc-100">
+                        <template x-if="!savingView">
+                          <div class="flex items-center gap-1">
+                            <button @click="savingView = true; $nextTick(() => $refs.newViewInput?.focus())"
+                                    class="flex-1 flex items-center gap-2 px-2 py-1.5 rounded-md text-[12px] text-zinc-700 hover:bg-zinc-50">
+                              <i data-lucide="plus" class="w-3.5 h-3.5 text-zinc-500"></i>
+                              <span>Save current view</span>
+                            </button>
+                            <button x-show="activeSavedViewId"
+                                    @click="updateActiveView(); refreshIcons()"
+                                    class="px-2 py-1.5 rounded-md text-[11px] font-medium text-zinc-600 hover:bg-zinc-50">
+                              Update
+                            </button>
+                          </div>
+                        </template>
+                        <template x-if="savingView">
+                          <div class="flex items-center gap-1 p-1">
+                            <input x-ref="newViewInput" x-model="newViewName" type="text" placeholder="View name"
+                                   @keydown.enter="saveCurrentView(); refreshIcons()"
+                                   @keydown.escape="savingView = false; newViewName = ''; refreshIcons()"
+                                   class="flex-1 min-w-0 text-[12px] px-2 py-1 rounded-md border border-zinc-200" />
+                            <button @click="saveCurrentView(); refreshIcons()"
+                                    :disabled="!newViewName.trim()"
+                                    class="px-2 py-1 rounded-md text-[11px] font-medium bg-zinc-900 text-white disabled:opacity-40">Save</button>
+                            <button @click="savingView = false; newViewName = ''; refreshIcons()"
+                                    class="px-2 py-1 rounded-md text-[11px] text-zinc-500 hover:bg-zinc-50">Cancel</button>
+                          </div>
+                        </template>
+                      </div>
+                    </div>
                   </div>
 
                   <div class="h-5 w-px bg-zinc-200 mx-1"></div>
 
                   <!-- filter -->
                   <div class="relative">
-                    <button @click="roadmapFiltersOpen = !roadmapFiltersOpen; roadmapHideFieldsOpen = false; refreshIcons()"
+                    <button @click="roadmapFiltersOpen = !roadmapFiltersOpen; roadmapHideFieldsOpen = false; viewMenuOpen = false; refreshIcons()"
                             :class="roadmapFiltersOpen || activeRoadmapFilterCount() ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-600 hover:bg-zinc-50'"
                             class="px-2.5 py-1.5 rounded-md border border-zinc-200 text-[12px] font-medium flex items-center gap-1.5">
                       <i data-lucide="filter" class="w-3.5 h-3.5"></i>
@@ -381,7 +442,7 @@
 
                   <!-- group by (hidden in lanes) -->
                   <div x-show="roadmapView !== 'lanes'" class="relative">
-                    <button @click="roadmapGroupByOpen = !roadmapGroupByOpen; roadmapFiltersOpen = false; roadmapHideFieldsOpen = false; refreshIcons()"
+                    <button @click="roadmapGroupByOpen = !roadmapGroupByOpen; roadmapFiltersOpen = false; roadmapHideFieldsOpen = false; viewMenuOpen = false; refreshIcons()"
                             :class="roadmapGroupByOpen || roadmapGroupConfig.length ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-600 hover:bg-zinc-50'"
                             class="px-2.5 py-1.5 rounded-md border border-zinc-200 text-[12px] font-medium flex items-center gap-1.5">
                       <i data-lucide="layers" class="w-3.5 h-3.5"></i>
@@ -471,7 +532,7 @@
 
                   <!-- settings (lanes-style views) -->
                   <div x-show="roadmapView === 'lanes' || roadmapView === 'endMonth'" class="relative">
-                    <button @click="roadmapSettingsOpen = !roadmapSettingsOpen; roadmapFiltersOpen = false; roadmapHideFieldsOpen = false; roadmapGroupByOpen = false; refreshIcons()"
+                    <button @click="roadmapSettingsOpen = !roadmapSettingsOpen; roadmapFiltersOpen = false; roadmapHideFieldsOpen = false; roadmapGroupByOpen = false; viewMenuOpen = false; refreshIcons()"
                             :class="roadmapSettingsOpen ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-600 hover:bg-zinc-50'"
                             class="px-2.5 py-1.5 rounded-md border border-zinc-200 text-[12px] font-medium flex items-center gap-1.5">
                       <i data-lucide="settings-2" class="w-3.5 h-3.5"></i>
@@ -532,7 +593,7 @@
 
                   <!-- hide fields -->
                   <div class="relative">
-                    <button @click="roadmapHideFieldsOpen = !roadmapHideFieldsOpen; roadmapFiltersOpen = false; refreshIcons()"
+                    <button @click="roadmapHideFieldsOpen = !roadmapHideFieldsOpen; roadmapFiltersOpen = false; viewMenuOpen = false; refreshIcons()"
                             :class="roadmapHideFieldsOpen ? 'bg-zinc-100 text-zinc-900' : 'text-zinc-600 hover:bg-zinc-50'"
                             class="px-2.5 py-1.5 rounded-md border border-zinc-200 text-[12px] font-medium flex items-center gap-1.5">
                       <i data-lucide="eye-off" class="w-3.5 h-3.5"></i>
@@ -2579,7 +2640,7 @@
                                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                               <option value="">Unassigned</option>
                               <template x-for="p in people" :key="p.id">
-                                <option :value="p.id" x-text="p.role ? `${p.name} · ${p.role}` : p.name"></option>
+                                <option :value="p.id" x-text="`${p.name} · ${p.role}`"></option>
                               </template>
                             </select>
                           </div>
@@ -2609,7 +2670,7 @@
                                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
                               <option value="">Unassigned</option>
                               <template x-for="p in people" :key="p.id">
-                                <option :value="p.id" x-text="p.role ? `${p.name} · ${p.role}` : p.name"></option>
+                                <option :value="p.id" x-text="`${p.name} · ${p.role}`"></option>
                               </template>
                             </select>
                           </div>
