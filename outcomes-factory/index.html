@@ -60,8 +60,8 @@
         z-index: 30;
       }
     </style>
-    <script type="module" crossorigin src="/outcomes-factory/assets/index-DFDCgdjW.js"></script>
-    <link rel="stylesheet" crossorigin href="/outcomes-factory/assets/index-KUeDgOKL.css">
+    <script type="module" crossorigin src="/outcomes-factory/assets/index-CkYyYWWa.js"></script>
+    <link rel="stylesheet" crossorigin href="/outcomes-factory/assets/index-i9ntwkuq.css">
   </head>
   <body class="bg-zinc-50 text-zinc-900 antialiased">
     <div id="app" x-data="appView()" x-init="init()" x-cloak>
@@ -1129,7 +1129,7 @@
                     <h1 class="text-[18px] font-semibold tracking-tight">People</h1>
                     <p class="text-[12px] text-zinc-500">Everyone contributing to the product factory. Click someone to see their initiatives.</p>
                   </div>
-                  <button class="text-[12px] font-semibold bg-lime-400 hover:bg-lime-500 text-zinc-900 px-3 py-1.5 rounded-md flex items-center gap-1.5">
+                  <button @click="openInvite()" class="text-[12px] font-semibold bg-lime-400 hover:bg-lime-500 text-zinc-900 px-3 py-1.5 rounded-md flex items-center gap-1.5">
                     <i data-lucide="user-plus" class="w-3.5 h-3.5"></i>
                     Add person
                   </button>
@@ -2966,6 +2966,62 @@
             </div>
           </div>
 
+          <!-- Invite-a-colleague modal -->
+          <div x-show="inviteOpen" x-transition.opacity class="fixed inset-0 z-50 flex items-center justify-center p-4"
+               @click.self="closeInvite()" @keydown.escape.window="inviteOpen && closeInvite()"
+               style="background:rgba(15,15,17,0.35)" x-cloak>
+            <div x-show="inviteOpen" x-transition
+                 class="w-full max-w-md bg-white rounded-xl border border-zinc-200 shadow-2xl overflow-hidden">
+              <div class="px-5 pt-4 pb-3 border-b border-zinc-100 flex items-start justify-between">
+                <div>
+                  <h2 class="text-[15px] font-semibold tracking-tight">Invite someone</h2>
+                  <p class="text-[12px] text-zinc-500 mt-0.5">They'll get an email to set a password and join.</p>
+                </div>
+                <button @click="closeInvite()" class="p-1 rounded hover:bg-zinc-100 text-zinc-500 flex-none">
+                  <i data-lucide="x" class="w-4 h-4"></i>
+                </button>
+              </div>
+
+              <!-- success state -->
+              <template x-if="inviteDone">
+                <div class="px-5 py-6 flex flex-col items-center text-center gap-2">
+                  <div class="w-10 h-10 rounded-full bg-lime-100 flex items-center justify-center">
+                    <i data-lucide="check" class="w-5 h-5 text-lime-700"></i>
+                  </div>
+                  <p class="text-[13px] text-zinc-800">Invite sent to <span class="font-semibold" x-text="inviteDone"></span></p>
+                  <p class="text-[11.5px] text-zinc-500">They now show as <span class="font-medium">Invited</span> in the list.</p>
+                  <div class="flex gap-2 mt-2">
+                    <button @click="openInvite()" class="text-[12px] font-medium px-3 py-1.5 rounded-md border border-zinc-200 hover:bg-zinc-50">Invite another</button>
+                    <button @click="closeInvite()" class="text-[12px] font-semibold px-3 py-1.5 rounded-md bg-zinc-900 hover:bg-zinc-800 text-white">Done</button>
+                  </div>
+                </div>
+              </template>
+
+              <!-- form state -->
+              <template x-if="!inviteDone">
+                <div class="px-5 py-4">
+                  <label class="block text-[11px] uppercase tracking-wider font-semibold text-zinc-400 mb-1.5">Work email</label>
+                  <input type="email" x-model="inviteEmail" :disabled="inviteBusy"
+                         @keydown.enter="submitInvite()" placeholder="name@saltpay.co"
+                         class="w-full px-3 py-2 text-[13px] rounded-md bg-white border border-zinc-200 focus:outline-none focus:ring-2 focus:ring-lime-300 focus:border-lime-300 placeholder:text-zinc-400"
+                         autofocus />
+                  <p x-show="inviteEmail.trim() && !inviteEmailValid()" class="text-[11.5px] text-amber-600 mt-1.5">
+                    Must be a @saltpay.co or @teya.com address.
+                  </p>
+                  <p x-show="inviteError" x-text="inviteError" class="text-[11.5px] text-red-600 mt-1.5"></p>
+                  <div class="flex justify-end gap-2 mt-4">
+                    <button @click="closeInvite()" class="text-[12px] font-medium px-3 py-1.5 rounded-md border border-zinc-200 hover:bg-zinc-50">Cancel</button>
+                    <button @click="submitInvite()" :disabled="!inviteEmailValid() || inviteBusy"
+                            class="text-[12px] font-semibold px-3 py-1.5 rounded-md bg-lime-400 hover:bg-lime-500 text-zinc-900 disabled:opacity-40 disabled:cursor-not-allowed flex items-center gap-1.5">
+                      <i x-show="!inviteBusy" data-lucide="send" class="w-3.5 h-3.5"></i>
+                      <span x-text="inviteBusy ? 'Sending…' : 'Send invite'"></span>
+                    </button>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
           <!-- LANES cover hover preview (fixed-positioned tooltip) -->
           <template x-if="lanesCoverHover">
             <div class="fixed z-50 pointer-events-none rounded-lg border border-zinc-200 bg-white shadow-2xl overflow-hidden"
@@ -3059,10 +3115,36 @@
                   <!-- body -->
                   <div class="flex-1 min-w-0">
                     <div class="flex items-center gap-2 mb-1">
-                      <span class="text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded"
-                            :class="feedbackStatusMeta(req.status).bg + ' ' + feedbackStatusMeta(req.status).fg"
-                            x-text="feedbackStatusMeta(req.status).label"></span>
-                      <span class="text-[10.5px] text-zinc-400" x-text="req.authorName"></span>
+                      <!-- status: admins get an inline <select> (dynamic-options gotcha:
+                           options come from x-for, so set $el.value on $nextTick); everyone
+                           else sees the read-only badge. -->
+                      <template x-if="feedbackIsAdmin()">
+                        <select x-effect="$nextTick(() => { $el.value = req.status })"
+                                @change.stop="setFeedbackStatus(req.id, $event.target.value)"
+                                @click.stop
+                                class="text-[10px] uppercase tracking-wider font-semibold rounded border border-zinc-200 bg-white px-1 py-0.5 cursor-pointer focus:outline-none focus:ring-1 focus:ring-lime-400">
+                          <template x-for="s in feedbackStatuses()" :key="s">
+                            <option :value="s" x-text="feedbackStatusMeta(s).label"></option>
+                          </template>
+                        </select>
+                      </template>
+                      <template x-if="!feedbackIsAdmin()">
+                        <span class="text-[10px] uppercase tracking-wider font-semibold px-1.5 py-0.5 rounded"
+                              :class="feedbackStatusMeta(req.status).bg + ' ' + feedbackStatusMeta(req.status).fg"
+                              x-text="feedbackStatusMeta(req.status).label"></span>
+                      </template>
+                      <span class="text-[10.5px] text-zinc-400" x-text="feedbackAuthorName(req.authorEmail)"></span>
+                      <!-- author-only edit/delete -->
+                      <div x-show="feedbackCanEdit(req)" class="ml-auto flex items-center gap-1">
+                        <button @click.stop="startFeedbackEdit(req); refreshIcons()" title="Edit"
+                                class="text-zinc-400 hover:text-zinc-900 transition">
+                          <i data-lucide="pencil" class="w-3 h-3"></i>
+                        </button>
+                        <button @click.stop="removeFeedbackRequest(req.id)" title="Delete"
+                                class="text-zinc-400 hover:text-red-600 transition">
+                          <i data-lucide="trash-2" class="w-3 h-3"></i>
+                        </button>
+                      </div>
                     </div>
                     <p class="text-[13px] font-medium text-zinc-900 leading-snug" x-text="req.title"></p>
                     <p x-show="req.body"
